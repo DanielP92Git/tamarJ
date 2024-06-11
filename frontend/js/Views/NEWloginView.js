@@ -71,19 +71,20 @@ class LoginView extends View {
         try {
           let responseData;
           await fetch(`${serverUrl}/login`, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                Accept: "multipart/form-data",
-              "Content-Type": "application/json",
-              //   "X-Custom-Header": "CustomValue",
-            },
-            body: JSON.stringify(userFormData),
+            method: "GET",
+            // credentials: "include",
+            // headers: {
+            //     Accept: "multipart/form-data",
+            //   "Content-Type": "application/json",
+            // "X-Custom-Header": "CustomValue",
+            // },
+            // body: JSON.stringify(userFormData),
           })
             .then((response) => {
               if (!response.ok) {
                 throw new Error("Network response was not ok");
               }
+              console.log("success!");
               response.json();
             })
             .then((data) => (responseData = data))
