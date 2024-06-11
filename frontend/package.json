@@ -1,0 +1,57 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "homepage": ".",
+  "dependencies": {
+    "@emailjs/browser": "^4.3.3",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "body-parser": "^1.20.2",
+    "corejs": "^1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.3",
+    "react-scripts": "^5.0.1",
+    "regenerator-runtime": "^0.14.1",
+    "web-vitals": "^2.1.4"
+  },
+  "overrides": {
+    "nth-check": "2.1.1"
+  },
+  "scripts": {
+    "cleanup": "rm -rf .parcel-cache dist",
+    "dev": "npm run cleanup && parcel ./index.html",
+    "start": "parcel index.html",
+    "build": "parcel build index.html --dist-dir ./dist",
+    "startreact": "react-scripts start",
+    "build:react": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/preset-react": "^7.24.1",
+    "parcel": "^2.12.0",
+    "process": "^0.11.10"
+  }
+}
