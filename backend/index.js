@@ -9,47 +9,34 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 
-app.use(express.json());
-
 let corsOptions = {
   origin: `${process.env.HOST}:${process.env.PORT}`,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
-
 app.use(cors(corsOptions));
-
-// app.use(express.static(path.join(__dirname, "../public_html")));
-
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname, '../public_html', 'index.html'));
-// });
+app.use(express.json());
 
 app.use((req, res, next) => {
-  res.header(
-    "Access-Control-Allow-Origin",
-    `${process.env.HOST}:${process.env.PORT}`
-  ); // or specific origin
+  res.header("Access-Control-Allow-Origin", `${process.env.HOST}`); // or specific origin
   res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, Accept, Content-Type, Authorization"
+  );
   next();
 });
 
 app.get("/api", (req, res) => res.send("API endpoint is running"));
 
-// app.use('/api', createProxyMiddleware({
-//     target: 'https://109.106.244.66',
-//     changeOrigin: true,
-// }));
-
 app.options("*", (req, res) => {
-  res.header(
-    "Access-Control-Allow-Origin",
-    `${process.env.HOST}:${process.env.PORT}`
-  );
+  res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, Content-Type, Authorization"
+  );
   res.header("Access-Control-Allow-Credentials", "true");
   res.sendStatus(200);
 });
@@ -215,45 +202,35 @@ const authUser = async function (req, res, next) {
 };
 
 // Creating endpoint for login
-// app.post("/api/login", authUser, async (req, res) => {
-//   try {
-//     res.header(
-//       "Access-Control-Allow-Origin",
-//       `${process.env.HOST}:${process.env.PORT}`
-//     );
-//     res.header("Access-Control-Allow-Credentials", "true");
-//     res.header(
-//       "Access-Control-Allow-Methods",
-//       "GET, POST, OPTIONS, PUT, DELETE"
-//     );
-//     res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-//     const adminCheck = req.user.userType;
-//     const data = {
-//       user: {
-//         id: req.user.id,
-//         email: req.user.email,
-//       },
-//     };
-//     const token = jwt.sign(data, process.env.JWT_KEY);
+app.post("/api/login", authUser, async (req, res) => {
+  try {
+    res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header(
+      "Access-Control-Allow-Methods",
+      "GET, POST, OPTIONS, PUT, DELETE"
+    );
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    const adminCheck = req.user.userType;
+    const data = {
+      user: {
+        id: req.user.id,
+        email: req.user.email,
+      },
+    };
+    const token = jwt.sign(data, process.env.JWT_KEY);
 
-//     if (token) {
-//       res.json({
-//         success: true,
-//         token,
-//         adminCheck,
-//       });
-//     }
-//   } catch (err) {
-//     console.error("Error🔥 :", err);
-//   }
-// });
-
-app.get("/api/login", (req, res) => res.send("Login endpoint is running!"));
-
-// app.get("/login", (req, res) => {
-//   res.setHeader("Access-Control-Allow-Origin", '"https://tamarjewelry.shop"');
-//   res.send("CORS test response");
-// });
+    if (token) {
+      res.json({
+        success: true,
+        token,
+        adminCheck,
+      });
+    }
+  } catch (err) {
+    console.error("Error🔥 :", err);
+  }
+});
 
 // Creating Endpoint for Registering the User
 app.post("/signup", async (req, res) => {
@@ -411,12 +388,12 @@ app.use("/smallImages", express.static("smallImages"));
 app.post("/upload", multipleUpload, (req, res, err) => {
   let smallFiles = req.files.smallImages;
   let makeUrl = smallFiles.map((file) => {
-    return `${process.env.HOST}:${process.env.SERVER_PORT}/smallImages/${file.filename}`;
+    return `${process.env.HOST}:${process.env.PORT}/smallImages/${file.filename}`;
   });
   res.json({
     success: 1,
     file: req.files,
-    mainImageUrl: `${process.env.HOST}:${process.env.SERVER_PORT}/uploads/${req.files.mainImage[0].filename}`,
+    mainImageUrl: `${process.env.HOST}:${process.env.PORT}/uploads/${req.files.mainImage[0].filename}`,
 
     smallImagesUrl: makeUrl,
   });
@@ -508,9 +485,9 @@ app.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-app.listen(process.env.SERVER_PORT, (error) => {
+app.listen(process.env.PORT, (error) => {
   if (!error) {
-    console.log("Server Running on Port " + process.env.SERVER_PORT);
+    console.log("Server Running on Port " + process.env.PORT);
   } else {
     console.log("Error : " + error);
   }
