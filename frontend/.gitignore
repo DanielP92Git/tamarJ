@@ -27,8 +27,6 @@ yarn-debug.log*
 yarn-error.log*
 node_modules
 
-imgs/website-images/
-
 # Logs
 logs
 *.log
