@@ -44360,7 +44360,7 @@ class LoginView extends (0, _viewJsDefault.default) {
                     console.log(data);
                     if (data.success && data.adminCheck === "admin") {
                         localStorage.setItem("auth-token", data.token);
-                        window.open("../html/bambaYafa.html");
+                        window.open("../../html/bambaYafa.html");
                     }
                     if (data.success && data.adminCheck === "user") {
                         localStorage.setItem("auth-token", data.token);
