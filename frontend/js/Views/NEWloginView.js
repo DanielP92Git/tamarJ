@@ -60,14 +60,14 @@ class LoginView extends View {
 
   loginHandler = function (data) {
     try {
-      const serverUrl = `${process.env.API_URL}`;
-      const port = `${process.env.API_PORT}`;
       const formData = new FormData();
-
+      
       formData.append("email", data.email);
       formData.append("password", data.password);
-
+      
       const login = async function (userFormData) {
+        const serverUrl = `${process.env.API_URL}`;
+        const port = `${process.env.API_PORT}`;
         try {
           let responseData;
           await fetch(`${serverUrl}/login`, {

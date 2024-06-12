@@ -32,8 +32,11 @@ app.use(cors(corsOptions));
 // };
 app.use(express.json());
 
+// Database Connection With MongoDB
+mongoose.connect(`${process.env.MONGO_URL}`);
+
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", `${process.env.HOST}`); // or specific origin
+  res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
   res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   res.header(
     "Access-Control-Allow-Headers",
@@ -55,8 +58,7 @@ app.options("*", (req, res) => {
   res.sendStatus(200);
 });
 
-// Database Connection With MongoDB
-mongoose.connect(`${process.env.MONGO_URL}`);
+
 
 // Schema for Creating Products
 const Product = mongoose.model("Product", {
