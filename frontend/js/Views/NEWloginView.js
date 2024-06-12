@@ -87,18 +87,18 @@ class LoginView extends View {
             console.log("success!");
             response.json();
           })
-          .then((data) => (response = data))
+          .then((data) => (resp = data))
           .catch((err) => console.error("Login Error:", err));
 
-          if (response.success && response.adminCheck === "admin") {
-                localStorage.setItem("auth-token", response.token);
+          if (resp.success && resp.adminCheck === "admin") {
+                localStorage.setItem("auth-token", resp.token);
                 window.open("../html/bambaYafa.html");
               }
-              if (response.success && response.adminCheck === "user") {
-                localStorage.setItem("auth-token", response.token);
+              if (resp.success && resp.adminCheck === "user") {
+                localStorage.setItem("auth-token", resp.token);
                 window.location.replace("../../index.html");
               } else {
-                alert(response.errors);
+                alert(resp.errors);
               }
       };
 
@@ -155,14 +155,14 @@ class LoginView extends View {
           body: JSON.stringify(formData),
         })
           .then((response) => response.json())
-          .then((data) => (response = data))
+          .then((data) => (resp = data))
           .catch((err) => console.error("Signup Error", err));
 
-        if (response.success) {
-          localStorage.setItem("auth-token", response.token);
+        if (resp.success) {
+          localStorage.setItem("auth-token", resp.token);
           window.location.replace("../index.html");
         } else {
-          alert(response.errors);
+          alert(resp.errors);
         }
       };
 
