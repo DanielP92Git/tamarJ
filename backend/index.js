@@ -4,11 +4,12 @@ const path = require("path");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 const mongoose = require("mongoose");
-
 const express = require("express");
 const cors = require("cors");
 const app = express();
+
 const allowedOrigins = process.env.HOST;
+
 const corsOptions = {
   origin: (origin, callback) => {
     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
@@ -21,13 +22,14 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 200,
 };
+
+app.use(cors(corsOptions));
 // let corsOptions = {
-//   origin: `${process.env.HOST}:${process.env.PORT}`,
+//   origin: `${process.env.HOST}:${process.env.CLIENT_PORT}`,
 //   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 //   allowedHeaders: ["Content-Type", "Authorization"],
 //   credentials: true,
 // };
-app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use((req, res, next) => {
@@ -400,12 +402,12 @@ app.use("/smallImages", express.static("smallImages"));
 app.post("/upload", multipleUpload, (req, res, err) => {
   let smallFiles = req.files.smallImages;
   let makeUrl = smallFiles.map((file) => {
-    return `${process.env.HOST}:${process.env.PORT}/smallImages/${file.filename}`;
+    return `${process.env.HOST}:${process.env.CLIENT_PORT}/smallImages/${file.filename}`;
   });
   res.json({
     success: 1,
     file: req.files,
-    mainImageUrl: `${process.env.HOST}:${process.env.PORT}/uploads/${req.files.mainImage[0].filename}`,
+    mainImageUrl: `${process.env.HOST}:${process.env.CLIENT_PORT}/uploads/${req.files.mainImage[0].filename}`,
 
     smallImagesUrl: makeUrl,
   });
@@ -497,9 +499,11 @@ app.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT, (error) => {
+app.listen(process.env.SERVER_CLIENT_PORT, (error) => {
   if (!error) {
-    console.log("Server Running on Port " + process.env.PORT);
+    console.log(
+      "Server Running on CLIENT_Port " + process.env.SERVER_CLIENT_PORT
+    );
   } else {
     console.log("Error : " + error);
   }
