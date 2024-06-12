@@ -44687,7 +44687,7 @@ const loadAddProductsPage = function() {
         Small Images:
         <!--<label htmlFor="file-input">
               <img
-                src="../Admin/src/assets/svgs/plus-solid.svg"
+                src="../../imgs/svgs/plus-solid.svg"
                 class="addproduct-thumbnail-img"
                 alt=""/>
             </label> -->

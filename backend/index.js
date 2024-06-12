@@ -403,12 +403,12 @@ app.use("/smallImages", express.static("smallImages"));
 app.post("/upload", multipleUpload, (req, res, err) => {
   let smallFiles = req.files.smallImages;
   let makeUrl = smallFiles.map((file) => {
-    return `${process.env.HOST}:${process.env.CLIENT_PORT}/smallImages/${file.filename}`;
+    return `${process.env.HOST}:${process.env.SERVER_PORT}/smallImages/${file.filename}`;
   });
   res.json({
     success: 1,
     file: req.files,
-    mainImageUrl: `${process.env.HOST}:${process.env.CLIENT_PORT}/uploads/${req.files.mainImage[0].filename}`,
+    mainImageUrl: `${process.env.HOST}:${process.env.SERVER_PORT}/uploads/${req.files.mainImage[0].filename}`,
 
     smallImagesUrl: makeUrl,
   });
