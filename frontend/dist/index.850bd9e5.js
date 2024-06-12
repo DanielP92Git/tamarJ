@@ -44360,13 +44360,11 @@ class LoginView extends (0, _viewJsDefault.default) {
                     console.log(data);
                     if (data.success && data.adminCheck === "admin") {
                         localStorage.setItem("auth-token", data.token);
-                        console.log(data.adminCheck);
-                    // window.location.replace("../html/bambaYafa.html");
+                        window.open("../html/bambaYafa.html");
                     }
                     if (data.success && data.adminCheck === "user") {
                         localStorage.setItem("auth-token", data.token);
-                        console.log(data.adminCheck);
-                    // window.location.replace("../../index.html");
+                        window.location.replace("../../index.html");
                     } else alert(data.errors);
                 }).catch((err)=>console.error("Login Error:", err));
             };
