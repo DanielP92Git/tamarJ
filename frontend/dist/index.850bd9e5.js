@@ -44363,10 +44363,8 @@ class LoginView extends (0, _viewJsDefault.default) {
                         console.log(data.adminCheck);
                     // window.location.replace("../html/bambaYafa.html");
                     }
-                    if (data.success && data.adminCheck === "user") {
-                        localStorage.setItem("auth-token", data.token);
-                        window.location.replace("../../index.html");
-                    } else alert(data.errors);
+                    if (data.success && data.adminCheck === "user") localStorage.setItem("auth-token", data.token);
+                    else alert(data.errors);
                 }).catch((err)=>console.error("Login Error:", err));
             };
             // const formData = new FormData();
