@@ -4371,7 +4371,7 @@ parcelHelpers.export(exports, "removeFromUserCart", ()=>removeFromUserCart);
 parcelHelpers.export(exports, "deleteAll", ()=>deleteAll);
 require("d4e9feef7fe4f55d").config();
 const cart = [];
-const host = "http://109.106.244.66/api";
+const host = "https://tamarj-api.onrender.com";
 const getAPI = async function() {
     const response = await fetch(`${host}/allproducts`);
     const data = await response.json();
@@ -44174,7 +44174,7 @@ class CartView extends (0, _viewJsDefault.default) {
     _summaryDetails = document.querySelector(".summary-details");
     _checkoutBtn = document.querySelector(".checkout-btn");
     _deleteAllBtn = document.querySelector(".delete-all");
-    _host = "http://109.106.244.66/api";
+    _host = "https://tamarj-api.onrender.com";
     addCartViewHandler(handler) {
         handler();
     }
@@ -44343,7 +44343,7 @@ class LoginView extends (0, _viewJsDefault.default) {
                 password: data.password
             };
             const login = async function(userFormData) {
-                const serverUrl = `${"http://109.106.244.66/api"}`;
+                const serverUrl = `${"https://tamarj-api.onrender.com"}`;
                 let response;
                 await fetch(`${serverUrl}/login`, {
                     method: "POST",
@@ -44361,7 +44361,7 @@ class LoginView extends (0, _viewJsDefault.default) {
                     if (data.success && data.adminCheck === "admin") {
                         localStorage.setItem("auth-token", data.token);
                         console.log(data.adminCheck);
-                        window.location.replace("../html/bambaYafa.html");
+                    // window.location.replace("../html/bambaYafa.html");
                     }
                     if (data.success && data.adminCheck === "user") {
                         localStorage.setItem("auth-token", data.token);
@@ -44407,7 +44407,7 @@ class LoginView extends (0, _viewJsDefault.default) {
             //   }
             // };
             const signup = async function(formData) {
-                const serverUrl = `${"http://109.106.244.66/api"}`;
+                const serverUrl = `${"https://tamarj-api.onrender.com"}`;
                 let response;
                 await fetch(`${serverUrl}/signup`, {
                     method: "POST",
@@ -44480,7 +44480,7 @@ const addProductsBtn = document.querySelector(".sidebar_add-products");
 const productsListBtn = document.querySelector(".sidebar_products-list");
 const sideBar = document.querySelector(".sidebar");
 const pageContent = document.querySelector(".page-content");
-const host = "http://109.106.244.66/api";
+const host = "https://tamarj-api.onrender.com";
 const addBambaViewHandler = async function(handler) {
     // window.addEventListener("load", pageAuth(handler));
     window.addEventListener("load", handler);
