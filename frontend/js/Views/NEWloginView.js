@@ -106,9 +106,9 @@ class LoginView extends View {
       };
 
       const signup = async function (formData) {
-        console.log("Sign Up", formData);
+        const serverUrl = `${process.env.API_URL}`;
         let response;
-        await fetch(`${serverUrl}:${port}/signup`, {
+        await fetch(`${serverUrl}/signup`, {
           method: "POST",
           headers: {
             Accept: "application/form-data",
