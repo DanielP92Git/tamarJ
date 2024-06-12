@@ -69,8 +69,8 @@ class LoginView extends View {
         const serverUrl = `${process.env.API_URL}`;
         const port = `${process.env.API_PORT}`;
         try {
-          let responseData;
-          await fetch(`${serverUrl}:${port}/login`, {
+          let response;
+          await fetch(`${serverUrl}/login`, {
             method: "POST",
             credentials: "include",
             headers: {
@@ -87,18 +87,18 @@ class LoginView extends View {
               console.log("success!");
               response.json();
             })
-            .then((data) => (responseData = data))
+            .then((data) => (response = data))
             .catch((err) => console.error("Error:", err));
 
-          if (responseData.success && responseData.adminCheck === "admin") {
-            localStorage.setItem("auth-token", responseData.token);
+          if (response.success && response.adminCheck === "admin") {
+            localStorage.setItem("auth-token", response.token);
             window.open("../html/bambaYafa.html");
           }
-          if (responseData.success && responseData.adminCheck === "user") {
-            localStorage.setItem("auth-token", responseData.token);
+          if (response.success && response.adminCheck === "user") {
+            localStorage.setItem("auth-token", response.token);
             window.location.replace("../../index.html");
           } else {
-            alert(responseData.errors);
+            alert(response.errors);
           }
         } catch (err) {
           console.error(err);
@@ -107,7 +107,7 @@ class LoginView extends View {
 
       const signup = async function (formData) {
         console.log("Sign Up", formData);
-        let responseData;
+        let response;
         await fetch(`${serverUrl}:${port}/signup`, {
           method: "POST",
           headers: {
@@ -117,13 +117,13 @@ class LoginView extends View {
           body: JSON.stringify(formData),
         })
           .then((response) => response.json())
-          .then((data) => (responseData = data));
+          .then((data) => (response = data));
 
-        if (responseData.success) {
-          localStorage.setItem("auth-token", responseData.token);
+        if (response.success) {
+          localStorage.setItem("auth-token", response.token);
           window.location.replace("../index.html");
         } else {
-          alert(responseData.errors);
+          alert(response.errors);
         }
       };
 
