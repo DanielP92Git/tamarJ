@@ -4,7 +4,6 @@ require("dotenv").config();
 class LoginView extends View {
   _signupHere = document.querySelector(".signup-here");
   _loginHere = document.querySelector(".login-here");
-  // _serverUrl = "https://srv528797.hstgr.cloud";
   addLoginViewHandler(handler) {
     window.addEventListener("load", handler);
   }
@@ -61,28 +60,29 @@ class LoginView extends View {
   loginHandler = function (data) {
     try {
       const formData = new FormData();
-      
+
       formData.append("email", data.email);
       formData.append("password", data.password);
-      
+
       const login = async function (userFormData) {
         const serverUrl = `${process.env.API_URL}`;
         const port = `${process.env.API_PORT}`;
         try {
+          console.log(userFormData);
           let response;
           await fetch(`${serverUrl}/login`, {
             method: "POST",
             credentials: "include",
             headers: {
-                Accept: "multipart/form-data",
+              Accept: "multipart/form-data",
               "Content-Type": "application/json",
-            // "X-Custom-Header": "CustomValue",
+              // "X-Custom-Header": "CustomValue",
             },
             body: JSON.stringify(userFormData),
           })
             .then((response) => {
               if (!response.ok) {
-                throw new Error("Network response was not ok");
+                throw new Error(response.errors);
               }
               console.log("success!");
               response.json();
