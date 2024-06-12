@@ -70,7 +70,7 @@ class LoginView extends View {
         const port = `${process.env.API_PORT}`;
         try {
           let responseData;
-          await fetch(`${serverUrl}/login`, {
+          await fetch(`${serverUrl}:${port}/login`, {
             method: "POST",
             credentials: "include",
             headers: {
