@@ -58,14 +58,15 @@ class LoginView extends View {
   };
 
   loginHandler = function (data) {
-    // try {
+    try {
       const formData = {
         email: data.email,
-        password: data.password
-      }
+        password: data.password,
+      };
       console.log(formData);
 
       const login = async function (userFormData) {
+        console.log(userFormData);
         const serverUrl = `${process.env.API_URL}`;
         const port = `${process.env.API_PORT}`;
         console.log(userFormData);
@@ -75,12 +76,21 @@ class LoginView extends View {
           method: "POST",
           body: JSON.stringify(userFormData),
           headers: {
-            Accept: "application/x-www-form-urlencoded",
             "Content-Type": "application/json",
-            },
+          },
           credentials: "include",
         })
-      }
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(response.errors);
+            }
+            console.log("success!");
+            response.json();
+          })
+          .then((data) => (response = data))
+          .catch((err) => console.error("Login Error:", err));
+      };
+
       // const formData = new FormData();
 
       // formData.append("email", data.email);
@@ -148,9 +158,9 @@ class LoginView extends View {
       const modeCheck =
         document.querySelector(".login-title").textContent == "Login";
       modeCheck ? login(formData) : signup(data);
-    // } catch (err) {
-      // console.error("Login error:", err);
-    // }
+    } catch (err) {
+      console.error("Login error:", err);
+    }
   };
 
   continueLogin() {

@@ -5570,85 +5570,89 @@ class LoginView extends (0, _viewJsDefault.default) {
         modeCheck ? signupFn : loginFn;
     };
     loginHandler = function(data) {
-        // try {
-        const formData = {
-            email: data.email,
-            password: data.password
-        };
-        console.log(formData);
-        const login = async function(userFormData) {
-            const serverUrl = `${"http://109.106.244.66/api"}`;
-            const port = `${"8000"}`;
-            console.log(userFormData);
-            let response;
-            await fetch(`${serverUrl}/login`, {
-                method: "POST",
-                body: JSON.stringify(userFormData),
-                headers: {
-                    Accept: "application/x-www-form-urlencoded",
-                    "Content-Type": "application/json"
-                },
-                credentials: "include"
-            });
-        };
-        // const formData = new FormData();
-        // formData.append("email", data.email);
-        // formData.append("password", data.password);
-        // const login = async function (userFormData) {
-        //   const serverUrl = `${process.env.API_URL}`;
-        //   const port = `${process.env.API_PORT}`;
-        //   console.log(userFormData);
-        //   let response;
-        //   await fetch(`${serverUrl}/login`, {
-        //     method: "POST",
-        //     credentials: "include",
-        //     headers: {
-        //       Accept: "multipart/form-data",
-        //       "Content-Type": "application/json",
-        //     },
-        //     body: JSON.stringify(userFormData),
-        //   })
-        //     .then((response) => {
-        //       if (!response.ok) {
-        //         throw new Error(response.errors);
-        //       }
-        //       console.log("success!");
-        //       response.json();
-        //     })
-        //     .then((data) => (response = data))
-        //     .catch((err) => console.error("Login Error:", err));
-        //   if (response.success && response.adminCheck === "admin") {
-        //     localStorage.setItem("auth-token", response.token);
-        //     window.open("../html/bambaYafa.html");
-        //   }
-        //   if (response.success && response.adminCheck === "user") {
-        //     localStorage.setItem("auth-token", response.token);
-        //     window.location.replace("../../index.html");
-        //   } else {
-        //     alert(response.errors);
-        //   }
-        // };
-        const signup = async function(formData) {
-            const serverUrl = `${"http://109.106.244.66/api"}`;
-            let response;
-            await fetch(`${serverUrl}/signup`, {
-                method: "POST",
-                headers: {
-                    Accept: "application/form-data",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(formData)
-            }).then((response)=>response.json()).then((data)=>response = data).catch((err)=>console.error("Signup Error", err));
-            if (response.success) {
-                localStorage.setItem("auth-token", response.token);
-                window.location.replace("../index.html");
-            } else alert(response.errors);
-        };
-        const modeCheck = document.querySelector(".login-title").textContent == "Login";
-        modeCheck ? login(formData) : signup(data);
-    // } catch (err) {
-    // console.error("Login error:", err);
-    // }
+        try {
+            const formData = {
+                email: data.email,
+                password: data.password
+            };
+            console.log(formData);
+            const login = async function(userFormData) {
+                console.log(userFormData);
+                const serverUrl = `${"http://109.106.244.66/api"}`;
+                const port = `${"8000"}`;
+                console.log(userFormData);
+                let response;
+                await fetch(`${serverUrl}/login`, {
+                    method: "POST",
+                    body: JSON.stringify(userFormData),
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "include"
+                }).then((response)=>{
+                    if (!response.ok) throw new Error(response.errors);
+                    console.log("success!");
+                    response.json();
+                }).then((data)=>response = data).catch((err)=>console.error("Login Error:", err));
+            };
+            // const formData = new FormData();
+            // formData.append("email", data.email);
+            // formData.append("password", data.password);
+            // const login = async function (userFormData) {
+            //   const serverUrl = `${process.env.API_URL}`;
+            //   const port = `${process.env.API_PORT}`;
+            //   console.log(userFormData);
+            //   let response;
+            //   await fetch(`${serverUrl}/login`, {
+            //     method: "POST",
+            //     credentials: "include",
+            //     headers: {
+            //       Accept: "multipart/form-data",
+            //       "Content-Type": "application/json",
+            //     },
+            //     body: JSON.stringify(userFormData),
+            //   })
+            //     .then((response) => {
+            //       if (!response.ok) {
+            //         throw new Error(response.errors);
+            //       }
+            //       console.log("success!");
+            //       response.json();
+            //     })
+            //     .then((data) => (response = data))
+            //     .catch((err) => console.error("Login Error:", err));
+            //   if (response.success && response.adminCheck === "admin") {
+            //     localStorage.setItem("auth-token", response.token);
+            //     window.open("../html/bambaYafa.html");
+            //   }
+            //   if (response.success && response.adminCheck === "user") {
+            //     localStorage.setItem("auth-token", response.token);
+            //     window.location.replace("../../index.html");
+            //   } else {
+            //     alert(response.errors);
+            //   }
+            // };
+            const signup = async function(formData) {
+                const serverUrl = `${"http://109.106.244.66/api"}`;
+                let response;
+                await fetch(`${serverUrl}/signup`, {
+                    method: "POST",
+                    headers: {
+                        Accept: "application/form-data",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(formData)
+                }).then((response)=>response.json()).then((data)=>response = data).catch((err)=>console.error("Signup Error", err));
+                if (response.success) {
+                    localStorage.setItem("auth-token", response.token);
+                    window.location.replace("../index.html");
+                } else alert(response.errors);
+            };
+            const modeCheck = document.querySelector(".login-title").textContent == "Login";
+            modeCheck ? login(formData) : signup(data);
+        } catch (err) {
+            console.error("Login error:", err);
+        }
     };
     continueLogin() {
         const continueBtn = document.querySelector(".continue-button");
