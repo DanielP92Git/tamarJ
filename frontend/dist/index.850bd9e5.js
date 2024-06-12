@@ -5594,6 +5594,14 @@ class LoginView extends (0, _viewJsDefault.default) {
                     console.log("success!");
                     response.json();
                 }).then((data)=>response = data).catch((err)=>console.error("Login Error:", err));
+                if (response.success && response.adminCheck === "admin") {
+                    localStorage.setItem("auth-token", response.token);
+                    window.open("../html/bambaYafa.html");
+                }
+                if (response.success && response.adminCheck === "user") {
+                    localStorage.setItem("auth-token", response.token);
+                    window.location.replace("../../index.html");
+                } else alert(response.errors);
             };
             // const formData = new FormData();
             // formData.append("email", data.email);
