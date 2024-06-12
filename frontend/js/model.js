@@ -1,13 +1,15 @@
+require("dotenv").config();
 export const cart = [];
+const host = process.env.API_URL;
 
 export const getAPI = async function () {
-  const response = await fetch("http://localhost:4000/allproducts");
+  const response = await fetch(`${host}/allproducts`);
   const data = await response.json();
   return data;
 };
 
 const fetchUserCartAPI = async function () {
-  const response = await fetch("http://localhost:4000/getcart", {
+  const response = await fetch(`${host}/getcart`, {
     method: "POST",
     headers: {
       Accept: "application/form-data",
@@ -134,7 +136,7 @@ export const handleAddToCart = function (data) {
 
 export const addToUserStorage = (data) => {
   const itemId = data.dataset.id;
-  fetch("http://localhost:4000/addtocart", {
+  fetch(`${host}/addtocart`, {
     method: "POST",
     headers: {
       Accept: "application/form-data",
@@ -214,7 +216,7 @@ export const removeFromUserCart = async function (itemId) {
   if (localStorage.getItem("auth-token")) {
     const search = cart.findIndex((el) => el.id == itemId);
     cart.splice(search, 1);
-    const response = await fetch("http://localhost:4000/removefromcart", {
+    const response = await fetch(`${host}/removefromcart`, {
       method: "POST",
       headers: {
         Accept: "application/form-data",
@@ -225,7 +227,6 @@ export const removeFromUserCart = async function (itemId) {
     });
     response.json();
   }
-  // console.log(cart);
 };
 
 export const deleteAll = async function () {
@@ -235,7 +236,7 @@ export const deleteAll = async function () {
   }
 
   if (localStorage.getItem("auth-token")) {
-    const response = await fetch("http://localhost:4000/removeAll", {
+    await fetch(`${host}/removeAll`, {
       method: "POST",
       headers: {
         Accept: "application/form-data",

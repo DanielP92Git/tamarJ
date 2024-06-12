@@ -4369,14 +4369,16 @@ parcelHelpers.export(exports, "addToLocalStorage", ()=>addToLocalStorage);
 parcelHelpers.export(exports, "checkCartNumber", ()=>checkCartNumber);
 parcelHelpers.export(exports, "removeFromUserCart", ()=>removeFromUserCart);
 parcelHelpers.export(exports, "deleteAll", ()=>deleteAll);
+require("d4e9feef7fe4f55d").config();
 const cart = [];
+const host = "http://109.106.244.66/api";
 const getAPI = async function() {
-    const response = await fetch("http://localhost:4000/allproducts");
+    const response = await fetch(`${host}/allproducts`);
     const data = await response.json();
     return data;
 };
 const fetchUserCartAPI = async function() {
-    const response = await fetch("http://localhost:4000/getcart", {
+    const response = await fetch(`${host}/getcart`, {
         method: "POST",
         headers: {
             Accept: "application/form-data",
@@ -4471,7 +4473,7 @@ const handleAddToCart = function(data) {
 };
 const addToUserStorage = (data)=>{
     const itemId = data.dataset.id;
-    fetch("http://localhost:4000/addtocart", {
+    fetch(`${host}/addtocart`, {
         method: "POST",
         headers: {
             Accept: "application/form-data",
@@ -4536,7 +4538,7 @@ const removeFromUserCart = async function(itemId) {
     if (localStorage.getItem("auth-token")) {
         const search = cart.findIndex((el)=>el.id == itemId);
         cart.splice(search, 1);
-        const response = await fetch("http://localhost:4000/removefromcart", {
+        const response = await fetch(`${host}/removefromcart`, {
             method: "POST",
             headers: {
                 Accept: "application/form-data",
@@ -4549,27 +4551,24 @@ const removeFromUserCart = async function(itemId) {
         });
         response.json();
     }
-// console.log(cart);
 };
 const deleteAll = async function() {
     if (!localStorage.getItem("auth-token")) {
         cart.length = 0;
         createLocalStorage();
     }
-    if (localStorage.getItem("auth-token")) {
-        const response = await fetch("http://localhost:4000/removeAll", {
-            method: "POST",
-            headers: {
-                Accept: "application/form-data",
-                "auth-token": `${localStorage.getItem("auth-token")}`,
-                "Content-Type": "application/json"
-            },
-            body: ""
-        });
-    }
+    if (localStorage.getItem("auth-token")) await fetch(`${host}/removeAll`, {
+        method: "POST",
+        headers: {
+            Accept: "application/form-data",
+            "auth-token": `${localStorage.getItem("auth-token")}`,
+            "Content-Type": "application/json"
+        },
+        body: ""
+    });
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","d4e9feef7fe4f55d":"lErsX"}],"gkKU3":[function(require,module,exports) {
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
         default: a
@@ -4599,1107 +4598,7 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}],"3ztDS":[function(require,module,exports) {
-// import React, { useEffect, useState, useContext } from "react";
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _viewJs = require("../View.js");
-var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
-var _controllerJs = require("../controller.js");
-// import { createRoot } from "react-dom/client";
-// import all_product from "../../Assets/all_product.js";
-//////////////////////////////////////////////////////////
-/**
- *!This javascript file is for all of the categories pages
- **/ /////////////////////////////////////////////////////////
-class CategoriesView extends (0, _viewJsDefault.default) {
-    _parentElement = document.querySelector(".products-container");
-    _main = document.querySelector(".main");
-    _modal = document.querySelector(".modal");
-    addCategoriesHandler = function(handler) {
-        window.addEventListener("load", handler);
-    };
-    /**
-   * * --Image Flipper--
-   */ _imageFlipper() {
-        const frontImages = document.querySelectorAll(".front-image");
-        const rearImages = document.querySelectorAll(".rear-image");
-        frontImages.forEach((img)=>img.addEventListener("mouseover", function() {
-                img.style.opacity = 0;
-                rearImages.forEach((img)=>img.style.opacity = 1);
-            }));
-        frontImages.forEach((img)=>img.addEventListener("mouseleave", function() {
-                img.style.opacity = 1;
-                rearImages.forEach((img)=>img.style.opacity = 0);
-            }));
-    }
-    //////////////////////////////////////////////////
-    addHandlerAddToCart(handler) {
-        this._parentElement.addEventListener("click", function(e) {
-            const btn = e.target.closest(".add-to-cart-btn");
-            if (!btn) return;
-            const item = btn.closest(".item-container");
-            handler(item);
-        });
-    }
-    //////////////////////////////////////////////////
-    addHandlerPreview(handler, data) {
-        const _openItemModal = function(e) {
-            console.log(data);
-            const clicked = e.target.closest(".item-container");
-            const id = clicked.dataset.id;
-            const filtered = data.find((prod)=>prod.id == id);
-            const addToCart = e.target.closest(".add-to-cart-btn");
-            const smallImage = filtered.smallImages;
-            const imageMarkup = smallImage.map((x)=>`
-        <img class="small-image" src="${x}" alt="">
-      `).join("");
-            if (!clicked) return;
-            if (addToCart) return;
-            // this.generatePreview(clicked, handler, data);
-            this.generatePreview(clicked, filtered, imageMarkup);
-        };
-        this._parentElement.addEventListener("click", _openItemModal.bind(this));
-    }
-    _closeItemModal(e) {
-        const modal = document.querySelector(".modal");
-        if (!e.target) return;
-        modal.innerHTML = "";
-    }
-    generatePreview(data, itemInfo, imgMrk) {
-        const image = data.querySelector(".front-image").src;
-        const title = data.querySelector(".item-title").textContent;
-        const smallImage = itemInfo.smallImages;
-        console.log(smallImage);
-        const id = data.id;
-        const description = data.querySelector(".item-description").innerHTML;
-        let price = data.querySelector(".item-price").textContent.replace("$", "");
-        const markup = `<div class="item-overlay">
-    <div class="modal-item-container">
-      <svg class="close-modal-btn"><use xlink:href="#close-svg"></use></svg>
-      <div class="images-container">
-      <img class="big-image" src="${image}" alt="">
-      
-      <div class="small-images-container">
-      ${imgMrk}
-      </div>
-    </div>
-      <div class="item-specs">
-        <div class="item-title_modal">${title}</div>
-
-        <div class="item-description_modal">${description}
-        </div>
-        <div class="price-text">Price:</div>
-        <div class="item-price_modal">${price}$</div>
-        <button class="add-to-cart-btn_modal">Add to Cart</button>
-      </div>
-    </div>
-  </div>`;
-        this._modal.insertAdjacentHTML("afterbegin", markup);
-        const closeBtn = document.querySelector(".close-modal-btn");
-        const addToCartModal = document.querySelector(".add-to-cart-btn_modal");
-        closeBtn.addEventListener("click", this._closeItemModal.bind(this));
-        addToCartModal.addEventListener("click", function() {
-            (0, _controllerJs.controlAddToCart)(data);
-        });
-    }
-    generateProduct(data) {
-        const checkCategory = document.body.dataset.category;
-        const filtered = data.filter((item)=>item.category === checkCategory);
-        // console.log(filtered);
-        return filtered.map((item)=>`<div class="item-container" data-id="${item.id}">
-       <img class="image-item front-image" src=${item.image} />
-       <img class="image-item rear-image" src=${item.image} />
-       <button class="add-to-cart-btn">Add to Cart</button>
-       <div class="item-title">${item.name}</div>
-      <div class="item-description">
-        ${item.description}
-       </div>
-       <div class="item-price">$${item.new_price}</div>
-     </div>`).join("");
-    }
-    renderProducts(data) {
-        const markup = this.generateProduct(data);
-        this._parentElement.insertAdjacentHTML("afterbegin", markup);
-    }
-}
-exports.default = new CategoriesView();
-
-},{"../View.js":"5OTZN","../controller.js":"1GgH0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5OTZN":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-class View {
-    _data;
-    _goToTop = document.querySelector(".go-to-top");
-    _header = document.querySelector("header");
-    _menu = document.querySelector(".menu");
-    _goToTop = document.querySelector(".go-to-top");
-    _categoriesTab = document.querySelector(".categories-tab");
-    _categoriesList = document.querySelector(".categories-list");
-    _cartNumber = document.querySelector(".cart-number");
-    _cartNewValue = 0;
-    _loginBtn = document.querySelector(".login-btn");
-    /**
-   * * --Categories reveal--
-   */ //////////////////////////////////////////////////
-    revealCategories = function() {
-        const categoriesList = document.querySelector(".categories-list");
-        categoriesList.classList.add("categories-list--active");
-    };
-    hideCategories = function() {
-        const categoriesList = document.querySelector(".categories-list");
-        categoriesList.classList.remove("categories-list--active");
-    };
-    addRevealHandler = function() {
-        const x = window.matchMedia("(min-width: 700px)");
-        if (!x.matches) return;
-        this._categoriesTab.addEventListener("mouseover", this.revealCategories);
-        this._categoriesTab.addEventListener("mouseleave", this.hideCategories);
-    };
-    // Categories reveal END
-    // `````````````````````````````````````````````````````
-    /**
-   * * --Mobile View Categories Reveal--
-   */ mobileCategories(e) {
-        if (e.target.closest(".categories-tab")) this._categoriesList.classList.toggle("reveal");
-    }
-    addMobileHandler() {
-        const x = window.matchMedia("(max-width: 699.99px)");
-        if (!x.matches) return;
-        this._categoriesTab.addEventListener("click", this.mobileCategories.bind(this));
-    }
-    /**
-   * * --Sticky Menu--
-   */ stickyMenuFn = function() {
-        const menu = document.querySelector(".menu");
-        const stickyMenu = function(entries) {
-            const [entry] = entries;
-            console.log(entry);
-            if (!entry.isIntersecting) menu.classList.add("sticky"), menu.classList.remove("hidden");
-            else menu.classList.remove("sticky");
-        };
-        const headerObserver = new IntersectionObserver(stickyMenu, {
-            root: null,
-            threshold: 0
-        });
-        headerObserver.observe(this._header);
-        //Sticky navigation end
-        //////////////////////////////////////////////////
-        /**
-     * * --Reveal Sticky Menu--
-     */ //////////////////////////////////////////////////
-        const hideMenu = function(entries) {
-            const [entry] = entries;
-            if (!entry.isIntersecting) menu.classList.add("hidden"), menu.classList.remove("sticky");
-        };
-        const headerObserverTwo = new IntersectionObserver(hideMenu, {
-            root: null,
-            threshold: 0.2
-        });
-        headerObserverTwo.observe(this._header);
-    };
-    // Reveal end
-    //////////////////////////////////////////////////
-    /**
-   * * --Switch SVG menu button on mobile mode--
-   */ svgHandler() {
-        const menuBars = document.querySelector(".menubars-svg");
-        const categoriesList = document.querySelector(".categories-list");
-        const changeSVG = function() {
-            const parent = document.querySelector(".menubars-toggle");
-            parent.classList.toggle("close");
-            const checkIcon = parent.classList.contains("close");
-            let icon = "-svg";
-            icon = (!checkIcon ? "close" : "menubars") + icon;
-            document.querySelector(".menubars-use").setAttribute("href", `#${icon}`);
-            if (icon !== "close-svg") {
-                if (categoriesList.classList.contains("reveal")) categoriesList.classList.remove("reveal");
-            }
-        };
-        const revealMenu = function() {
-            const menu = document.querySelector(".menu");
-            menu.style.transform = "translateX(200px)";
-        };
-        const hideMenu = function() {
-            const menu = document.querySelector(".menu");
-            menu.style.transform = "translateX(-200px)";
-        };
-        const toggleMenu = function() {
-            const parent = document.querySelector(".menubars-toggle");
-            const checkIcon = parent.classList.contains("close");
-            checkIcon ? hideMenu() : revealMenu();
-        };
-        menuBars.addEventListener("click", ()=>{
-            changeSVG();
-            toggleMenu();
-        });
-    }
-    /**
-   * * --Go To Top--
-   */ //////////////////////////////////////////////////
-    _moveToTopHandler = function() {
-        this._goToTop.addEventListener("click", this.movePageTop.bind(this));
-    };
-    movePageTop = function(e) {
-        this._header.scrollIntoView({
-            behavior: "smooth"
-        });
-    };
-    // Go to top END
-    ////////////////////////////
-    increaseCartNumber() {
-        this._cartNewValue = +this._cartNumber.textContent + 1;
-        this._cartNumber.textContent = this._cartNewValue;
-    }
-    decreaseCartNumber() {
-        this._cartNewValue = +this._cartNumber.textContent - 1;
-        this._cartNumber.textContent = this._cartNewValue;
-    }
-    persistCartNumber(num) {
-        this._cartNumber.textContent = num;
-    }
-    async logInOutHandler(handler) {
-        const checkAuth = await localStorage.getItem("auth-token");
-        if (checkAuth == null) this._loginBtn.textContent = "Login";
-        else {
-            this._loginBtn.textContent = "Logout";
-            this._loginBtn.addEventListener("click", this.logout.bind(this));
-        }
-    }
-    // login() {
-    //   window.location.replace("../html/login.html");
-    // }
-    logout() {
-        localStorage.removeItem("auth-token");
-        window.location.reload();
-        this._loginBtn.textContent = "Login";
-    }
-}
-exports.default = View;
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hz0ID":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _viewJs = require("../View.js");
-var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
-class HomePageView extends (0, _viewJsDefault.default) {
-    // Modal window:
-    _modal = document.querySelector(".modal");
-    _overlay = document.querySelector(".overlay");
-    _modalReveal = document.querySelector(".modal-reveal");
-    // _btnCloseThanks = document.querySelector('.close-thanks');
-    addHomePageHandler = function(handler) {
-        window.addEventListener("load", handler);
-    };
-    _addHandlerOpenModal = async function() {
-        try {
-            const timeoutModal = function(modal, overlay) {
-                setTimeout(()=>{
-                    modal.classList.add("modal-reveal");
-                    modal.style.display = "flex";
-                    overlay.classList.add("overlay-reveal");
-                }, 1000);
-            };
-            await window.addEventListener("load", timeoutModal(this._modal, this._overlay));
-        } catch (err) {
-            console.error(err);
-        }
-    };
-    _addHandlerCloseModal = function() {
-        const btnCloseModal = document.querySelector(".close-modal");
-        btnCloseModal.addEventListener("click", this._closeModal.bind(this));
-    };
-    _closeModal = function() {
-        const modalReveal = document.querySelector(".modal-reveal");
-        modalReveal.style.display = "none";
-        this._modal.style.display = "none";
-        this._overlay.classList.remove("overlay-reveal");
-    };
-    _addHandlerCloseSubscribe = function() {
-        const submitSubscribe = document.querySelector("#submit-subscribe");
-        submitSubscribe.addEventListener("click", this._closeSubscribe.bind(this));
-    };
-    _closeSubscribe = function() {
-        const modalReveal = document.querySelector(".modal-reveal");
-        const thanksHide = document.querySelector(".hide");
-        this._modal.style.display = "none";
-        modalReveal.style.display = "none";
-        thanksHide.classList.remove("hide");
-    };
-    _addHandlerCloseThanks = function() {
-        const btnCloseThanks = document.querySelector(".close-thanks");
-        btnCloseThanks.addEventListener("click", this._closeThanks.bind(this));
-    };
-    _closeThanks = function() {
-        const modalReveal = document.querySelector(".modal-reveal");
-        const thanksMsg = document.querySelector(".thanks");
-        modalReveal.style.display;
-        this._modal.style.display = "none";
-        this._overlay.style.display = "none";
-        thanksMsg.style.display = "none";
-    };
-    // Modal window END
-    //````````````````````````````````````````````````````````
-    // Image Slider
-    _imageSlider() {
-        const images = document.querySelectorAll(".slider-image-item");
-        const sliderBtnRight = document.querySelector(".slider-btn--right");
-        const sliderBtnLeft = document.querySelector(".slider-btn--left");
-        let curSlide = 0;
-        const maxSlide = images.length;
-        const goToImage = function(slide) {
-            images.forEach((img)=>img.style.transform = `translateX(${-100 * slide}%)`);
-        };
-        const nextImage = function() {
-            if (curSlide === maxSlide - 4) curSlide = 0;
-            else curSlide++;
-            goToImage(curSlide);
-        };
-        const prevImage = function() {
-            if (curSlide === 0) curSlide = maxSlide - 4;
-            else curSlide--;
-            goToImage(curSlide);
-        };
-        sliderBtnRight.addEventListener("click", nextImage);
-        sliderBtnLeft.addEventListener("click", prevImage);
-    }
-    // Image slider END
-    // ````````````````````````````````````````````````````````````
-    // _checkId = function () {
-    //   const bodyCheck = document.body.id.includes('home');
-    //   const btnCloseModal = document.querySelector('.close-modal');
-    //   if (!bodyCheck) return;
-    //   btnCloseThanks.addEventListener('click', closeThanks);
-    //   overlay.addEventListener('click', closeModal);
-    //   goToTop.addEventListener('click', movePageTop);
-    //   openModal();
-    // };
-    // renderDashboardTab(){
-    //   const markup = `<li class="main-nav-tab login" id="login-tab">
-    //   <a class="attrib login-btn" href="./html/bambaYafa.html">Dashboard</a>
-    // </li>`
-    // const setEl = document.querySelector('.login')
-    // setEl.insertAdjacentHTML('afterbegin', markup)
-    // }
-    continueLogin() {
-        const continueBtn = document.querySelector(".continue-button");
-        continueBtn.addEventListener("click", (e)=>{
-            const userEmail = document.getElementById("email-input").value;
-            const userPassword = document.getElementById("password-input").value;
-            const data = {
-                email: userEmail,
-                password: userPassword
-            };
-            this.loginHandler(data);
-        });
-    }
-}
-exports.default = new HomePageView();
-
-},{"../View.js":"5OTZN","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"djodn":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _viewJs = require("../View.js");
-var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
-class WorkshopView extends (0, _viewJsDefault.default) {
-    addWorkshopHandler(handler) {
-        window.addEventListener("load", handler);
-    }
-    /**
-  * * --Workshop page images slider--
-  */ _imageSlider() {
-        const images = document.querySelectorAll(".workshop-image");
-        let curImg = 0;
-        const maxImages = images.length;
-        const goToImage = function(slide) {
-            images.forEach((img)=>img.style.transform = `translateX(${-100 * slide}%)`);
-            setTimeout(()=>{
-                nextImage();
-            }, 3000);
-        };
-        const nextImage = function() {
-            if (curImg === maxImages - 1) curImg = 0;
-            else curImg++;
-            goToImage(curImg);
-        };
-        const timeOut = function() {
-            setTimeout(()=>{
-                goToImage();
-            }, 1000);
-        };
-        timeOut();
-    }
-}
-exports.default = new WorkshopView();
-
-},{"../View.js":"5OTZN","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"iMdpN":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _viewJs = require("../View.js");
-var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
-class AboutView extends (0, _viewJsDefault.default) {
-    addAboutHandler(handler) {
-        window.addEventListener("load", handler);
-    }
-}
-exports.default = new AboutView();
-
-},{"../View.js":"5OTZN","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kCcNT":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _browser = require("@emailjs/browser");
-var _browserDefault = parcelHelpers.interopDefault(_browser);
-var _viewJs = require("../View.js");
-var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
-class ContactMeView extends (0, _viewJsDefault.default) {
-    _submitBtn = document.getElementById("submit");
-    addContactMeHandler(handler) {
-        window.addEventListener("load", handler);
-    }
-    async sendEmail() {
-        const params = {
-            name: document.getElementById("name").value,
-            lastname: document.getElementById("lastname").value,
-            email: document.getElementById("email").value,
-            message: document.getElementById("message").value
-        };
-        try {
-            await (0, _browserDefault.default).send("service_t4qcx4j", "template_kwezl8a", params, {
-                publicKey: "dyz9UzngEOQUHFgv3"
-            });
-            document.getElementById("name").value = "", document.getElementById("lastname").value = "", document.getElementById("email").value = "", document.getElementById("message").value = "", alert("Message Sent Successfully!");
-        } catch (err) {
-            if (err instanceof (0, _browser.EmailJSResponseStatus)) {
-                console.log("EMAILJS FAILED...", err);
-                return;
-            }
-            console.log("ERROR", err);
-        }
-    }
-    sendHandler() {
-        this._submitBtn.addEventListener("click", this.sendEmail);
-    }
-}
-exports.default = new ContactMeView();
-
-},{"@emailjs/browser":"kbSqr","../View.js":"5OTZN","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kbSqr":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "init", ()=>(0, _init.init));
-parcelHelpers.export(exports, "send", ()=>(0, _send.send));
-parcelHelpers.export(exports, "sendForm", ()=>(0, _sendForm.sendForm));
-parcelHelpers.export(exports, "EmailJSResponseStatus", ()=>(0, _emailJSResponseStatus.EmailJSResponseStatus));
-var _emailJSResponseStatus = require("./models/EmailJSResponseStatus");
-var _init = require("./methods/init/init");
-var _send = require("./methods/send/send");
-var _sendForm = require("./methods/sendForm/sendForm");
-exports.default = {
-    init: (0, _init.init),
-    send: (0, _send.send),
-    sendForm: (0, _sendForm.sendForm),
-    EmailJSResponseStatus: (0, _emailJSResponseStatus.EmailJSResponseStatus)
-};
-
-},{"./models/EmailJSResponseStatus":"oZ06T","./methods/init/init":"lqGq1","./methods/send/send":"m7CoX","./methods/sendForm/sendForm":"a1Cpe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"oZ06T":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "EmailJSResponseStatus", ()=>EmailJSResponseStatus);
-class EmailJSResponseStatus {
-    constructor(_status = 0, _text = "Network Error"){
-        this.status = _status;
-        this.text = _text;
-    }
-}
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lqGq1":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "init", ()=>init);
-var _store = require("../../store/store");
-var _buildOptions = require("../../utils/buildOptions/buildOptions");
-const init = (options, origin = "https://api.emailjs.com")=>{
-    if (!options) return;
-    const opts = (0, _buildOptions.buildOptions)(options);
-    (0, _store.store).publicKey = opts.publicKey;
-    (0, _store.store).blockHeadless = opts.blockHeadless;
-    (0, _store.store).storageProvider = opts.storageProvider;
-    (0, _store.store).blockList = opts.blockList;
-    (0, _store.store).limitRate = opts.limitRate;
-    (0, _store.store).origin = opts.origin || origin;
-};
-
-},{"../../store/store":"3eehJ","../../utils/buildOptions/buildOptions":"4eXBo","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3eehJ":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "store", ()=>store);
-var _createWebStorage = require("../utils/createWebStorage/createWebStorage");
-const store = {
-    origin: "https://api.emailjs.com",
-    blockHeadless: false,
-    storageProvider: (0, _createWebStorage.createWebStorage)()
-};
-
-},{"../utils/createWebStorage/createWebStorage":"jt24v","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jt24v":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "createWebStorage", ()=>createWebStorage);
-const createWebStorage = ()=>{
-    if (typeof localStorage === "undefined") return;
-    return {
-        get: (key)=>Promise.resolve(localStorage.getItem(key)),
-        set: (key, value)=>Promise.resolve(localStorage.setItem(key, value)),
-        remove: (key)=>Promise.resolve(localStorage.removeItem(key))
-    };
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4eXBo":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "buildOptions", ()=>buildOptions);
-const buildOptions = (options)=>{
-    if (!options) return {};
-    // support compatibility with SDK v3
-    if (typeof options === "string") return {
-        publicKey: options
-    };
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string
-    if (options.toString() === "[object Object]") return options;
-    return {};
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"m7CoX":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "send", ()=>send);
-var _store = require("../../store/store");
-var _sendPost = require("../../api/sendPost");
-var _buildOptions = require("../../utils/buildOptions/buildOptions");
-var _validateParams = require("../../utils/validateParams/validateParams");
-var _validateTemplateParams = require("../../utils/validateTemplateParams/validateTemplateParams");
-var _isHeadless = require("../../utils/isHeadless/isHeadless");
-var _headlessError = require("../../errors/headlessError/headlessError");
-var _isBlockedValueInParams = require("../../utils/isBlockedValueInParams/isBlockedValueInParams");
-var _blockedEmailError = require("../../errors/blockedEmailError/blockedEmailError");
-var _isLimitRateHit = require("../../utils/isLimitRateHit/isLimitRateHit");
-var _limitRateError = require("../../errors/limitRateError/limitRateError");
-const send = async (serviceID, templateID, templateParams, options)=>{
-    const opts = (0, _buildOptions.buildOptions)(options);
-    const publicKey = opts.publicKey || (0, _store.store).publicKey;
-    const blockHeadless = opts.blockHeadless || (0, _store.store).blockHeadless;
-    const storageProvider = (0, _store.store).storageProvider || opts.storageProvider;
-    const blockList = {
-        ...(0, _store.store).blockList,
-        ...opts.blockList
-    };
-    const limitRate = {
-        ...(0, _store.store).limitRate,
-        ...opts.limitRate
-    };
-    if (blockHeadless && (0, _isHeadless.isHeadless)(navigator)) return Promise.reject((0, _headlessError.headlessError)());
-    (0, _validateParams.validateParams)(publicKey, serviceID, templateID);
-    (0, _validateTemplateParams.validateTemplateParams)(templateParams);
-    if (templateParams && (0, _isBlockedValueInParams.isBlockedValueInParams)(blockList, templateParams)) return Promise.reject((0, _blockedEmailError.blockedEmailError)());
-    if (await (0, _isLimitRateHit.isLimitRateHit)(location.pathname, limitRate, storageProvider)) return Promise.reject((0, _limitRateError.limitRateError)());
-    const params = {
-        lib_version: "4.3.3",
-        user_id: publicKey,
-        service_id: serviceID,
-        template_id: templateID,
-        template_params: templateParams
-    };
-    return (0, _sendPost.sendPost)("/api/v1.0/email/send", JSON.stringify(params), {
-        "Content-type": "application/json"
-    });
-};
-
-},{"../../store/store":"3eehJ","../../api/sendPost":"3pmzm","../../utils/buildOptions/buildOptions":"4eXBo","../../utils/validateParams/validateParams":"iiuvO","../../utils/validateTemplateParams/validateTemplateParams":"5fzBp","../../utils/isHeadless/isHeadless":"gRPJ4","../../errors/headlessError/headlessError":"cvzAa","../../utils/isBlockedValueInParams/isBlockedValueInParams":"2NbMP","../../errors/blockedEmailError/blockedEmailError":"jfpsi","../../utils/isLimitRateHit/isLimitRateHit":"1a6fm","../../errors/limitRateError/limitRateError":"2tHS0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3pmzm":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "sendPost", ()=>sendPost);
-var _emailJSResponseStatus = require("../models/EmailJSResponseStatus");
-var _store = require("../store/store");
-const sendPost = async (url, data, headers = {})=>{
-    const response = await fetch((0, _store.store).origin + url, {
-        method: "POST",
-        headers,
-        body: data
-    });
-    const message = await response.text();
-    const responseStatus = new (0, _emailJSResponseStatus.EmailJSResponseStatus)(response.status, message);
-    if (response.ok) return responseStatus;
-    throw responseStatus;
-};
-
-},{"../models/EmailJSResponseStatus":"oZ06T","../store/store":"3eehJ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"iiuvO":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "validateParams", ()=>validateParams);
-const validateParams = (publicKey, serviceID, templateID)=>{
-    if (!publicKey || typeof publicKey !== "string") throw "The public key is required. Visit https://dashboard.emailjs.com/admin/account";
-    if (!serviceID || typeof serviceID !== "string") throw "The service ID is required. Visit https://dashboard.emailjs.com/admin";
-    if (!templateID || typeof templateID !== "string") throw "The template ID is required. Visit https://dashboard.emailjs.com/admin/templates";
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5fzBp":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "validateTemplateParams", ()=>validateTemplateParams);
-const validateTemplateParams = (templateParams)=>{
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string
-    if (templateParams && templateParams.toString() !== "[object Object]") throw "The template params have to be the object. Visit https://www.emailjs.com/docs/sdk/send/";
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gRPJ4":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "isHeadless", ()=>isHeadless);
-const isHeadless = (navigator)=>{
-    return navigator.webdriver || !navigator.languages || navigator.languages.length === 0;
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cvzAa":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "headlessError", ()=>headlessError);
-var _emailJSResponseStatus = require("../../models/EmailJSResponseStatus");
-const headlessError = ()=>{
-    return new (0, _emailJSResponseStatus.EmailJSResponseStatus)(451, "Unavailable For Headless Browser");
-};
-
-},{"../../models/EmailJSResponseStatus":"oZ06T","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2NbMP":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "isBlockedValueInParams", ()=>isBlockedValueInParams);
-var _validateBlockListParams = require("../validateBlockListParams/validateBlockListParams");
-const isBlockListDisabled = (options)=>{
-    return !options.list?.length || !options.watchVariable;
-};
-const getValue = (data, name)=>{
-    return data instanceof FormData ? data.get(name) : data[name];
-};
-const isBlockedValueInParams = (options, params)=>{
-    if (isBlockListDisabled(options)) return false;
-    (0, _validateBlockListParams.validateBlockListParams)(options.list, options.watchVariable);
-    const value = getValue(params, options.watchVariable);
-    if (typeof value !== "string") return false;
-    return options.list.includes(value);
-};
-
-},{"../validateBlockListParams/validateBlockListParams":"gLzPj","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gLzPj":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "validateBlockListParams", ()=>validateBlockListParams);
-const validateBlockListParams = (list, watchVariable)=>{
-    if (!Array.isArray(list)) throw "The BlockList list has to be an array";
-    if (typeof watchVariable !== "string") throw "The BlockList watchVariable has to be a string";
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jfpsi":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "blockedEmailError", ()=>blockedEmailError);
-var _emailJSResponseStatus = require("../../models/EmailJSResponseStatus");
-const blockedEmailError = ()=>{
-    return new (0, _emailJSResponseStatus.EmailJSResponseStatus)(403, "Forbidden");
-};
-
-},{"../../models/EmailJSResponseStatus":"oZ06T","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"1a6fm":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "isLimitRateHit", ()=>isLimitRateHit);
-var _validateLimitRateParams = require("../validateLimitRateParams/validateLimitRateParams");
-const getLeftTime = async (id, throttle, storage)=>{
-    const lastTime = Number(await storage.get(id) || 0);
-    return throttle - Date.now() + lastTime;
-};
-const isLimitRateHit = async (defaultID, options, storage)=>{
-    if (!options.throttle || !storage) return false;
-    (0, _validateLimitRateParams.validateLimitRateParams)(options.throttle, options.id);
-    const id = options.id || defaultID;
-    const leftTime = await getLeftTime(id, options.throttle, storage);
-    if (leftTime > 0) return true;
-    await storage.set(id, Date.now().toString());
-    return false;
-};
-
-},{"../validateLimitRateParams/validateLimitRateParams":"6r7mT","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6r7mT":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "validateLimitRateParams", ()=>validateLimitRateParams);
-const validateLimitRateParams = (throttle, id)=>{
-    if (typeof throttle !== "number" || throttle < 0) throw "The LimitRate throttle has to be a positive number";
-    if (id && typeof id !== "string") throw "The LimitRate ID has to be a string";
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2tHS0":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "limitRateError", ()=>limitRateError);
-var _emailJSResponseStatus = require("../../models/EmailJSResponseStatus");
-const limitRateError = ()=>{
-    return new (0, _emailJSResponseStatus.EmailJSResponseStatus)(429, "Too Many Requests");
-};
-
-},{"../../models/EmailJSResponseStatus":"oZ06T","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"a1Cpe":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "sendForm", ()=>sendForm);
-var _store = require("../../store/store");
-var _sendPost = require("../../api/sendPost");
-var _buildOptions = require("../../utils/buildOptions/buildOptions");
-var _validateForm = require("../../utils/validateForm/validateForm");
-var _validateParams = require("../../utils/validateParams/validateParams");
-var _isHeadless = require("../../utils/isHeadless/isHeadless");
-var _headlessError = require("../../errors/headlessError/headlessError");
-var _isBlockedValueInParams = require("../../utils/isBlockedValueInParams/isBlockedValueInParams");
-var _blockedEmailError = require("../../errors/blockedEmailError/blockedEmailError");
-var _isLimitRateHit = require("../../utils/isLimitRateHit/isLimitRateHit");
-var _limitRateError = require("../../errors/limitRateError/limitRateError");
-const findHTMLForm = (form)=>{
-    return typeof form === "string" ? document.querySelector(form) : form;
-};
-const sendForm = async (serviceID, templateID, form, options)=>{
-    const opts = (0, _buildOptions.buildOptions)(options);
-    const publicKey = opts.publicKey || (0, _store.store).publicKey;
-    const blockHeadless = opts.blockHeadless || (0, _store.store).blockHeadless;
-    const storageProvider = (0, _store.store).storageProvider || opts.storageProvider;
-    const blockList = {
-        ...(0, _store.store).blockList,
-        ...opts.blockList
-    };
-    const limitRate = {
-        ...(0, _store.store).limitRate,
-        ...opts.limitRate
-    };
-    if (blockHeadless && (0, _isHeadless.isHeadless)(navigator)) return Promise.reject((0, _headlessError.headlessError)());
-    const currentForm = findHTMLForm(form);
-    (0, _validateParams.validateParams)(publicKey, serviceID, templateID);
-    (0, _validateForm.validateForm)(currentForm);
-    const formData = new FormData(currentForm);
-    if ((0, _isBlockedValueInParams.isBlockedValueInParams)(blockList, formData)) return Promise.reject((0, _blockedEmailError.blockedEmailError)());
-    if (await (0, _isLimitRateHit.isLimitRateHit)(location.pathname, limitRate, storageProvider)) return Promise.reject((0, _limitRateError.limitRateError)());
-    formData.append("lib_version", "4.3.3");
-    formData.append("service_id", serviceID);
-    formData.append("template_id", templateID);
-    formData.append("user_id", publicKey);
-    return (0, _sendPost.sendPost)("/api/v1.0/email/send-form", formData);
-};
-
-},{"../../store/store":"3eehJ","../../api/sendPost":"3pmzm","../../utils/buildOptions/buildOptions":"4eXBo","../../utils/validateForm/validateForm":"8cmNG","../../utils/validateParams/validateParams":"iiuvO","../../utils/isHeadless/isHeadless":"gRPJ4","../../errors/headlessError/headlessError":"cvzAa","../../utils/isBlockedValueInParams/isBlockedValueInParams":"2NbMP","../../errors/blockedEmailError/blockedEmailError":"jfpsi","../../utils/isLimitRateHit/isLimitRateHit":"1a6fm","../../errors/limitRateError/limitRateError":"2tHS0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8cmNG":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "validateForm", ()=>validateForm);
-const validateForm = (form)=>{
-    if (!form || form.nodeName !== "FORM") throw "The 3rd parameter is expected to be the HTML form element or the style selector of the form";
-};
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"no4ZX":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _viewJs = require("../View.js");
-var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
-var _modelJs = require("../model.js");
-class CartView extends (0, _viewJsDefault.default) {
-    _parentElement = document.querySelector(".cart-items-container");
-    _cartEmpty = document.querySelector(".cart-empty");
-    _cartTitle = document.querySelector(".cart-title");
-    _summaryTitle = document.querySelector(".summary-title");
-    _itemsBox = document.querySelector(".added-items");
-    _summaryDetails = document.querySelector(".summary-details");
-    _checkoutBtn = document.querySelector(".checkout-btn");
-    _deleteAllBtn = document.querySelector(".delete-all");
-    addCartViewHandler(handler) {
-        handler();
-    }
-    _addHandlerDelete(handler) {
-        this._parentElement.addEventListener("click", function(e) {
-            const btn = e.target.closest(".delete-item");
-            if (!btn) return;
-            const idNum = btn.closest(".cart-item");
-            handler(idNum.id);
-        });
-    }
-    _addHandlerDeleteAll(handler) {
-        this._parentElement.addEventListener("click", function(e) {
-            const btn = e.target.closest(".delete-all");
-            if (!btn) return;
-            handler();
-        });
-    }
-    _addHandlerCheckout(data) {
-        this._checkoutBtn.addEventListener("click", ()=>{
-            fetch("http://localhost:4000/create-checkout-session", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    items: [
-                        ...data
-                    ]
-                })
-            }).then((res)=>{
-                if (res.ok) return res.json();
-                return res.json().then((json)=>Promise.reject(json));
-            }).then(({ url })=>{
-                window.location = url;
-            }).catch((e)=>{
-                console.error(e.error);
-            });
-        });
-    }
-    _generateMarkup(cartNum) {
-        if (cartNum !== 0) {
-            this._cartEmpty.classList.add("remove");
-            this._deleteAllBtn.classList.add("delete-all-active");
-            return _modelJs.cart.map((x)=>`     
-          <div class="cart-item" id="${x.id}">
-            <img src='${x.image}' class="item-img" alt="" />
-            <div class="item-title">${x.title}</div>
-            <div class="item-description">${x.description}</div>
-            <div class="item-price">${x.price}$</div>
-            <div class="delete-item">X</div>
-            </div>`).join("");
-        }
-    }
-    _generateSummaryMarkup(cartNum, num, ship = 10) {
-        if (cartNum === 0) return;
-        return `
-    <div class="price-summary-container">
-          <div class="total-container subtotal">
-            <span class="total-text">Subtotal:</span>
-            <span class="total-price">${num}$</span>
-          </div>
-          <div class="total-container shipping">
-            <span class="total-text">Shipping:</span>
-            <span class="total-price">${ship}$</span>
-          </div>
-          <div class="total-container total">
-            <span class="total-text">Total:</span>
-            <span class="total-price">${num + ship}$</span>
-          </div>
-        </div>`;
-    }
-    render(cartNum) {
-        const markup = this._generateMarkup(cartNum);
-        this._itemsBox.insertAdjacentHTML("beforeend", markup);
-    }
-    _renderSummary(cartNum) {
-        if (cartNum !== 0) {
-            this._summaryDetails.innerHTML = "";
-            const num = this._calculateTotal();
-            const markup = this._generateSummaryMarkup(cartNum, num);
-            this._summaryDetails.insertAdjacentHTML("afterbegin", markup);
-        }
-        if (cartNum === 0) {
-            this._summaryDetails.innerHTML = "";
-            this._checkoutBtn.classList.add("remove");
-        }
-    }
-    _removeItem(cartNum) {
-        console.log(cartNum);
-        if (cartNum !== 0) {
-            this._itemsBox.innerHTML = "";
-            this.render(cartNum);
-        }
-        if (cartNum === 0) {
-            this._itemsBox.innerHTML = "";
-            this._cartEmpty.classList.remove("remove");
-            this._deleteAllBtn.classList.remove("delete-all-active");
-        }
-    }
-    _removeAll() {
-        this._itemsBox.innerHTML = "";
-        this._cartEmpty.classList.remove("remove");
-        this._deleteAllBtn.classList.remove("delete-all-active");
-    }
-    _clear() {
-        this._parentElement.innerHTML = "";
-    }
-    _calculateTotal() {
-        if (_modelJs.checkCartNumber() === 0) return;
-        const num = _modelJs.cart.map((x)=>+x.price).reduce((x, y)=>x + y, 0);
-        return Number(num.toFixed(2));
-    }
-}
-exports.default = new CartView();
-
-},{"../View.js":"5OTZN","../model.js":"Py0LO","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"9Yiq5":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _viewJs = require("../View.js");
-var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
-require("ea587ce4610a696c").config();
-class LoginView extends (0, _viewJsDefault.default) {
-    _signupHere = document.querySelector(".signup-here");
-    _loginHere = document.querySelector(".login-here");
-    addLoginViewHandler(handler) {
-        window.addEventListener("load", handler);
-    }
-    generateSignup() {
-        const loginBtn = document.querySelector(".loginsignup-login");
-        const signupBtn = document.querySelector(".loginsignup-signup");
-        // const modeSwitch = document.querySelector(".switch-mode");
-        loginBtn.classList.toggle("hide");
-        signupBtn.classList.toggle("hide");
-        const loginTitle = document.querySelector(".login-title");
-        loginTitle.textContent = "Signup";
-        const markup = `
-    <input name="username" type="text" placeholder="Your Name" id="username-input"/>
-    `;
-        const logFields = document.querySelector(".loginsignup-fields");
-        logFields.insertAdjacentHTML("afterbegin", markup);
-    }
-    generateLogin() {
-        const loginBtn = document.querySelector(".loginsignup-login");
-        const signupBtn = document.querySelector(".loginsignup-signup");
-        loginBtn.classList.toggle("hide");
-        signupBtn.classList.toggle("hide");
-        const logFields = document.querySelector(".loginsignup-fields");
-        logFields.innerHTML = "";
-        const loginTitle = document.querySelector(".login-title");
-        loginTitle.textContent = "Login";
-        const markup = `<input name="email" type="email" placeholder="Email Address" />
-    <input name="password" type="password" placeholder="Password" />`;
-        logFields.insertAdjacentHTML("afterbegin", markup);
-    }
-    changeMode = function() {
-        const modeCheck = document.querySelector(".login-title").textContent == "Login";
-        const signupFn = this._signupHere.addEventListener("click", this.generateSignup);
-        const loginFn = this._loginHere.addEventListener("click", this.generateLogin);
-        modeCheck ? signupFn : loginFn;
-    };
-    loginHandler = function(data) {
-        try {
-            const formData = {
-                email: data.email,
-                password: data.password
-            };
-            const login = async function(userFormData) {
-                const serverUrl = `${"http://109.106.244.66/api"}`;
-                let response;
-                await fetch(`${serverUrl}/login`, {
-                    method: "POST",
-                    body: JSON.stringify(userFormData),
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    credentials: "include"
-                }).then((response)=>{
-                    if (!response.ok) throw new Error(response.errors);
-                    console.log("success!");
-                    return response.json();
-                }).then((data)=>{
-                    console.log(data);
-                    if (data.success && data.adminCheck === "admin") {
-                        localStorage.setItem("auth-token", data.token);
-                        window.open("../html/bambaYafa.html");
-                    }
-                    if (data.success && data.adminCheck === "user") {
-                        localStorage.setItem("auth-token", data.token);
-                        window.location.replace("../../index.html");
-                    } else alert(data.errors);
-                }).catch((err)=>console.error("Login Error:", err));
-            };
-            // const formData = new FormData();
-            // formData.append("email", data.email);
-            // formData.append("password", data.password);
-            // const login = async function (userFormData) {
-            //   const serverUrl = `${process.env.API_URL}`;
-            //   const port = `${process.env.API_PORT}`;
-            //   console.log(userFormData);
-            //   let response;
-            //   await fetch(`${serverUrl}/login`, {
-            //     method: "POST",
-            //     credentials: "include",
-            //     headers: {
-            //       Accept: "multipart/form-data",
-            //       "Content-Type": "application/json",
-            //     },
-            //     body: JSON.stringify(userFormData),
-            //   })
-            //     .then((response) => {
-            //       if (!response.ok) {
-            //         throw new Error(response.errors);
-            //       }
-            //       console.log("success!");
-            //       response.json();
-            //     })
-            //     .then((data) => (response = data))
-            //     .catch((err) => console.error("Login Error:", err));
-            //   if (response.success && response.adminCheck === "admin") {
-            //     localStorage.setItem("auth-token", response.token);
-            //     window.open("../html/bambaYafa.html");
-            //   }
-            //   if (response.success && response.adminCheck === "user") {
-            //     localStorage.setItem("auth-token", response.token);
-            //     window.location.replace("../../index.html");
-            //   } else {
-            //     alert(response.errors);
-            //   }
-            // };
-            const signup = async function(formData) {
-                const serverUrl = `${"http://109.106.244.66/api"}`;
-                let response;
-                await fetch(`${serverUrl}/signup`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(formData),
-                    credentials: "include"
-                }).then((response)=>{
-                    return response.json();
-                }).then((data)=>{
-                    const resp = data;
-                    if (resp.success) {
-                        localStorage.setItem("auth-token", resp.token);
-                        window.location.replace("../index.html");
-                    } else alert(resp.errors);
-                }).catch((err)=>console.error("Signup Error", err));
-            };
-            const modeCheck = document.querySelector(".login-title").textContent == "Login";
-            modeCheck ? login(formData) : signup(data);
-        } catch (err) {
-            console.error("Login error:", err);
-        }
-    };
-    continueLogin() {
-        const continueBtn = document.querySelector(".continue-button");
-        continueBtn.addEventListener("click", (event)=>{
-            event.preventDefault();
-            const userEmail = document.getElementById("email-input").value;
-            const userPassword = document.getElementById("password-input").value;
-            const data = {
-                email: userEmail,
-                password: userPassword
-            };
-            if (userEmail == "" || userPassword == "") alert("Please enter a valid email or password");
-            this.loginHandler(data);
-        });
-    }
-    continueSignup() {
-        const continueBtn = document.querySelector(".continue-button");
-        continueBtn.addEventListener("click", (e)=>{
-            const userUsername = document.getElementById("username-input").value;
-            const userEmail = document.getElementById("email-input").value;
-            const userPassword = document.getElementById("password-input").value;
-            const data = {
-                username: userUsername,
-                email: userEmail,
-                password: userPassword
-            };
-            this.loginHandler(data);
-        });
-    }
-    continueHandler = function() {
-        const modeCheck = document.querySelector(".login-title").textContent == "Login";
-        modeCheck ? this.continueLogin() : this.continueSignup();
-    };
-}
-exports.default = new LoginView();
-
-},{"../View.js":"5OTZN","ea587ce4610a696c":"lErsX","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lErsX":[function(require,module,exports) {
+},{}],"lErsX":[function(require,module,exports) {
 var process = require("a81606b34c5d81aa");
 var Buffer = require("41bceb7eaaabbe41").Buffer;
 const fs = require("3cedb41afbfb34c8");
@@ -44465,15 +43364,1119 @@ function randomFillSync(buf, offset, size) {
 },{"e52c82591caff1d7":"d5jf4","954d667c0302f12c":"eW7r9","7041a0e993c249ef":"8hjhE"}],"4QvE8":[function(require,module,exports) {
 module.exports = JSON.parse('{"name":"dotenv","version":"16.4.5","description":"Loads environment variables from .env file","main":"lib/main.js","types":"lib/main.d.ts","exports":{".":{"types":"./lib/main.d.ts","require":"./lib/main.js","default":"./lib/main.js"},"./config":"./config.js","./config.js":"./config.js","./lib/env-options":"./lib/env-options.js","./lib/env-options.js":"./lib/env-options.js","./lib/cli-options":"./lib/cli-options.js","./lib/cli-options.js":"./lib/cli-options.js","./package.json":"./package.json"},"scripts":{"dts-check":"tsc --project tests/types/tsconfig.json","lint":"standard","lint-readme":"standard-markdown","pretest":"npm run lint && npm run dts-check","test":"tap tests/*.js --100 -Rspec","test:coverage":"tap --coverage-report=lcov","prerelease":"npm test","release":"standard-version"},"repository":{"type":"git","url":"git://github.com/motdotla/dotenv.git"},"funding":"https://dotenvx.com","keywords":["dotenv","env",".env","environment","variables","config","settings"],"readmeFilename":"README.md","license":"BSD-2-Clause","devDependencies":{"@definitelytyped/dtslint":"^0.0.133","@types/node":"^18.11.3","decache":"^4.6.1","sinon":"^14.0.1","standard":"^17.0.0","standard-markdown":"^7.1.0","standard-version":"^9.5.0","tap":"^16.3.0","tar":"^6.1.11","typescript":"^4.8.4"},"engines":{"node":">=12"},"browser":{"fs":false}}');
 
-},{}],"Ln7oG":[function(require,module,exports) {
+},{}],"3ztDS":[function(require,module,exports) {
+// import React, { useEffect, useState, useContext } from "react";
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _viewJs = require("../View.js");
+var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
+var _controllerJs = require("../controller.js");
+// import { createRoot } from "react-dom/client";
+// import all_product from "../../Assets/all_product.js";
+//////////////////////////////////////////////////////////
+/**
+ *!This javascript file is for all of the categories pages
+ **/ /////////////////////////////////////////////////////////
+class CategoriesView extends (0, _viewJsDefault.default) {
+    _parentElement = document.querySelector(".products-container");
+    _main = document.querySelector(".main");
+    _modal = document.querySelector(".modal");
+    addCategoriesHandler = function(handler) {
+        window.addEventListener("load", handler);
+    };
+    /**
+   * * --Image Flipper--
+   */ _imageFlipper() {
+        const frontImages = document.querySelectorAll(".front-image");
+        const rearImages = document.querySelectorAll(".rear-image");
+        frontImages.forEach((img)=>img.addEventListener("mouseover", function() {
+                img.style.opacity = 0;
+                rearImages.forEach((img)=>img.style.opacity = 1);
+            }));
+        frontImages.forEach((img)=>img.addEventListener("mouseleave", function() {
+                img.style.opacity = 1;
+                rearImages.forEach((img)=>img.style.opacity = 0);
+            }));
+    }
+    //////////////////////////////////////////////////
+    addHandlerAddToCart(handler) {
+        this._parentElement.addEventListener("click", function(e) {
+            const btn = e.target.closest(".add-to-cart-btn");
+            if (!btn) return;
+            const item = btn.closest(".item-container");
+            handler(item);
+        });
+    }
+    //////////////////////////////////////////////////
+    addHandlerPreview(handler, data) {
+        const _openItemModal = function(e) {
+            console.log(data);
+            const clicked = e.target.closest(".item-container");
+            const id = clicked.dataset.id;
+            const filtered = data.find((prod)=>prod.id == id);
+            const addToCart = e.target.closest(".add-to-cart-btn");
+            const smallImage = filtered.smallImages;
+            const imageMarkup = smallImage.map((x)=>`
+        <img class="small-image" src="${x}" alt="">
+      `).join("");
+            if (!clicked) return;
+            if (addToCart) return;
+            // this.generatePreview(clicked, handler, data);
+            this.generatePreview(clicked, filtered, imageMarkup);
+        };
+        this._parentElement.addEventListener("click", _openItemModal.bind(this));
+    }
+    _closeItemModal(e) {
+        const modal = document.querySelector(".modal");
+        if (!e.target) return;
+        modal.innerHTML = "";
+    }
+    generatePreview(data, itemInfo, imgMrk) {
+        const image = data.querySelector(".front-image").src;
+        const title = data.querySelector(".item-title").textContent;
+        const smallImage = itemInfo.smallImages;
+        console.log(smallImage);
+        const id = data.id;
+        const description = data.querySelector(".item-description").innerHTML;
+        let price = data.querySelector(".item-price").textContent.replace("$", "");
+        const markup = `<div class="item-overlay">
+    <div class="modal-item-container">
+      <svg class="close-modal-btn"><use xlink:href="#close-svg"></use></svg>
+      <div class="images-container">
+      <img class="big-image" src="${image}" alt="">
+      
+      <div class="small-images-container">
+      ${imgMrk}
+      </div>
+    </div>
+      <div class="item-specs">
+        <div class="item-title_modal">${title}</div>
+
+        <div class="item-description_modal">${description}
+        </div>
+        <div class="price-text">Price:</div>
+        <div class="item-price_modal">${price}$</div>
+        <button class="add-to-cart-btn_modal">Add to Cart</button>
+      </div>
+    </div>
+  </div>`;
+        this._modal.insertAdjacentHTML("afterbegin", markup);
+        const closeBtn = document.querySelector(".close-modal-btn");
+        const addToCartModal = document.querySelector(".add-to-cart-btn_modal");
+        closeBtn.addEventListener("click", this._closeItemModal.bind(this));
+        addToCartModal.addEventListener("click", function() {
+            (0, _controllerJs.controlAddToCart)(data);
+        });
+    }
+    generateProduct(data) {
+        const checkCategory = document.body.dataset.category;
+        const filtered = data.filter((item)=>item.category === checkCategory);
+        // console.log(filtered);
+        return filtered.map((item)=>`<div class="item-container" data-id="${item.id}">
+       <img class="image-item front-image" src=${item.image} />
+       <img class="image-item rear-image" src=${item.image} />
+       <button class="add-to-cart-btn">Add to Cart</button>
+       <div class="item-title">${item.name}</div>
+      <div class="item-description">
+        ${item.description}
+       </div>
+       <div class="item-price">$${item.new_price}</div>
+     </div>`).join("");
+    }
+    renderProducts(data) {
+        const markup = this.generateProduct(data);
+        this._parentElement.insertAdjacentHTML("afterbegin", markup);
+    }
+}
+exports.default = new CategoriesView();
+
+},{"../View.js":"5OTZN","../controller.js":"1GgH0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5OTZN":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+class View {
+    _data;
+    _goToTop = document.querySelector(".go-to-top");
+    _header = document.querySelector("header");
+    _menu = document.querySelector(".menu");
+    _goToTop = document.querySelector(".go-to-top");
+    _categoriesTab = document.querySelector(".categories-tab");
+    _categoriesList = document.querySelector(".categories-list");
+    _cartNumber = document.querySelector(".cart-number");
+    _cartNewValue = 0;
+    _loginBtn = document.querySelector(".login-btn");
+    /**
+   * * --Categories reveal--
+   */ //////////////////////////////////////////////////
+    revealCategories = function() {
+        const categoriesList = document.querySelector(".categories-list");
+        categoriesList.classList.add("categories-list--active");
+    };
+    hideCategories = function() {
+        const categoriesList = document.querySelector(".categories-list");
+        categoriesList.classList.remove("categories-list--active");
+    };
+    addRevealHandler = function() {
+        const x = window.matchMedia("(min-width: 700px)");
+        if (!x.matches) return;
+        this._categoriesTab.addEventListener("mouseover", this.revealCategories);
+        this._categoriesTab.addEventListener("mouseleave", this.hideCategories);
+    };
+    // Categories reveal END
+    // `````````````````````````````````````````````````````
+    /**
+   * * --Mobile View Categories Reveal--
+   */ mobileCategories(e) {
+        if (e.target.closest(".categories-tab")) this._categoriesList.classList.toggle("reveal");
+    }
+    addMobileHandler() {
+        const x = window.matchMedia("(max-width: 699.99px)");
+        if (!x.matches) return;
+        this._categoriesTab.addEventListener("click", this.mobileCategories.bind(this));
+    }
+    /**
+   * * --Sticky Menu--
+   */ stickyMenuFn = function() {
+        const menu = document.querySelector(".menu");
+        const stickyMenu = function(entries) {
+            const [entry] = entries;
+            console.log(entry);
+            if (!entry.isIntersecting) menu.classList.add("sticky"), menu.classList.remove("hidden");
+            else menu.classList.remove("sticky");
+        };
+        const headerObserver = new IntersectionObserver(stickyMenu, {
+            root: null,
+            threshold: 0
+        });
+        headerObserver.observe(this._header);
+        //Sticky navigation end
+        //////////////////////////////////////////////////
+        /**
+     * * --Reveal Sticky Menu--
+     */ //////////////////////////////////////////////////
+        const hideMenu = function(entries) {
+            const [entry] = entries;
+            if (!entry.isIntersecting) menu.classList.add("hidden"), menu.classList.remove("sticky");
+        };
+        const headerObserverTwo = new IntersectionObserver(hideMenu, {
+            root: null,
+            threshold: 0.2
+        });
+        headerObserverTwo.observe(this._header);
+    };
+    // Reveal end
+    //////////////////////////////////////////////////
+    /**
+   * * --Switch SVG menu button on mobile mode--
+   */ svgHandler() {
+        const menuBars = document.querySelector(".menubars-svg");
+        const categoriesList = document.querySelector(".categories-list");
+        const changeSVG = function() {
+            const parent = document.querySelector(".menubars-toggle");
+            parent.classList.toggle("close");
+            const checkIcon = parent.classList.contains("close");
+            let icon = "-svg";
+            icon = (!checkIcon ? "close" : "menubars") + icon;
+            document.querySelector(".menubars-use").setAttribute("href", `#${icon}`);
+            if (icon !== "close-svg") {
+                if (categoriesList.classList.contains("reveal")) categoriesList.classList.remove("reveal");
+            }
+        };
+        const revealMenu = function() {
+            const menu = document.querySelector(".menu");
+            menu.style.transform = "translateX(200px)";
+        };
+        const hideMenu = function() {
+            const menu = document.querySelector(".menu");
+            menu.style.transform = "translateX(-200px)";
+        };
+        const toggleMenu = function() {
+            const parent = document.querySelector(".menubars-toggle");
+            const checkIcon = parent.classList.contains("close");
+            checkIcon ? hideMenu() : revealMenu();
+        };
+        menuBars.addEventListener("click", ()=>{
+            changeSVG();
+            toggleMenu();
+        });
+    }
+    /**
+   * * --Go To Top--
+   */ //////////////////////////////////////////////////
+    _moveToTopHandler = function() {
+        this._goToTop.addEventListener("click", this.movePageTop.bind(this));
+    };
+    movePageTop = function(e) {
+        this._header.scrollIntoView({
+            behavior: "smooth"
+        });
+    };
+    // Go to top END
+    ////////////////////////////
+    increaseCartNumber() {
+        this._cartNewValue = +this._cartNumber.textContent + 1;
+        this._cartNumber.textContent = this._cartNewValue;
+    }
+    decreaseCartNumber() {
+        this._cartNewValue = +this._cartNumber.textContent - 1;
+        this._cartNumber.textContent = this._cartNewValue;
+    }
+    persistCartNumber(num) {
+        this._cartNumber.textContent = num;
+    }
+    async logInOutHandler(handler) {
+        const checkAuth = await localStorage.getItem("auth-token");
+        if (checkAuth == null) this._loginBtn.textContent = "Login";
+        else {
+            this._loginBtn.textContent = "Logout";
+            this._loginBtn.addEventListener("click", this.logout.bind(this));
+        }
+    }
+    // login() {
+    //   window.location.replace("../html/login.html");
+    // }
+    logout() {
+        localStorage.removeItem("auth-token");
+        window.location.reload();
+        this._loginBtn.textContent = "Login";
+    }
+}
+exports.default = View;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hz0ID":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _viewJs = require("../View.js");
+var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
+class HomePageView extends (0, _viewJsDefault.default) {
+    // Modal window:
+    _modal = document.querySelector(".modal");
+    _overlay = document.querySelector(".overlay");
+    _modalReveal = document.querySelector(".modal-reveal");
+    // _btnCloseThanks = document.querySelector('.close-thanks');
+    addHomePageHandler = function(handler) {
+        window.addEventListener("load", handler);
+    };
+    _addHandlerOpenModal = async function() {
+        try {
+            const timeoutModal = function(modal, overlay) {
+                setTimeout(()=>{
+                    modal.classList.add("modal-reveal");
+                    modal.style.display = "flex";
+                    overlay.classList.add("overlay-reveal");
+                }, 1000);
+            };
+            await window.addEventListener("load", timeoutModal(this._modal, this._overlay));
+        } catch (err) {
+            console.error(err);
+        }
+    };
+    _addHandlerCloseModal = function() {
+        const btnCloseModal = document.querySelector(".close-modal");
+        btnCloseModal.addEventListener("click", this._closeModal.bind(this));
+    };
+    _closeModal = function() {
+        const modalReveal = document.querySelector(".modal-reveal");
+        modalReveal.style.display = "none";
+        this._modal.style.display = "none";
+        this._overlay.classList.remove("overlay-reveal");
+    };
+    _addHandlerCloseSubscribe = function() {
+        const submitSubscribe = document.querySelector("#submit-subscribe");
+        submitSubscribe.addEventListener("click", this._closeSubscribe.bind(this));
+    };
+    _closeSubscribe = function() {
+        const modalReveal = document.querySelector(".modal-reveal");
+        const thanksHide = document.querySelector(".hide");
+        this._modal.style.display = "none";
+        modalReveal.style.display = "none";
+        thanksHide.classList.remove("hide");
+    };
+    _addHandlerCloseThanks = function() {
+        const btnCloseThanks = document.querySelector(".close-thanks");
+        btnCloseThanks.addEventListener("click", this._closeThanks.bind(this));
+    };
+    _closeThanks = function() {
+        const modalReveal = document.querySelector(".modal-reveal");
+        const thanksMsg = document.querySelector(".thanks");
+        modalReveal.style.display;
+        this._modal.style.display = "none";
+        this._overlay.style.display = "none";
+        thanksMsg.style.display = "none";
+    };
+    // Modal window END
+    //````````````````````````````````````````````````````````
+    // Image Slider
+    _imageSlider() {
+        const images = document.querySelectorAll(".slider-image-item");
+        const sliderBtnRight = document.querySelector(".slider-btn--right");
+        const sliderBtnLeft = document.querySelector(".slider-btn--left");
+        let curSlide = 0;
+        const maxSlide = images.length;
+        const goToImage = function(slide) {
+            images.forEach((img)=>img.style.transform = `translateX(${-100 * slide}%)`);
+        };
+        const nextImage = function() {
+            if (curSlide === maxSlide - 4) curSlide = 0;
+            else curSlide++;
+            goToImage(curSlide);
+        };
+        const prevImage = function() {
+            if (curSlide === 0) curSlide = maxSlide - 4;
+            else curSlide--;
+            goToImage(curSlide);
+        };
+        sliderBtnRight.addEventListener("click", nextImage);
+        sliderBtnLeft.addEventListener("click", prevImage);
+    }
+    // Image slider END
+    // ````````````````````````````````````````````````````````````
+    // _checkId = function () {
+    //   const bodyCheck = document.body.id.includes('home');
+    //   const btnCloseModal = document.querySelector('.close-modal');
+    //   if (!bodyCheck) return;
+    //   btnCloseThanks.addEventListener('click', closeThanks);
+    //   overlay.addEventListener('click', closeModal);
+    //   goToTop.addEventListener('click', movePageTop);
+    //   openModal();
+    // };
+    // renderDashboardTab(){
+    //   const markup = `<li class="main-nav-tab login" id="login-tab">
+    //   <a class="attrib login-btn" href="./html/bambaYafa.html">Dashboard</a>
+    // </li>`
+    // const setEl = document.querySelector('.login')
+    // setEl.insertAdjacentHTML('afterbegin', markup)
+    // }
+    continueLogin() {
+        const continueBtn = document.querySelector(".continue-button");
+        continueBtn.addEventListener("click", (e)=>{
+            const userEmail = document.getElementById("email-input").value;
+            const userPassword = document.getElementById("password-input").value;
+            const data = {
+                email: userEmail,
+                password: userPassword
+            };
+            this.loginHandler(data);
+        });
+    }
+}
+exports.default = new HomePageView();
+
+},{"../View.js":"5OTZN","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"djodn":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _viewJs = require("../View.js");
+var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
+class WorkshopView extends (0, _viewJsDefault.default) {
+    addWorkshopHandler(handler) {
+        window.addEventListener("load", handler);
+    }
+    /**
+  * * --Workshop page images slider--
+  */ _imageSlider() {
+        const images = document.querySelectorAll(".workshop-image");
+        let curImg = 0;
+        const maxImages = images.length;
+        const goToImage = function(slide) {
+            images.forEach((img)=>img.style.transform = `translateX(${-100 * slide}%)`);
+            setTimeout(()=>{
+                nextImage();
+            }, 3000);
+        };
+        const nextImage = function() {
+            if (curImg === maxImages - 1) curImg = 0;
+            else curImg++;
+            goToImage(curImg);
+        };
+        const timeOut = function() {
+            setTimeout(()=>{
+                goToImage();
+            }, 1000);
+        };
+        timeOut();
+    }
+}
+exports.default = new WorkshopView();
+
+},{"../View.js":"5OTZN","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"iMdpN":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _viewJs = require("../View.js");
+var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
+class AboutView extends (0, _viewJsDefault.default) {
+    addAboutHandler(handler) {
+        window.addEventListener("load", handler);
+    }
+}
+exports.default = new AboutView();
+
+},{"../View.js":"5OTZN","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kCcNT":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _browser = require("@emailjs/browser");
+var _browserDefault = parcelHelpers.interopDefault(_browser);
+var _viewJs = require("../View.js");
+var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
+class ContactMeView extends (0, _viewJsDefault.default) {
+    _submitBtn = document.getElementById("submit");
+    addContactMeHandler(handler) {
+        window.addEventListener("load", handler);
+    }
+    async sendEmail() {
+        const params = {
+            name: document.getElementById("name").value,
+            lastname: document.getElementById("lastname").value,
+            email: document.getElementById("email").value,
+            message: document.getElementById("message").value
+        };
+        try {
+            await (0, _browserDefault.default).send("service_t4qcx4j", "template_kwezl8a", params, {
+                publicKey: "dyz9UzngEOQUHFgv3"
+            });
+            document.getElementById("name").value = "", document.getElementById("lastname").value = "", document.getElementById("email").value = "", document.getElementById("message").value = "", alert("Message Sent Successfully!");
+        } catch (err) {
+            if (err instanceof (0, _browser.EmailJSResponseStatus)) {
+                console.log("EMAILJS FAILED...", err);
+                return;
+            }
+            console.log("ERROR", err);
+        }
+    }
+    sendHandler() {
+        this._submitBtn.addEventListener("click", this.sendEmail);
+    }
+}
+exports.default = new ContactMeView();
+
+},{"@emailjs/browser":"kbSqr","../View.js":"5OTZN","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kbSqr":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "init", ()=>(0, _init.init));
+parcelHelpers.export(exports, "send", ()=>(0, _send.send));
+parcelHelpers.export(exports, "sendForm", ()=>(0, _sendForm.sendForm));
+parcelHelpers.export(exports, "EmailJSResponseStatus", ()=>(0, _emailJSResponseStatus.EmailJSResponseStatus));
+var _emailJSResponseStatus = require("./models/EmailJSResponseStatus");
+var _init = require("./methods/init/init");
+var _send = require("./methods/send/send");
+var _sendForm = require("./methods/sendForm/sendForm");
+exports.default = {
+    init: (0, _init.init),
+    send: (0, _send.send),
+    sendForm: (0, _sendForm.sendForm),
+    EmailJSResponseStatus: (0, _emailJSResponseStatus.EmailJSResponseStatus)
+};
+
+},{"./models/EmailJSResponseStatus":"oZ06T","./methods/init/init":"lqGq1","./methods/send/send":"m7CoX","./methods/sendForm/sendForm":"a1Cpe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"oZ06T":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "EmailJSResponseStatus", ()=>EmailJSResponseStatus);
+class EmailJSResponseStatus {
+    constructor(_status = 0, _text = "Network Error"){
+        this.status = _status;
+        this.text = _text;
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lqGq1":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "init", ()=>init);
+var _store = require("../../store/store");
+var _buildOptions = require("../../utils/buildOptions/buildOptions");
+const init = (options, origin = "https://api.emailjs.com")=>{
+    if (!options) return;
+    const opts = (0, _buildOptions.buildOptions)(options);
+    (0, _store.store).publicKey = opts.publicKey;
+    (0, _store.store).blockHeadless = opts.blockHeadless;
+    (0, _store.store).storageProvider = opts.storageProvider;
+    (0, _store.store).blockList = opts.blockList;
+    (0, _store.store).limitRate = opts.limitRate;
+    (0, _store.store).origin = opts.origin || origin;
+};
+
+},{"../../store/store":"3eehJ","../../utils/buildOptions/buildOptions":"4eXBo","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3eehJ":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "store", ()=>store);
+var _createWebStorage = require("../utils/createWebStorage/createWebStorage");
+const store = {
+    origin: "https://api.emailjs.com",
+    blockHeadless: false,
+    storageProvider: (0, _createWebStorage.createWebStorage)()
+};
+
+},{"../utils/createWebStorage/createWebStorage":"jt24v","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jt24v":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "createWebStorage", ()=>createWebStorage);
+const createWebStorage = ()=>{
+    if (typeof localStorage === "undefined") return;
+    return {
+        get: (key)=>Promise.resolve(localStorage.getItem(key)),
+        set: (key, value)=>Promise.resolve(localStorage.setItem(key, value)),
+        remove: (key)=>Promise.resolve(localStorage.removeItem(key))
+    };
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"4eXBo":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "buildOptions", ()=>buildOptions);
+const buildOptions = (options)=>{
+    if (!options) return {};
+    // support compatibility with SDK v3
+    if (typeof options === "string") return {
+        publicKey: options
+    };
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
+    if (options.toString() === "[object Object]") return options;
+    return {};
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"m7CoX":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "send", ()=>send);
+var _store = require("../../store/store");
+var _sendPost = require("../../api/sendPost");
+var _buildOptions = require("../../utils/buildOptions/buildOptions");
+var _validateParams = require("../../utils/validateParams/validateParams");
+var _validateTemplateParams = require("../../utils/validateTemplateParams/validateTemplateParams");
+var _isHeadless = require("../../utils/isHeadless/isHeadless");
+var _headlessError = require("../../errors/headlessError/headlessError");
+var _isBlockedValueInParams = require("../../utils/isBlockedValueInParams/isBlockedValueInParams");
+var _blockedEmailError = require("../../errors/blockedEmailError/blockedEmailError");
+var _isLimitRateHit = require("../../utils/isLimitRateHit/isLimitRateHit");
+var _limitRateError = require("../../errors/limitRateError/limitRateError");
+const send = async (serviceID, templateID, templateParams, options)=>{
+    const opts = (0, _buildOptions.buildOptions)(options);
+    const publicKey = opts.publicKey || (0, _store.store).publicKey;
+    const blockHeadless = opts.blockHeadless || (0, _store.store).blockHeadless;
+    const storageProvider = (0, _store.store).storageProvider || opts.storageProvider;
+    const blockList = {
+        ...(0, _store.store).blockList,
+        ...opts.blockList
+    };
+    const limitRate = {
+        ...(0, _store.store).limitRate,
+        ...opts.limitRate
+    };
+    if (blockHeadless && (0, _isHeadless.isHeadless)(navigator)) return Promise.reject((0, _headlessError.headlessError)());
+    (0, _validateParams.validateParams)(publicKey, serviceID, templateID);
+    (0, _validateTemplateParams.validateTemplateParams)(templateParams);
+    if (templateParams && (0, _isBlockedValueInParams.isBlockedValueInParams)(blockList, templateParams)) return Promise.reject((0, _blockedEmailError.blockedEmailError)());
+    if (await (0, _isLimitRateHit.isLimitRateHit)(location.pathname, limitRate, storageProvider)) return Promise.reject((0, _limitRateError.limitRateError)());
+    const params = {
+        lib_version: "4.3.3",
+        user_id: publicKey,
+        service_id: serviceID,
+        template_id: templateID,
+        template_params: templateParams
+    };
+    return (0, _sendPost.sendPost)("/api/v1.0/email/send", JSON.stringify(params), {
+        "Content-type": "application/json"
+    });
+};
+
+},{"../../store/store":"3eehJ","../../api/sendPost":"3pmzm","../../utils/buildOptions/buildOptions":"4eXBo","../../utils/validateParams/validateParams":"iiuvO","../../utils/validateTemplateParams/validateTemplateParams":"5fzBp","../../utils/isHeadless/isHeadless":"gRPJ4","../../errors/headlessError/headlessError":"cvzAa","../../utils/isBlockedValueInParams/isBlockedValueInParams":"2NbMP","../../errors/blockedEmailError/blockedEmailError":"jfpsi","../../utils/isLimitRateHit/isLimitRateHit":"1a6fm","../../errors/limitRateError/limitRateError":"2tHS0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3pmzm":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "sendPost", ()=>sendPost);
+var _emailJSResponseStatus = require("../models/EmailJSResponseStatus");
+var _store = require("../store/store");
+const sendPost = async (url, data, headers = {})=>{
+    const response = await fetch((0, _store.store).origin + url, {
+        method: "POST",
+        headers,
+        body: data
+    });
+    const message = await response.text();
+    const responseStatus = new (0, _emailJSResponseStatus.EmailJSResponseStatus)(response.status, message);
+    if (response.ok) return responseStatus;
+    throw responseStatus;
+};
+
+},{"../models/EmailJSResponseStatus":"oZ06T","../store/store":"3eehJ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"iiuvO":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "validateParams", ()=>validateParams);
+const validateParams = (publicKey, serviceID, templateID)=>{
+    if (!publicKey || typeof publicKey !== "string") throw "The public key is required. Visit https://dashboard.emailjs.com/admin/account";
+    if (!serviceID || typeof serviceID !== "string") throw "The service ID is required. Visit https://dashboard.emailjs.com/admin";
+    if (!templateID || typeof templateID !== "string") throw "The template ID is required. Visit https://dashboard.emailjs.com/admin/templates";
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5fzBp":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "validateTemplateParams", ()=>validateTemplateParams);
+const validateTemplateParams = (templateParams)=>{
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
+    if (templateParams && templateParams.toString() !== "[object Object]") throw "The template params have to be the object. Visit https://www.emailjs.com/docs/sdk/send/";
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gRPJ4":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "isHeadless", ()=>isHeadless);
+const isHeadless = (navigator)=>{
+    return navigator.webdriver || !navigator.languages || navigator.languages.length === 0;
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cvzAa":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "headlessError", ()=>headlessError);
+var _emailJSResponseStatus = require("../../models/EmailJSResponseStatus");
+const headlessError = ()=>{
+    return new (0, _emailJSResponseStatus.EmailJSResponseStatus)(451, "Unavailable For Headless Browser");
+};
+
+},{"../../models/EmailJSResponseStatus":"oZ06T","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2NbMP":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "isBlockedValueInParams", ()=>isBlockedValueInParams);
+var _validateBlockListParams = require("../validateBlockListParams/validateBlockListParams");
+const isBlockListDisabled = (options)=>{
+    return !options.list?.length || !options.watchVariable;
+};
+const getValue = (data, name)=>{
+    return data instanceof FormData ? data.get(name) : data[name];
+};
+const isBlockedValueInParams = (options, params)=>{
+    if (isBlockListDisabled(options)) return false;
+    (0, _validateBlockListParams.validateBlockListParams)(options.list, options.watchVariable);
+    const value = getValue(params, options.watchVariable);
+    if (typeof value !== "string") return false;
+    return options.list.includes(value);
+};
+
+},{"../validateBlockListParams/validateBlockListParams":"gLzPj","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gLzPj":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "validateBlockListParams", ()=>validateBlockListParams);
+const validateBlockListParams = (list, watchVariable)=>{
+    if (!Array.isArray(list)) throw "The BlockList list has to be an array";
+    if (typeof watchVariable !== "string") throw "The BlockList watchVariable has to be a string";
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"jfpsi":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "blockedEmailError", ()=>blockedEmailError);
+var _emailJSResponseStatus = require("../../models/EmailJSResponseStatus");
+const blockedEmailError = ()=>{
+    return new (0, _emailJSResponseStatus.EmailJSResponseStatus)(403, "Forbidden");
+};
+
+},{"../../models/EmailJSResponseStatus":"oZ06T","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"1a6fm":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "isLimitRateHit", ()=>isLimitRateHit);
+var _validateLimitRateParams = require("../validateLimitRateParams/validateLimitRateParams");
+const getLeftTime = async (id, throttle, storage)=>{
+    const lastTime = Number(await storage.get(id) || 0);
+    return throttle - Date.now() + lastTime;
+};
+const isLimitRateHit = async (defaultID, options, storage)=>{
+    if (!options.throttle || !storage) return false;
+    (0, _validateLimitRateParams.validateLimitRateParams)(options.throttle, options.id);
+    const id = options.id || defaultID;
+    const leftTime = await getLeftTime(id, options.throttle, storage);
+    if (leftTime > 0) return true;
+    await storage.set(id, Date.now().toString());
+    return false;
+};
+
+},{"../validateLimitRateParams/validateLimitRateParams":"6r7mT","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6r7mT":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "validateLimitRateParams", ()=>validateLimitRateParams);
+const validateLimitRateParams = (throttle, id)=>{
+    if (typeof throttle !== "number" || throttle < 0) throw "The LimitRate throttle has to be a positive number";
+    if (id && typeof id !== "string") throw "The LimitRate ID has to be a string";
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"2tHS0":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "limitRateError", ()=>limitRateError);
+var _emailJSResponseStatus = require("../../models/EmailJSResponseStatus");
+const limitRateError = ()=>{
+    return new (0, _emailJSResponseStatus.EmailJSResponseStatus)(429, "Too Many Requests");
+};
+
+},{"../../models/EmailJSResponseStatus":"oZ06T","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"a1Cpe":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "sendForm", ()=>sendForm);
+var _store = require("../../store/store");
+var _sendPost = require("../../api/sendPost");
+var _buildOptions = require("../../utils/buildOptions/buildOptions");
+var _validateForm = require("../../utils/validateForm/validateForm");
+var _validateParams = require("../../utils/validateParams/validateParams");
+var _isHeadless = require("../../utils/isHeadless/isHeadless");
+var _headlessError = require("../../errors/headlessError/headlessError");
+var _isBlockedValueInParams = require("../../utils/isBlockedValueInParams/isBlockedValueInParams");
+var _blockedEmailError = require("../../errors/blockedEmailError/blockedEmailError");
+var _isLimitRateHit = require("../../utils/isLimitRateHit/isLimitRateHit");
+var _limitRateError = require("../../errors/limitRateError/limitRateError");
+const findHTMLForm = (form)=>{
+    return typeof form === "string" ? document.querySelector(form) : form;
+};
+const sendForm = async (serviceID, templateID, form, options)=>{
+    const opts = (0, _buildOptions.buildOptions)(options);
+    const publicKey = opts.publicKey || (0, _store.store).publicKey;
+    const blockHeadless = opts.blockHeadless || (0, _store.store).blockHeadless;
+    const storageProvider = (0, _store.store).storageProvider || opts.storageProvider;
+    const blockList = {
+        ...(0, _store.store).blockList,
+        ...opts.blockList
+    };
+    const limitRate = {
+        ...(0, _store.store).limitRate,
+        ...opts.limitRate
+    };
+    if (blockHeadless && (0, _isHeadless.isHeadless)(navigator)) return Promise.reject((0, _headlessError.headlessError)());
+    const currentForm = findHTMLForm(form);
+    (0, _validateParams.validateParams)(publicKey, serviceID, templateID);
+    (0, _validateForm.validateForm)(currentForm);
+    const formData = new FormData(currentForm);
+    if ((0, _isBlockedValueInParams.isBlockedValueInParams)(blockList, formData)) return Promise.reject((0, _blockedEmailError.blockedEmailError)());
+    if (await (0, _isLimitRateHit.isLimitRateHit)(location.pathname, limitRate, storageProvider)) return Promise.reject((0, _limitRateError.limitRateError)());
+    formData.append("lib_version", "4.3.3");
+    formData.append("service_id", serviceID);
+    formData.append("template_id", templateID);
+    formData.append("user_id", publicKey);
+    return (0, _sendPost.sendPost)("/api/v1.0/email/send-form", formData);
+};
+
+},{"../../store/store":"3eehJ","../../api/sendPost":"3pmzm","../../utils/buildOptions/buildOptions":"4eXBo","../../utils/validateForm/validateForm":"8cmNG","../../utils/validateParams/validateParams":"iiuvO","../../utils/isHeadless/isHeadless":"gRPJ4","../../errors/headlessError/headlessError":"cvzAa","../../utils/isBlockedValueInParams/isBlockedValueInParams":"2NbMP","../../errors/blockedEmailError/blockedEmailError":"jfpsi","../../utils/isLimitRateHit/isLimitRateHit":"1a6fm","../../errors/limitRateError/limitRateError":"2tHS0","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8cmNG":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "validateForm", ()=>validateForm);
+const validateForm = (form)=>{
+    if (!form || form.nodeName !== "FORM") throw "The 3rd parameter is expected to be the HTML form element or the style selector of the form";
+};
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"no4ZX":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _viewJs = require("../View.js");
+var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
+var _modelJs = require("../model.js");
+require("e6bf0fe633b8dfce").config();
+class CartView extends (0, _viewJsDefault.default) {
+    _parentElement = document.querySelector(".cart-items-container");
+    _cartEmpty = document.querySelector(".cart-empty");
+    _cartTitle = document.querySelector(".cart-title");
+    _summaryTitle = document.querySelector(".summary-title");
+    _itemsBox = document.querySelector(".added-items");
+    _summaryDetails = document.querySelector(".summary-details");
+    _checkoutBtn = document.querySelector(".checkout-btn");
+    _deleteAllBtn = document.querySelector(".delete-all");
+    _host = "http://109.106.244.66/api";
+    addCartViewHandler(handler) {
+        handler();
+    }
+    _addHandlerDelete(handler) {
+        this._parentElement.addEventListener("click", function(e) {
+            const btn = e.target.closest(".delete-item");
+            if (!btn) return;
+            const idNum = btn.closest(".cart-item");
+            handler(idNum.id);
+        });
+    }
+    _addHandlerDeleteAll(handler) {
+        this._parentElement.addEventListener("click", function(e) {
+            const btn = e.target.closest(".delete-all");
+            if (!btn) return;
+            handler();
+        });
+    }
+    _addHandlerCheckout(data) {
+        this._checkoutBtn.addEventListener("click", ()=>{
+            fetch(`${this._host}/create-checkout-session`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    items: [
+                        ...data
+                    ]
+                })
+            }).then((res)=>{
+                if (res.ok) return res.json();
+                return res.json().then((json)=>Promise.reject(json));
+            }).then(({ url })=>{
+                window.location = url;
+            }).catch((e)=>{
+                console.error(e.error);
+            });
+        });
+    }
+    _generateMarkup(cartNum) {
+        if (cartNum !== 0) {
+            this._cartEmpty.classList.add("remove");
+            this._deleteAllBtn.classList.add("delete-all-active");
+            return _modelJs.cart.map((x)=>`     
+          <div class="cart-item" id="${x.id}">
+            <img src='${x.image}' class="item-img" alt="" />
+            <div class="item-title">${x.title}</div>
+            <div class="item-description">${x.description}</div>
+            <div class="item-price">${x.price}$</div>
+            <div class="delete-item">X</div>
+            </div>`).join("");
+        }
+    }
+    _generateSummaryMarkup(cartNum, num, ship = 10) {
+        if (cartNum === 0) return;
+        return `
+    <div class="price-summary-container">
+          <div class="total-container subtotal">
+            <span class="total-text">Subtotal:</span>
+            <span class="total-price">${num}$</span>
+          </div>
+          <div class="total-container shipping">
+            <span class="total-text">Shipping:</span>
+            <span class="total-price">${ship}$</span>
+          </div>
+          <div class="total-container total">
+            <span class="total-text">Total:</span>
+            <span class="total-price">${num + ship}$</span>
+          </div>
+        </div>`;
+    }
+    render(cartNum) {
+        const markup = this._generateMarkup(cartNum);
+        this._itemsBox.insertAdjacentHTML("beforeend", markup);
+    }
+    _renderSummary(cartNum) {
+        if (cartNum !== 0) {
+            this._summaryDetails.innerHTML = "";
+            const num = this._calculateTotal();
+            const markup = this._generateSummaryMarkup(cartNum, num);
+            this._summaryDetails.insertAdjacentHTML("afterbegin", markup);
+        }
+        if (cartNum === 0) {
+            this._summaryDetails.innerHTML = "";
+            this._checkoutBtn.classList.add("remove");
+        }
+    }
+    _removeItem(cartNum) {
+        console.log(cartNum);
+        if (cartNum !== 0) {
+            this._itemsBox.innerHTML = "";
+            this.render(cartNum);
+        }
+        if (cartNum === 0) {
+            this._itemsBox.innerHTML = "";
+            this._cartEmpty.classList.remove("remove");
+            this._deleteAllBtn.classList.remove("delete-all-active");
+        }
+    }
+    _removeAll() {
+        this._itemsBox.innerHTML = "";
+        this._cartEmpty.classList.remove("remove");
+        this._deleteAllBtn.classList.remove("delete-all-active");
+    }
+    _clear() {
+        this._parentElement.innerHTML = "";
+    }
+    _calculateTotal() {
+        if (_modelJs.checkCartNumber() === 0) return;
+        const num = _modelJs.cart.map((x)=>+x.price).reduce((x, y)=>x + y, 0);
+        return Number(num.toFixed(2));
+    }
+}
+exports.default = new CartView();
+
+},{"../View.js":"5OTZN","../model.js":"Py0LO","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","e6bf0fe633b8dfce":"lErsX"}],"9Yiq5":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _viewJs = require("../View.js");
+var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
+require("ea587ce4610a696c").config();
+class LoginView extends (0, _viewJsDefault.default) {
+    _signupHere = document.querySelector(".signup-here");
+    _loginHere = document.querySelector(".login-here");
+    addLoginViewHandler(handler) {
+        window.addEventListener("load", handler);
+    }
+    generateSignup() {
+        const loginBtn = document.querySelector(".loginsignup-login");
+        const signupBtn = document.querySelector(".loginsignup-signup");
+        // const modeSwitch = document.querySelector(".switch-mode");
+        loginBtn.classList.toggle("hide");
+        signupBtn.classList.toggle("hide");
+        const loginTitle = document.querySelector(".login-title");
+        loginTitle.textContent = "Signup";
+        const markup = `
+    <input name="username" type="text" placeholder="Your Name" id="username-input"/>
+    `;
+        const logFields = document.querySelector(".loginsignup-fields");
+        logFields.insertAdjacentHTML("afterbegin", markup);
+    }
+    generateLogin() {
+        const loginBtn = document.querySelector(".loginsignup-login");
+        const signupBtn = document.querySelector(".loginsignup-signup");
+        loginBtn.classList.toggle("hide");
+        signupBtn.classList.toggle("hide");
+        const logFields = document.querySelector(".loginsignup-fields");
+        logFields.innerHTML = "";
+        const loginTitle = document.querySelector(".login-title");
+        loginTitle.textContent = "Login";
+        const markup = `<input name="email" type="email" placeholder="Email Address" />
+    <input name="password" type="password" placeholder="Password" />`;
+        logFields.insertAdjacentHTML("afterbegin", markup);
+    }
+    changeMode = function() {
+        const modeCheck = document.querySelector(".login-title").textContent == "Login";
+        const signupFn = this._signupHere.addEventListener("click", this.generateSignup);
+        const loginFn = this._loginHere.addEventListener("click", this.generateLogin);
+        modeCheck ? signupFn : loginFn;
+    };
+    loginHandler = function(data) {
+        try {
+            const formData = {
+                email: data.email,
+                password: data.password
+            };
+            const login = async function(userFormData) {
+                const serverUrl = `${"http://109.106.244.66/api"}`;
+                let response;
+                await fetch(`${serverUrl}/login`, {
+                    method: "POST",
+                    body: JSON.stringify(userFormData),
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "include"
+                }).then((response)=>{
+                    if (!response.ok) throw new Error(response.errors);
+                    console.log("success!");
+                    return response.json();
+                }).then((data)=>{
+                    console.log(data);
+                    if (data.success && data.adminCheck === "admin") {
+                        localStorage.setItem("auth-token", data.token);
+                        window.open("../html/bambaYafa.html");
+                    }
+                    if (data.success && data.adminCheck === "user") {
+                        localStorage.setItem("auth-token", data.token);
+                        window.location.replace("../../index.html");
+                    } else alert(data.errors);
+                }).catch((err)=>console.error("Login Error:", err));
+            };
+            // const formData = new FormData();
+            // formData.append("email", data.email);
+            // formData.append("password", data.password);
+            // const login = async function (userFormData) {
+            //   const serverUrl = `${process.env.API_URL}`;
+            //   const port = `${process.env.API_PORT}`;
+            //   console.log(userFormData);
+            //   let response;
+            //   await fetch(`${serverUrl}/login`, {
+            //     method: "POST",
+            //     credentials: "include",
+            //     headers: {
+            //       Accept: "multipart/form-data",
+            //       "Content-Type": "application/json",
+            //     },
+            //     body: JSON.stringify(userFormData),
+            //   })
+            //     .then((response) => {
+            //       if (!response.ok) {
+            //         throw new Error(response.errors);
+            //       }
+            //       console.log("success!");
+            //       response.json();
+            //     })
+            //     .then((data) => (response = data))
+            //     .catch((err) => console.error("Login Error:", err));
+            //   if (response.success && response.adminCheck === "admin") {
+            //     localStorage.setItem("auth-token", response.token);
+            //     window.open("../html/bambaYafa.html");
+            //   }
+            //   if (response.success && response.adminCheck === "user") {
+            //     localStorage.setItem("auth-token", response.token);
+            //     window.location.replace("../../index.html");
+            //   } else {
+            //     alert(response.errors);
+            //   }
+            // };
+            const signup = async function(formData) {
+                const serverUrl = `${"http://109.106.244.66/api"}`;
+                let response;
+                await fetch(`${serverUrl}/signup`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(formData),
+                    credentials: "include"
+                }).then((response)=>{
+                    return response.json();
+                }).then((data)=>{
+                    const resp = data;
+                    if (resp.success) {
+                        localStorage.setItem("auth-token", resp.token);
+                        window.location.replace("../index.html");
+                    } else alert(resp.errors);
+                }).catch((err)=>console.error("Signup Error", err));
+            };
+            const modeCheck = document.querySelector(".login-title").textContent == "Login";
+            modeCheck ? login(formData) : signup(data);
+        } catch (err) {
+            console.error("Login error:", err);
+        }
+    };
+    continueLogin() {
+        const continueBtn = document.querySelector(".continue-button");
+        continueBtn.addEventListener("click", (event)=>{
+            event.preventDefault();
+            const userEmail = document.getElementById("email-input").value;
+            const userPassword = document.getElementById("password-input").value;
+            const data = {
+                email: userEmail,
+                password: userPassword
+            };
+            if (userEmail == "" || userPassword == "") alert("Please enter a valid email or password");
+            this.loginHandler(data);
+        });
+    }
+    continueSignup() {
+        const continueBtn = document.querySelector(".continue-button");
+        continueBtn.addEventListener("click", (e)=>{
+            const userUsername = document.getElementById("username-input").value;
+            const userEmail = document.getElementById("email-input").value;
+            const userPassword = document.getElementById("password-input").value;
+            const data = {
+                username: userUsername,
+                email: userEmail,
+                password: userPassword
+            };
+            this.loginHandler(data);
+        });
+    }
+    continueHandler = function() {
+        const modeCheck = document.querySelector(".login-title").textContent == "Login";
+        modeCheck ? this.continueLogin() : this.continueSignup();
+    };
+}
+exports.default = new LoginView();
+
+},{"../View.js":"5OTZN","ea587ce4610a696c":"lErsX","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"Ln7oG":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "addBambaViewHandler", ()=>addBambaViewHandler);
 parcelHelpers.export(exports, "modeHandler", ()=>modeHandler);
+require("3f117e1c84b2431f").config();
 const addProductsBtn = document.querySelector(".sidebar_add-products");
 const productsListBtn = document.querySelector(".sidebar_products-list");
 const sideBar = document.querySelector(".sidebar");
 const pageContent = document.querySelector(".page-content");
+const host = "http://109.106.244.66/api";
 const addBambaViewHandler = async function(handler) {
     // window.addEventListener("load", pageAuth(handler));
     window.addEventListener("load", handler);
@@ -44505,7 +44508,7 @@ const pageAuth = async function(handler) {
     });
 };
 const loginHandler = async function(formData, handler) {
-    await fetch("https://tamarjewelry.dreamhosters.com:4000/login", {
+    await fetch(`${host}/login`, {
         method: "POST",
         headers: {
             Accept: "application/form-data",
@@ -44529,7 +44532,7 @@ const clear = function() {
     pageContent.innerHTML = "";
 };
 const fetchInfo = async ()=>{
-    await fetch("http://localhost:4000/allproducts").then((res)=>res.json()).then((data)=>{
+    await fetch(`${host}/allproducts`).then((res)=>res.json()).then((data)=>{
         loadProductsPage(data);
     });
 };
@@ -44545,7 +44548,7 @@ const addProduct = async (e, productDetails)=>{
             formData.append("smallImages", image);
         });
         e.preventDefault();
-        await fetch("http://localhost:4000/upload", {
+        await fetch(`${host}/upload`, {
             method: "POST",
             body: formData
         }).then((resp)=>resp.json()).then((data)=>{
@@ -44554,7 +44557,7 @@ const addProduct = async (e, productDetails)=>{
         responseData1.success ? alert("Image Uploded!") : alert("Something went wrong");
         product.image = responseData1.mainImageUrl;
         product.multiImages = responseData1.smallImagesUrl;
-        if (responseData1.success) await fetch("http://localhost:4000/addproduct", {
+        if (responseData1.success) await fetch(`${host}/addproduct`, {
             method: "POST",
             headers: {
                 Accept: "application/json",
@@ -44592,7 +44595,7 @@ const addProductHandler = function() {
     });
 };
 const removeProduct = async function(id) {
-    await fetch("http://localhost:4000/removeproduct", {
+    await fetch(`${host}/removeproduct`, {
         method: "POST",
         headers: {
             Accept: "application/json",
@@ -44750,6 +44753,6 @@ const loadProducts = function(data) {
     });
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["fjwbG","1xC6H","1GgH0"], "1GgH0", "parcelRequire10c2")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","3f117e1c84b2431f":"lErsX"}]},["fjwbG","1xC6H","1GgH0"], "1GgH0", "parcelRequire10c2")
 
 //# sourceMappingURL=index.850bd9e5.js.map

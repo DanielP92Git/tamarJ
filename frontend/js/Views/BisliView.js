@@ -1,8 +1,10 @@
+require("dotenv").config();
+
 const addProductsBtn = document.querySelector(".sidebar_add-products");
 const productsListBtn = document.querySelector(".sidebar_products-list");
 const sideBar = document.querySelector(".sidebar");
 const pageContent = document.querySelector(".page-content");
-
+const host = process.env.API_URL;
 export const addBambaViewHandler = async function (handler) {
   // window.addEventListener("load", pageAuth(handler));
   window.addEventListener("load", handler);
@@ -39,7 +41,7 @@ const pageAuth = async function (handler) {
 };
 
 const loginHandler = async function (formData, handler) {
-  await fetch("https://tamarjewelry.dreamhosters.com:4000/login", {
+  await fetch(`${host}/login`, {
     method: "POST",
     headers: {
       Accept: "application/form-data",
@@ -71,7 +73,7 @@ const clear = function () {
 };
 
 const fetchInfo = async () => {
-  await fetch("http://localhost:4000/allproducts")
+  await fetch(`${host}/allproducts`)
     .then((res) => res.json())
     .then((data) => {
       loadProductsPage(data);
@@ -93,7 +95,7 @@ const addProduct = async (e, productDetails) => {
     });
 
     e.preventDefault();
-    await fetch("http://localhost:4000/upload", {
+    await fetch(`${host}/upload`, {
       method: "POST",
       body: formData,
     })
@@ -109,7 +111,7 @@ const addProduct = async (e, productDetails) => {
     product.image = responseData.mainImageUrl;
     product.multiImages = responseData.smallImagesUrl;
     if (responseData.success) {
-      await fetch("http://localhost:4000/addproduct", {
+      await fetch(`${host}/addproduct`, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -157,7 +159,7 @@ const addProductHandler = function () {
 };
 
 const removeProduct = async function (id) {
-  await fetch("http://localhost:4000/removeproduct", {
+  await fetch(`${host}/removeproduct`, {
     method: "POST",
     headers: {
       Accept: "application/json",

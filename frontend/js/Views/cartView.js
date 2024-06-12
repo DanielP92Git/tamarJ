@@ -1,5 +1,6 @@
 import View from "../View.js";
 import * as model from "../model.js";
+require("dotenv").config();
 
 class CartView extends View {
   _parentElement = document.querySelector(".cart-items-container");
@@ -10,6 +11,7 @@ class CartView extends View {
   _summaryDetails = document.querySelector(".summary-details");
   _checkoutBtn = document.querySelector(".checkout-btn");
   _deleteAllBtn = document.querySelector(".delete-all");
+  _host = process.env.API_URL
 
   addCartViewHandler(handler) {
     handler();
@@ -35,7 +37,7 @@ class CartView extends View {
 
   _addHandlerCheckout(data) {
     this._checkoutBtn.addEventListener("click", () => {
-      fetch("http://localhost:4000/create-checkout-session", {
+      fetch(`${this._host}/create-checkout-session`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
