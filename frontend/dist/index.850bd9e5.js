@@ -44553,7 +44553,11 @@ const addProduct = async (e, productDetails)=>{
         e.preventDefault();
         await fetch(`${host}/upload`, {
             method: "POST",
-            body: formData
+            body: formData,
+            headers: {
+                Accept: "multipart/form-data",
+                "Content-Type": "application/json"
+            }
         }).then((resp)=>resp.json()).then((data)=>{
             responseData = data;
         });
