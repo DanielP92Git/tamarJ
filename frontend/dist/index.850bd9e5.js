@@ -5575,12 +5575,8 @@ class LoginView extends (0, _viewJsDefault.default) {
                 email: data.email,
                 password: data.password
             };
-            console.log(formData);
             const login = async function(userFormData) {
-                console.log(userFormData);
                 const serverUrl = `${"http://109.106.244.66/api"}`;
-                const port = `${"8000"}`;
-                console.log(userFormData);
                 let response;
                 await fetch(`${serverUrl}/login`, {
                     method: "POST",
@@ -5593,15 +5589,17 @@ class LoginView extends (0, _viewJsDefault.default) {
                     if (!response.ok) throw new Error(response.errors);
                     console.log("success!");
                     response.json();
-                }).then((data)=>resp = data).catch((err)=>console.error("Login Error:", err));
-                if (resp.success && resp.adminCheck === "admin") {
-                    localStorage.setItem("auth-token", resp.token);
-                    window.open("../html/bambaYafa.html");
-                }
-                if (resp.success && resp.adminCheck === "user") {
-                    localStorage.setItem("auth-token", resp.token);
-                    window.location.replace("../../index.html");
-                } else alert(resp.errors);
+                }).then((data)=>{
+                    const resp = data;
+                    if (resp.success && resp.adminCheck === "admin") {
+                        localStorage.setItem("auth-token", resp.token);
+                        window.open("../html/bambaYafa.html");
+                    }
+                    if (resp.success && resp.adminCheck === "user") {
+                        localStorage.setItem("auth-token", resp.token);
+                        window.location.replace("../../index.html");
+                    } else alert(resp.errors);
+                }).catch((err)=>console.error("Login Error:", err));
             };
             // const formData = new FormData();
             // formData.append("email", data.email);
@@ -5646,15 +5644,17 @@ class LoginView extends (0, _viewJsDefault.default) {
                 await fetch(`${serverUrl}/signup`, {
                     method: "POST",
                     headers: {
-                        Accept: "application/form-data",
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify(formData)
-                }).then((response)=>response.json()).then((data)=>resp = data).catch((err)=>console.error("Signup Error", err));
-                if (resp.success) {
-                    localStorage.setItem("auth-token", resp.token);
-                    window.location.replace("../index.html");
-                } else alert(resp.errors);
+                    body: JSON.stringify(formData),
+                    credentials: "include"
+                }).then((response)=>response.json()).then((data)=>{
+                    const resp = data;
+                    if (resp.success) {
+                        localStorage.setItem("auth-token", resp.token);
+                        window.location.replace("../index.html");
+                    } else alert(resp.errors);
+                }).catch((err)=>console.error("Signup Error", err));
             };
             const modeCheck = document.querySelector(".login-title").textContent == "Login";
             modeCheck ? login(formData) : signup(data);

@@ -63,13 +63,9 @@ class LoginView extends View {
         email: data.email,
         password: data.password,
       };
-      console.log(formData);
 
       const login = async function (userFormData) {
-        console.log(userFormData);
         const serverUrl = `${process.env.API_URL}`;
-        const port = `${process.env.API_PORT}`;
-        console.log(userFormData);
 
         let response;
         await fetch(`${serverUrl}/login`, {
@@ -87,19 +83,20 @@ class LoginView extends View {
             console.log("success!");
             response.json();
           })
-          .then((data) => (resp = data))
+          .then((data) => {
+            const resp = data;
+            if (resp.success && resp.adminCheck === "admin") {
+              localStorage.setItem("auth-token", resp.token);
+              window.open("../html/bambaYafa.html");
+            }
+            if (resp.success && resp.adminCheck === "user") {
+              localStorage.setItem("auth-token", resp.token);
+              window.location.replace("../../index.html");
+            } else {
+              alert(resp.errors);
+            }
+          })
           .catch((err) => console.error("Login Error:", err));
-
-          if (resp.success && resp.adminCheck === "admin") {
-                localStorage.setItem("auth-token", resp.token);
-                window.open("../html/bambaYafa.html");
-              }
-              if (resp.success && resp.adminCheck === "user") {
-                localStorage.setItem("auth-token", resp.token);
-                window.location.replace("../../index.html");
-              } else {
-                alert(resp.errors);
-              }
       };
 
       // const formData = new FormData();
@@ -149,21 +146,22 @@ class LoginView extends View {
         await fetch(`${serverUrl}/signup`, {
           method: "POST",
           headers: {
-            Accept: "application/form-data",
             "Content-Type": "application/json",
           },
           body: JSON.stringify(formData),
+          credentials: "include",
         })
           .then((response) => response.json())
-          .then((data) => (resp = data))
+          .then((data) => {
+            const resp = data;
+            if (resp.success) {
+              localStorage.setItem("auth-token", resp.token);
+              window.location.replace("../index.html");
+            } else {
+              alert(resp.errors);
+            }
+          })
           .catch((err) => console.error("Signup Error", err));
-
-        if (resp.success) {
-          localStorage.setItem("auth-token", resp.token);
-          window.location.replace("../index.html");
-        } else {
-          alert(resp.errors);
-        }
       };
 
       const modeCheck =
