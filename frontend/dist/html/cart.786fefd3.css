@@ -1,0 +1,409 @@
+header {
+  margin-bottom: 5rem;
+}
+
+.menubars-svg, #menubars-svg, #show-menu-button {
+  display: none;
+}
+
+.menu {
+  z-index: 7;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 50px;
+  display: flex;
+  position: fixed;
+}
+
+.menu__ul {
+  background-color: #fffc;
+  flex-flow: row;
+  justify-content: space-around;
+  width: 100%;
+  height: 50px;
+  display: flex;
+}
+
+.main-nav-tab {
+  width: 100%;
+  height: 50px;
+  list-style: none;
+}
+
+.main-nav-tab:hover {
+  cursor: pointer;
+}
+
+a {
+  text-align: center;
+  color: #000;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 50px;
+  font-size: 1.1rem;
+  text-decoration: none;
+  display: flex;
+}
+
+a:hover {
+  color: #989898;
+}
+
+.categories-list {
+  text-align: center;
+  opacity: 0;
+  z-index: -1;
+  background-color: #faebd780;
+  border: 1px solid;
+  flex-flow: column;
+  justify-content: space-evenly;
+  list-style: none;
+  transition-property: all;
+  transition-duration: .3s;
+  transition-timing-function: linear;
+  display: flex;
+  position: relative;
+  top: -20rem;
+}
+
+.categories-list--active {
+  opacity: 1;
+  z-index: 1;
+  transform: translateY(20rem);
+}
+
+.category-item {
+  position: relative;
+}
+
+.category-item:hover {
+  cursor: pointer;
+  background-color: #ffffff80;
+}
+
+.menu.sticky {
+  z-index: 8;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  transition: all .5s;
+  display: flex;
+  position: fixed;
+}
+
+.menu.hidden {
+  opacity: 0;
+  transform: translateY(8rem);
+}
+
+.icons-container {
+  display: none;
+}
+
+.shoppingcart-svg {
+  flex-flow: row;
+  justify-content: flex-start;
+  width: 25px;
+  height: 25px;
+  display: flex;
+  left: 600px;
+}
+
+.shoppingcart-svg:hover {
+  fill: #79ddff;
+}
+
+.main-nav-tab.login {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.login-btn {
+  border: 1px solid;
+  border-radius: 10px;
+  width: 100px;
+  height: 30px;
+  margin: 5px;
+}
+
+.login-btn:hover {
+  color: #0ff;
+  cursor: pointer;
+}
+
+.cart-number {
+  text-align: center;
+  background-color: #00ffd5;
+  border-radius: 50%;
+  justify-content: center;
+  align-items: center;
+  width: 15px;
+  height: 15px;
+  font-size: .8rem;
+  display: flex;
+  position: absolute;
+  top: .8%;
+  right: 5.3%;
+}
+
+.main-image {
+  justify-content: center;
+  align-items: end;
+  height: 40vh;
+  padding-bottom: 0;
+  display: flex;
+}
+
+.logo {
+  z-index: 0;
+  background-image: url("../tamar-logo.6cc84737.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 180px;
+  height: 140px;
+}
+
+main {
+  justify-content: center;
+  margin-bottom: 15rem;
+  display: flex;
+}
+
+.cart-items-container {
+  background-color: #f0f8ff;
+  border-radius: 1rem;
+  flex-flow: column;
+  width: 65%;
+  margin-right: 1rem;
+  display: flex;
+  box-shadow: -5px 10px 30px -10px;
+}
+
+.cart-item {
+  border: .5px solid #00000080;
+  border-radius: 5px;
+  grid-template-columns: 1fr 2fr 2fr 1fr;
+  margin-bottom: 10px;
+  padding: 15px;
+  display: grid;
+}
+
+.item-img {
+  border-radius: 3%;
+  width: 100%;
+  right: 5%;
+}
+
+.item-title {
+  place-self: center;
+  font-size: 1rem;
+}
+
+.item-price {
+  place-self: center;
+  margin-left: 10%;
+  margin-right: 20%;
+  font-size: 1rem;
+}
+
+.delete-item {
+  z-index: 10;
+  border-radius: 3px;
+  place-self: center;
+  padding: 2px;
+  font-size: .8rem;
+}
+
+.delete-item:hover {
+  cursor: pointer;
+  color: #fff;
+  background-color: red;
+  border: solid red;
+  padding: 2px;
+}
+
+.item-description {
+  display: none;
+}
+
+.cart-empty {
+  text-align: center;
+}
+
+.remove {
+  display: none;
+}
+
+.cart-title {
+  text-align: center;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.added-items {
+  border-radius: 1rem;
+  width: 95%;
+  padding: 15px;
+}
+
+.delete-all {
+  background-color: #ff9797;
+  border: none;
+  border-radius: 5px;
+  align-self: center;
+  width: 8rem;
+  height: 2rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  display: none;
+}
+
+.delete-all-active {
+  display: block;
+}
+
+.delete-all:hover {
+  cursor: pointer;
+  background-color: #ff6363;
+}
+
+.summary-container {
+  background-color: #add8e664;
+  border-radius: 1rem;
+  flex-flow: column;
+  width: 30%;
+  padding: 10px;
+  display: flex;
+  box-shadow: -5px 10px 30px -10px;
+}
+
+.summary-title {
+  align-self: center;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.summary-item {
+  box-sizing: border-box;
+  border: 1px solid;
+  border-radius: 5px;
+  align-items: center;
+  width: 100%;
+  height: 2rem;
+  margin-bottom: 10px;
+  padding-left: 1rem;
+  display: flex;
+}
+
+.price-summary-container {
+  flex-flow: column;
+  justify-content: space-between;
+  width: 60%;
+  margin: 30px 10px 30px 0;
+  display: flex;
+}
+
+.total-container {
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10px;
+  margin-left: 20%;
+  display: flex;
+}
+
+.total-text {
+  margin-right: auto;
+  font-weight: 600;
+}
+
+.total-price {
+  justify-self: right;
+  margin-right: 5%;
+  padding-right: 5px;
+}
+
+.total {
+  border: solid;
+  border-radius: 5px;
+  margin-top: 15px;
+  padding: 5px 0 5px 5px;
+}
+
+.checkout-btn {
+  background-color: #ffd597;
+  border: 1px solid;
+  border-radius: 5px;
+  align-self: center;
+  width: 8rem;
+  height: 2rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.checkout-btn:hover {
+  cursor: pointer;
+  background-color: #ffebcd;
+  width: 8.3rem;
+  height: 2.3rem;
+  font-size: 1rem;
+}
+
+.footer {
+  background-color: #a1a0413f;
+  width: 100%;
+}
+
+.columns-container {
+  justify-content: space-around;
+  width: 100%;
+  display: flex;
+}
+
+.footer-right-column, .footer-middle-column, .footer-left-column {
+  flex-flow: column;
+  align-items: center;
+  width: 50%;
+  padding-top: 10px;
+  padding-bottom: 30px;
+  display: flex;
+}
+
+.footer-middle-column {
+  height: 100%;
+}
+
+.footer-item {
+  color: #fff;
+  width: auto;
+  height: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 0;
+  font-size: 1rem;
+}
+
+.footer-item:hover {
+  color: #000;
+}
+
+.rights-container {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 4rem;
+  display: flex;
+}
+
+.rights-text {
+  color: #fff;
+}
+/*# sourceMappingURL=cart.786fefd3.css.map */

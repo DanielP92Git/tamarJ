@@ -64,7 +64,7 @@ class LoginView extends View {
       formData.append("email", data.email);
       formData.append("password", data.password);
       console.log(formData);
-      
+
       const login = async function (userFormData) {
         const serverUrl = `${process.env.API_URL}`;
         const port = `${process.env.API_PORT}`;
@@ -77,7 +77,6 @@ class LoginView extends View {
           headers: {
             Accept: "multipart/form-data",
             "Content-Type": "application/json",
-            // "X-Custom-Header": "CustomValue",
           },
           body: JSON.stringify(userFormData),
         })
