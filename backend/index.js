@@ -218,13 +218,14 @@ const authUser = async function (req, res, next) {
 // Creating endpoint for login
 app.post("/login", authUser, async (req, res) => {
   try {
-    res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.header(
-      "Access-Control-Allow-Methods",
-      "GET, POST, OPTIONS, PUT, DELETE"
-    );
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    console.log("Login API response");
+    // res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
+    // res.header("Access-Control-Allow-Credentials", "true");
+    // res.header(
+    //   "Access-Control-Allow-Methods",
+    //   "GET, POST, OPTIONS, PUT, DELETE"
+    // );
+    // res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
     const adminCheck = req.user.userType;
     const data = {
       user: {
