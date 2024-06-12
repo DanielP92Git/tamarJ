@@ -81,7 +81,7 @@ class LoginView extends View {
               throw new Error(response.errors);
             }
             console.log("success!");
-            response.json();
+            return response.json();
           })
           .then((data) => {
             console.log(data);
@@ -151,7 +151,9 @@ class LoginView extends View {
           body: JSON.stringify(formData),
           credentials: "include",
         })
-          .then((response) => response.json())
+          .then((response) => {
+            return response.json();
+          })
           .then((data) => {
             const resp = data;
             if (resp.success) {

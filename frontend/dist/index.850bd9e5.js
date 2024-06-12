@@ -5588,7 +5588,7 @@ class LoginView extends (0, _viewJsDefault.default) {
                 }).then((response)=>{
                     if (!response.ok) throw new Error(response.errors);
                     console.log("success!");
-                    response.json();
+                    return response.json();
                 }).then((data)=>{
                     console.log(data);
                     if (data.success && data.adminCheck === "admin") {
@@ -5648,7 +5648,9 @@ class LoginView extends (0, _viewJsDefault.default) {
                     },
                     body: JSON.stringify(formData),
                     credentials: "include"
-                }).then((response)=>response.json()).then((data)=>{
+                }).then((response)=>{
+                    return response.json();
+                }).then((data)=>{
                     const resp = data;
                     if (resp.success) {
                         localStorage.setItem("auth-token", resp.token);
