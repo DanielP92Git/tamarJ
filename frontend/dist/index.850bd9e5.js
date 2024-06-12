@@ -44360,7 +44360,8 @@ class LoginView extends (0, _viewJsDefault.default) {
                     console.log(data);
                     if (data.success && data.adminCheck === "admin") {
                         localStorage.setItem("auth-token", data.token);
-                        window.open("../html/bambaYafa.html");
+                        console.log(data.adminCheck);
+                        window.location.replace("../html/bambaYafa.html");
                     }
                     if (data.success && data.adminCheck === "user") {
                         localStorage.setItem("auth-token", data.token);
@@ -44420,8 +44421,12 @@ class LoginView extends (0, _viewJsDefault.default) {
                 }).then((data)=>{
                     if (data.success) {
                         localStorage.setItem("auth-token", data.token);
+                        alert(data.message);
                         window.location.replace("../index.html");
-                    } else alert(data.errors);
+                    } else {
+                        console.error("Signup error:", data.errors);
+                        alert(data.errors);
+                    }
                 }).catch((err)=>console.error("Signup Error", err));
             };
             const modeCheck = document.querySelector(".login-title").textContent == "Login";

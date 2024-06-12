@@ -87,7 +87,8 @@ class LoginView extends View {
             console.log(data);
             if (data.success && data.adminCheck === "admin") {
               localStorage.setItem("auth-token", data.token);
-              window.open("../html/bambaYafa.html");
+              console.log(data.adminCheck);
+              window.location.replace("../html/bambaYafa.html");
             }
             if (data.success && data.adminCheck === "user") {
               localStorage.setItem("auth-token", data.token);
@@ -155,11 +156,12 @@ class LoginView extends View {
             return response.json();
           })
           .then((data) => {
-           
             if (data.success) {
               localStorage.setItem("auth-token", data.token);
+              alert(data.message);
               window.location.replace("../index.html");
             } else {
+              console.error("Signup error:", data.errors);
               alert(data.errors);
             }
           })
