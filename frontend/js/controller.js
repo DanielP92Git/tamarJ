@@ -10,7 +10,6 @@ import CartView from "./Views/cartView.js";
 import categoriesView from "./Views/categoriesView.js";
 import LoginView from "./Views/NEWloginView.js";
 import * as BisliView from "./Views/BisliView.js";
-// import AdminView from "./Views/adminView.js";
 
 //----------------------------------------------------
 
@@ -119,8 +118,6 @@ const controlCartPage = async function () {
     CartView.addMobileHandler();
     CartView._addHandlerDeleteAll(controlDeleteAll);
     CartView.logInOutHandler(controlLoginPage);
-
-    
   } catch (err) {
     console.log(err);
   }

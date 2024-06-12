@@ -2965,7 +2965,6 @@ var _cartViewJsDefault = parcelHelpers.interopDefault(_cartViewJs);
 var _newloginViewJs = require("./Views/NEWloginView.js");
 var _newloginViewJsDefault = parcelHelpers.interopDefault(_newloginViewJs);
 var _bisliViewJs = require("./Views/BisliView.js");
-// import AdminView from "./Views/adminView.js";
 //----------------------------------------------------
 // const menuBars = document.querySelector(".menubars-svg");
 // const changeSVG = function () {
@@ -44360,7 +44359,7 @@ class LoginView extends (0, _viewJsDefault.default) {
                     console.log(data);
                     if (data.success && data.adminCheck === "admin") {
                         localStorage.setItem("auth-token", data.token);
-                        window.open("../../html/bambaYafa.html");
+                        window.location.replace("../../html/bambaYafa.html");
                     }
                     if (data.success && data.adminCheck === "user") {
                         localStorage.setItem("auth-token", data.token);
@@ -44481,7 +44480,7 @@ const sideBar = document.querySelector(".sidebar");
 const pageContent = document.querySelector(".page-content");
 const host = "https://tamarj-api.onrender.com";
 const addBambaViewHandler = async function(handler) {
-    // window.addEventListener("load", pageAuth(handler));
+    window.addEventListener("load", pageAuth(handler));
     window.addEventListener("load", handler);
 };
 const pageAuth = async function(handler) {
