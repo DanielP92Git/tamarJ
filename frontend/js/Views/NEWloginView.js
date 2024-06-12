@@ -92,6 +92,7 @@ class LoginView extends View {
             }
             if (data.success && data.adminCheck === "user") {
               localStorage.setItem("auth-token", data.token);
+              console.log(data.adminCheck);
               // window.location.replace("../../index.html");
             } else {
               alert(data.errors);
