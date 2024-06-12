@@ -84,16 +84,16 @@ class LoginView extends View {
             response.json();
           })
           .then((data) => {
-            const resp = data;
-            if (resp.success && resp.adminCheck === "admin") {
-              localStorage.setItem("auth-token", resp.token);
+            console.log(data);
+            if (data.success && data.adminCheck === "admin") {
+              localStorage.setItem("auth-token", data.token);
               window.open("../html/bambaYafa.html");
             }
-            if (resp.success && resp.adminCheck === "user") {
-              localStorage.setItem("auth-token", resp.token);
+            if (data.success && data.adminCheck === "user") {
+              localStorage.setItem("auth-token", data.token);
               window.location.replace("../../index.html");
             } else {
-              alert(resp.errors);
+              alert(data.errors);
             }
           })
           .catch((err) => console.error("Login Error:", err));
