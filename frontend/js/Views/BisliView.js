@@ -50,15 +50,15 @@ const loginHandler = async function (formData, handler) {
     body: JSON.stringify(formData),
   })
     .then((response) => response.json())
-    .then((data) => (responseData = data));
-
-  if (responseData.success && responseData.adminCheck === "admin") {
-    localStorage.setItem("auth-token", responseData.token);
-    alert("Login Successfuly!");
-    handler();
-  } else {
-    alert("Access Denied!");
-  }
+    .then((responseData) => {
+      if (responseData.success && responseData.adminCheck === "admin") {
+        localStorage.setItem("auth-token", responseData.token);
+        alert("Login Successfuly!");
+        handler();
+      } else {
+        alert("Access Denied!");
+      }
+    });
 };
 
 export const modeHandler = function () {

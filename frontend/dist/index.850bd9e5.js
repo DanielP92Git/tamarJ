@@ -44517,12 +44517,13 @@ const loginHandler = async function(formData, handler) {
             "Content-Type": "application/json"
         },
         body: JSON.stringify(formData)
-    }).then((response)=>response.json()).then((data)=>responseData = data);
-    if (responseData.success && responseData.adminCheck === "admin") {
-        localStorage.setItem("auth-token", responseData.token);
-        alert("Login Successfuly!");
-        handler();
-    } else alert("Access Denied!");
+    }).then((response)=>response.json()).then((responseData)=>{
+        if (responseData.success && responseData.adminCheck === "admin") {
+            localStorage.setItem("auth-token", responseData.token);
+            alert("Login Successfuly!");
+            handler();
+        } else alert("Access Denied!");
+    });
 };
 const modeHandler = function() {
     addProductsBtn.addEventListener("click", loadAddProductsPage);
@@ -44540,7 +44541,7 @@ const fetchInfo = async ()=>{
 };
 const addProduct = async (e, productDetails)=>{
     try {
-        let responseData1;
+        let responseData;
         let product = productDetails;
         let image = product.image;
         let smallImages = product.multiImages;
@@ -44554,12 +44555,12 @@ const addProduct = async (e, productDetails)=>{
             method: "POST",
             body: formData
         }).then((resp)=>resp.json()).then((data)=>{
-            responseData1 = data;
+            responseData = data;
         });
-        responseData1.success ? alert("Image Uploded!") : alert("Something went wrong");
-        product.image = responseData1.mainImageUrl;
-        product.multiImages = responseData1.smallImagesUrl;
-        if (responseData1.success) await fetch(`${host}/addproduct`, {
+        responseData.success ? alert("Image Uploded!") : alert("Something went wrong");
+        product.image = responseData.mainImageUrl;
+        product.multiImages = responseData.smallImagesUrl;
+        if (responseData.success) await fetch(`${host}/addproduct`, {
             method: "POST",
             headers: {
                 Accept: "application/json",
