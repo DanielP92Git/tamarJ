@@ -45,7 +45,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/api", (req, res) => res.send("API endpoint is running"));
+app.get("/", (req, res) => res.send("API endpoint is running"));
 
 app.options("*", (req, res) => {
   res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
@@ -57,8 +57,6 @@ app.options("*", (req, res) => {
   res.header("Access-Control-Allow-Credentials", "true");
   res.sendStatus(200);
 });
-
-
 
 // Schema for Creating Products
 const Product = mongoose.model("Product", {
@@ -106,7 +104,7 @@ const Product = mongoose.model("Product", {
 
 //Add product to database
 
-app.post("/api/addproduct", async (req, res) => {
+app.post("/addproduct", async (req, res) => {
   let products = await Product.find({});
   let id;
   if (products.length > 0) {
@@ -218,7 +216,7 @@ const authUser = async function (req, res, next) {
 };
 
 // Creating endpoint for login
-app.post("/api/login", authUser, async (req, res) => {
+app.post("/login", authUser, async (req, res) => {
   try {
     res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
     res.header("Access-Control-Allow-Credentials", "true");
@@ -503,9 +501,7 @@ app.post("/create-checkout-session", async (req, res) => {
 
 app.listen(process.env.SERVER_PORT, (error) => {
   if (!error) {
-    console.log(
-      "Server Running on Port " + process.env.SERVER_PORT
-    );
+    console.log("Server Running on Port " + process.env.SERVER_PORT);
   } else {
     console.log("Error : " + error);
   }
