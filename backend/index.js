@@ -499,10 +499,10 @@ app.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-app.listen(process.env.SERVER_CLIENT_PORT, (error) => {
+app.listen(process.env.SERVER_PORT, (error) => {
   if (!error) {
     console.log(
-      "Server Running on CLIENT_Port " + process.env.SERVER_CLIENT_PORT
+      "Server Running on Port " + process.env.SERVER_PORT
     );
   } else {
     console.log("Error : " + error);

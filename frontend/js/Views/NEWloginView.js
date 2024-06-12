@@ -71,14 +71,14 @@ class LoginView extends View {
         try {
           let responseData;
           await fetch(`${serverUrl}/login`, {
-            method: "GET",
-            // credentials: "include",
-            // headers: {
-            //     Accept: "multipart/form-data",
-            //   "Content-Type": "application/json",
+            method: "POST",
+            credentials: "include",
+            headers: {
+                Accept: "multipart/form-data",
+              "Content-Type": "application/json",
             // "X-Custom-Header": "CustomValue",
-            // },
-            // body: JSON.stringify(userFormData),
+            },
+            body: JSON.stringify(userFormData),
           })
             .then((response) => {
               if (!response.ok) {
