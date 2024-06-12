@@ -58,12 +58,13 @@ class LoginView extends View {
   };
 
   loginHandler = function (data) {
-    try {
+    // try {
       const formData = new FormData();
 
       formData.append("email", data.email);
       formData.append("password", data.password);
       console.log(formData);
+      
       const login = async function (userFormData) {
         const serverUrl = `${process.env.API_URL}`;
         const port = `${process.env.API_PORT}`;
@@ -128,9 +129,9 @@ class LoginView extends View {
       const modeCheck =
         document.querySelector(".login-title").textContent == "Login";
       modeCheck ? login(formData) : signup(data);
-    } catch (err) {
+    // } catch (err) {
       console.error("Login error:", err);
-    }
+    // }
   };
 
   continueLogin() {
