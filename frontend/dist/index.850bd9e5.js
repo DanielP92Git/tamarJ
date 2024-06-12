@@ -44418,11 +44418,10 @@ class LoginView extends (0, _viewJsDefault.default) {
                 }).then((response)=>{
                     return response.json();
                 }).then((data)=>{
-                    const resp = data;
-                    if (resp.success) {
-                        localStorage.setItem("auth-token", resp.token);
+                    if (data.success) {
+                        localStorage.setItem("auth-token", data.token);
                         window.location.replace("../index.html");
-                    } else alert(resp.errors);
+                    } else alert(data.errors);
                 }).catch((err)=>console.error("Signup Error", err));
             };
             const modeCheck = document.querySelector(".login-title").textContent == "Login";

@@ -208,10 +208,10 @@ const authUser = async function (req, res, next) {
       res.send("No access");
     }
   } else {
-      res.status(404).json({
-        errors:
-          "No user found. Please check your email or password and try again",
-      });
+    res.status(404).json({
+      errors:
+        "No user found. Please check your email or password and try again",
+    });
   }
 };
 
@@ -265,7 +265,7 @@ app.post("/signup", async (req, res) => {
   bcrypt.hash(req.body.password, 10, (err, hash) => {
     if (err) {
       return res.status(500).json({
-        error: err,
+        errors: err,
       });
     } else {
       const user = new Users({
