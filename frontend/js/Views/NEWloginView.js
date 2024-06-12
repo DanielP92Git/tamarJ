@@ -67,41 +67,38 @@ class LoginView extends View {
       const login = async function (userFormData) {
         const serverUrl = `${process.env.API_URL}`;
         const port = `${process.env.API_PORT}`;
-        try {
-          console.log(userFormData);
-          let response;
-          await fetch(`${serverUrl}/login`, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              Accept: "multipart/form-data",
-              "Content-Type": "application/json",
-              // "X-Custom-Header": "CustomValue",
-            },
-            body: JSON.stringify(userFormData),
+        console.log(userFormData);
+        
+        let response;
+        await fetch(`${serverUrl}/login`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            Accept: "multipart/form-data",
+            "Content-Type": "application/json",
+            // "X-Custom-Header": "CustomValue",
+          },
+          body: JSON.stringify(userFormData),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(response.errors);
+            }
+            console.log("success!");
+            response.json();
           })
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error(response.errors);
-              }
-              console.log("success!");
-              response.json();
-            })
-            .then((data) => (response = data))
-            .catch((err) => console.error("Error:", err));
+          .then((data) => (response = data))
+          .catch((err) => console.error("Error:", err));
 
-          if (response.success && response.adminCheck === "admin") {
-            localStorage.setItem("auth-token", response.token);
-            window.open("../html/bambaYafa.html");
-          }
-          if (response.success && response.adminCheck === "user") {
-            localStorage.setItem("auth-token", response.token);
-            window.location.replace("../../index.html");
-          } else {
-            alert(response.errors);
-          }
-        } catch (err) {
-          console.error(err);
+        if (response.success && response.adminCheck === "admin") {
+          localStorage.setItem("auth-token", response.token);
+          window.open("../html/bambaYafa.html");
+        }
+        if (response.success && response.adminCheck === "user") {
+          localStorage.setItem("auth-token", response.token);
+          window.location.replace("../../index.html");
+        } else {
+          alert(response.errors);
         }
       };
 
@@ -117,7 +114,8 @@ class LoginView extends View {
           body: JSON.stringify(formData),
         })
           .then((response) => response.json())
-          .then((data) => (response = data));
+          .then((data) => (response = data))
+          .catch((err) => console.error("signup error", err));
 
         if (response.success) {
           localStorage.setItem("auth-token", response.token);
