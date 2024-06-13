@@ -8,7 +8,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 
-const allowedOrigins = [process.env.HOST, 'http://tamarjewelry.shop'];
+const allowedOrigins = [process.env.HOST];
 
 const corsOptions = {
   origin: (origin, callback) => {
@@ -24,17 +24,20 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(express.json({limit: '50mb'}));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+mongoose.connect(`${process.env.MONGO_URL}`);
 // let corsOptions = {
 //   origin: `${process.env.HOST}:${process.env.CLIENT_PORT}`,
 //   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 //   allowedHeaders: ["Content-Type", "Authorization"],
 //   credentials: true,
 // };
-app.use(express.json({limit: '50mb'}));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Database Connection With MongoDB
-mongoose.connect(`${process.env.MONGO_URL}`);
+
+app.get("/", (req, res) => res.send("API endpoint is running"));
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
@@ -46,7 +49,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/", (req, res) => res.send("API endpoint is running"));
 
 app.options("*", (req, res) => {
   res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
