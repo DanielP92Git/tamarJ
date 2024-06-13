@@ -1,4 +1,4 @@
-import "core-js/stable";
+import "corejs/stable";
 import "regenerator-runtime/runtime.js";
 import * as model from "./model.js";
 import CategoriesView from "./Views/categoriesView.js";
