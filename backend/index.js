@@ -24,21 +24,11 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(express.json({limit: '50mb'}));
+app.use(express.json());
 // app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-
-
-mongoose.connect(`${process.env.MONGO_URL}`);
-// let corsOptions = {
-//   origin: `${process.env.HOST}:${process.env.CLIENT_PORT}`,
-//   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//   allowedHeaders: ["Content-Type", "Authorization"],
-//   credentials: true,
-// };
-
 // Database Connection With MongoDB
-
+mongoose.connect(`${process.env.MONGO_URL}`);
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
@@ -51,12 +41,6 @@ app.use((req, res, next) => {
     });
     
 app.get('/', (req, res) => res.send("API endpoint is running"));
-
-app.use(express.static(path.join(__dirname, 'frontend')));
-
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'bambaYafa.html'));
-})
 
 app.options("*", (req, res) => {
   res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
@@ -230,13 +214,13 @@ const authUser = async function (req, res, next) {
 app.post(`/login`, authUser, async (req, res) => {
   try {
     console.log("Login API response");
-    res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.header(
-      "Access-Control-Allow-Methods",
-      "GET, POST, OPTIONS, PUT, DELETE"
-    );
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    // res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
+    // res.header("Access-Control-Allow-Credentials", "true");
+    // res.header(
+    //   "Access-Control-Allow-Methods",
+    //   "GET, POST, OPTIONS, PUT, DELETE"
+    // );
+    // res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
     const adminCheck = req.user.userType;
     const data = {
       user: {
