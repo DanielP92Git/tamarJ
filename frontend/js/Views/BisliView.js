@@ -8,7 +8,7 @@ const host = process.env.API_URL;
 
 export const addBambaViewHandler = async function (handler) {
   window.addEventListener("load", pageAuth(handler));
-  // window.addEventListener("load", handler);
+  window.addEventListener("load", handler);
 };
 
 const pageAuth = async function (handler) {
