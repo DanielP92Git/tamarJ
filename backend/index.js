@@ -52,10 +52,10 @@ app.use((req, res, next) => {
     
 app.get('/', (req, res) => res.send("API endpoint is running"));
 
-app.use(express.static(path.join(__dirname, '..', 'frontend')));
+app.use(express.static(path.join(__dirname, 'frontend')));
 
 app.use((req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'bambaYafa.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'bambaYafa.html'));
 })
 
 app.options("*", (req, res) => {
