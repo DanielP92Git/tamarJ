@@ -8,20 +8,32 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 
-const allowedOrigins = [process.env.HOST];
-
+const allowedOrigins = process.env.HOST;
 const corsOptions = {
   origin: (origin, callback) => {
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      console.log("ORIGIN: ", origin);
+    if (allowedOrigins.includes(origin) || !origin) {
+      console.log("Allowed origin:", origin);
       callback(null, true);
     } else {
+      console.error("Blocked by CORS:", origin);
       callback(new Error("Not allowed by CORS"));
     }
   },
   credentials: true,
   optionsSuccessStatus: 200,
 };
+// const corsOptions = {
+//   origin: (origin, callback) => {
+//     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+//       console.log("ORIGIN: ", origin);
+//       callback(null, true);
+//     } else {
+//       callback(new Error("Not allowed by CORS"));
+//     }
+//   },
+//   credentials: true,
+//   optionsSuccessStatus: 200,
+// };
 
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -180,47 +192,48 @@ const Users = mongoose.model("Users", {
 });
 
 const authUser = async function (req, res, next) {
-  let user = await Users.findOne({ email: req.body.email });
-  if (user) {
-    const userTypeCheck = user.userType === "user" || user.userType === "admin";
+  try {
+    let user = await Users.findOne({ email: req.body.email });
+    if (user) {
+      const userTypeCheck =
+        user.userType === "user" || user.userType === "admin";
 
-    if (userTypeCheck) {
-      const passCompare = bcrypt.compare(
-        req.body.password,
-        user.password,
-        (err, result) => {
-          if (err) {
-            res.status(401).json({ success: false, errors: "Auth Failed" });
+      if (userTypeCheck) {
+        bcrypt.compare(req.body.password, user.password, (err, result) => {
+          if (err || !result) {
+            return res
+              .status(401)
+              .json({ success: false, errors: "Auth Failed" });
           }
-          if (result) {
-            req.user = user;
-            next();
-          }
-        }
-      );
+          req.user = user;
+          next();
+        });
+      } else {
+        res.status(401).send("No access");
+      }
     } else {
-      res.status(401);
-      res.send("No access");
+      res.status(404).json({
+        errors:
+          "No user found. Please check your email or password and try again",
+      });
     }
-  } else {
-    res.status(404).json({
-      errors:
-        "No user found. Please check your email or password and try again",
-    });
+  } catch (err) {
+    console.error("Auth error:", err);
+    res.status(500).json({ errors: "Internal Server Error" });
   }
 };
 
 // Creating endpoint for login
 app.post("/login", authUser, async (req, res) => {
   try {
-    console.log("Login API response");
-    res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.header(
-      "Access-Control-Allow-Methods",
-      "GET, POST, OPTIONS, PUT, DELETE"
-    );
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    console.log("Login attempt for user:", req.user.email);
+    // res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
+    // res.header("Access-Control-Allow-Credentials", "true");
+    // res.header(
+    //   "Access-Control-Allow-Methods",
+    //   "GET, POST, OPTIONS, PUT, DELETE"
+    // );
+    // res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
     const adminCheck = req.user.userType;
     const data = {
       user: {
@@ -231,6 +244,7 @@ app.post("/login", authUser, async (req, res) => {
     const token = jwt.sign(data, process.env.JWT_KEY);
 
     if (token) {
+      console.log("Login successful for user:", req.user.email);
       res.json({
         success: true,
         token,
@@ -238,8 +252,8 @@ app.post("/login", authUser, async (req, res) => {
       });
     }
   } catch (err) {
-    console.error("Error🔥 :", err);
-    // res.json(err)
+    console.error("Login Error🔥 :", err);
+    res.status(500).json({ errors: "Internal Server Error" });
   }
 });
 
