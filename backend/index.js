@@ -25,7 +25,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json({limit: '50mb'}));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+// app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 mongoose.connect(`${process.env.MONGO_URL}`);
 // let corsOptions = {
@@ -37,7 +37,6 @@ mongoose.connect(`${process.env.MONGO_URL}`);
 
 // Database Connection With MongoDB
 
-app.get("/", (req, res) => res.send("API endpoint is running"));
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
@@ -45,10 +44,11 @@ app.use((req, res, next) => {
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, Accept, Content-Type, Authorization"
-  );
-  next();
-});
-
+    );
+    next();
+    });
+    
+app.get("/", (req, res) => res.send("API endpoint is running"));
 
 app.options("*", (req, res) => {
   res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
@@ -247,7 +247,7 @@ app.post("/login", authUser, async (req, res) => {
     }
   } catch (err) {
     console.error("Error🔥 :", err);
-    res.json(err)
+    // res.json(err)
   }
 });
 
