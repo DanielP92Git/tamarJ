@@ -44481,7 +44481,7 @@ const pageContent = document.querySelector(".page-content");
 const host = "https://tamarj-api.onrender.com";
 const addBambaViewHandler = async function(handler) {
     window.addEventListener("load", pageAuth(handler));
-    window.addEventListener("load", handler);
+// window.addEventListener("load", handler);
 };
 const pageAuth = async function(handler) {
     const mainContainer = document.getElementById("bambot");
@@ -44567,7 +44567,7 @@ const addProduct = async (e, productDetails)=>{
         if (responseData.success) await fetch(`${host}/addproduct`, {
             method: "POST",
             headers: {
-                Accept: "application/json",
+                Accept: "multipart/form-data",
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(product)

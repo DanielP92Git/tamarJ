@@ -5,9 +5,10 @@ const productsListBtn = document.querySelector(".sidebar_products-list");
 const sideBar = document.querySelector(".sidebar");
 const pageContent = document.querySelector(".page-content");
 const host = process.env.API_URL;
+
 export const addBambaViewHandler = async function (handler) {
   window.addEventListener("load", pageAuth(handler));
-  window.addEventListener("load", handler);
+  // window.addEventListener("load", handler);
 };
 
 const pageAuth = async function (handler) {
@@ -118,7 +119,7 @@ const addProduct = async (e, productDetails) => {
       await fetch(`${host}/addproduct`, {
         method: "POST",
         headers: {
-          Accept: "application/json",
+          Accept: "multipart/form-data",
           "Content-Type": "application/json",
         },
         body: JSON.stringify(product),
