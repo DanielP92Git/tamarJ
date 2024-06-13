@@ -48,7 +48,7 @@ app.use((req, res, next) => {
     next();
     });
     
-app.get("/tamarj-backend", (req, res) => res.send("API endpoint is running"));
+app.get(`${process.env.APP_GET}`, (req, res) => res.send("API endpoint is running"));
 
 app.options("*", (req, res) => {
   res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
@@ -219,7 +219,7 @@ const authUser = async function (req, res, next) {
 };
 
 // Creating endpoint for login
-app.post("/login", authUser, async (req, res) => {
+app.post(`${process.env.APP_GET}/login`, authUser, async (req, res) => {
   try {
     console.log("Login API response");
     res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
@@ -252,7 +252,7 @@ app.post("/login", authUser, async (req, res) => {
 });
 
 // Creating Endpoint for Registering the User
-app.post("/signup", async (req, res) => {
+app.post(`${process.env.APP_GET}/signup`, async (req, res) => {
   let findUser = await Users.findOne({ email: req.body.email });
   if (findUser) {
     return res.status(400).json({
