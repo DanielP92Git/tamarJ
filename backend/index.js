@@ -27,6 +27,8 @@ app.use(cors(corsOptions));
 app.use(express.json({limit: '50mb'}));
 // app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+
+
 mongoose.connect(`${process.env.MONGO_URL}`);
 // let corsOptions = {
 //   origin: `${process.env.HOST}:${process.env.CLIENT_PORT}`,
@@ -49,6 +51,12 @@ app.use((req, res, next) => {
     });
     
 app.get('/', (req, res) => res.send("API endpoint is running"));
+
+app.use(express.static(path.join(__dirname, 'frontend')));
+
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'bambaYafa.html'));
+})
 
 app.options("*", (req, res) => {
   res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
@@ -506,11 +514,7 @@ app.post("/create-checkout-session", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-app.use(express.static(path.join(__dirname, 'frontend')));
 
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, './frontend', 'bambaYafa.html'));
-})
 
 app.listen(process.env.SERVER_PORT, (error) => {
   if (!error) {
