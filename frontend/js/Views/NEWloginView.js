@@ -92,7 +92,7 @@ class LoginView extends View {
               localStorage.setItem("auth-token", data.token);
               window.location.replace("../../index.html");
             } else {
-              alert(data.err);
+              alert(data.errors);
             }
           })
           .catch((err) => console.error("Login Error:", err));
