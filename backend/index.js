@@ -247,7 +247,7 @@ app.post(`/login`, authUser, async (req, res) => {
     }
   } catch (errors) {
     console.error("Error🔥 :", errors);
-    res.json(errors)
+    // res.json(errors)
   }
 });
 
