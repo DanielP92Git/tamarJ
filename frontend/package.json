@@ -11,10 +11,6 @@
     "corejs": "^1.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.3",
-    "react-scripts": "^5.0.1",
     "regenerator-runtime": "^0.14.1",
     "web-vitals": "^2.1.4"
   },
@@ -26,16 +22,8 @@
     "dev": "npm run cleanup && parcel ./index.html",
     "start": "parcel index.html",
     "build": "parcel build index.html --dist-dir ./dist",
-    "startreact": "react-scripts start",
-    "build:react": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
   },
   "browserslist": {
     "production": [

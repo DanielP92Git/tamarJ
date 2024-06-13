@@ -2,8 +2,8 @@ import View from "../View.js";
 require("dotenv").config();
 
 class LoginView extends View {
-  _signupHere = document.querySelector(".signup-here");
-  _loginHere = document.querySelector(".login-here");
+  // _signupHere = document.querySelector(".signup-here");
+  // _loginHere = document.querySelector(".login-here");
   addLoginViewHandler(handler) {
     window.addEventListener("load", handler);
   }
@@ -65,38 +65,73 @@ class LoginView extends View {
       };
 
       const login = async function (userFormData) {
-        const serverUrl = `${process.env.API_URL}`;
+        try {
+          const serverUrl = `${process.env.API_URL}`;
 
-        let response;
-        await fetch(`${serverUrl}/login`, {
-          method: "POST",
-          body: JSON.stringify(userFormData),
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error(response.errors);
-            }
-            console.log("success!");
-            return response.json();
-          })
-          .then((data) => {
-            console.log(data);
-            if (data.success && data.adminCheck === "admin") {
-              localStorage.setItem("auth-token", data.token);
+          const response = await fetch(`${serverUrl}/login`, {
+            method: "POST",
+            body: JSON.stringify(userFormData),
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          });
+
+          if (!response.ok) {
+            throw new Error(response.errors);
+          }
+
+          const data = await response.json();
+
+          if (data.success) {
+            localStorage.setItem("auth-token", data.token);
+            if (data.adminCheck === "admin") {
               window.location.replace("../../html/bambaYafa.html");
-            } else if (data.success && data.adminCheck === "user") {
-              localStorage.setItem("auth-token", data.token);
+            } else if (data.adminCheck === "user") {
               window.location.replace("../../index.html");
-            } else {
-              alert(data.err);
             }
-          })
-          .catch((err) => console.error("Login Error:", err));
+          } else {
+            alert(data.errors);
+          }
+        } catch (err) {
+          console.error("Login Error:", err);
+          alert("An error occurred during login. Please try again.");
+        }
       };
+
+      // const login = async function (userFormData) {
+      //   const serverUrl = `${process.env.API_URL}`;
+
+      //   let response;
+      //   await fetch(`${serverUrl}/login`, {
+      //     method: "POST",
+      //     body: JSON.stringify(userFormData),
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     credentials: "include",
+      //   })
+      //     .then((response) => {
+      //       if (!response.ok) {
+      //         throw new Error(response.errors);
+      //       }
+      //       console.log("success!");
+      //       return response.json();
+      //     })
+      //     .then((data) => {
+      //       console.log(data);
+      //       if (data.success && data.adminCheck === "admin") {
+      //         localStorage.setItem("auth-token", data.token);
+      //         window.location.replace("../../html/bambaYafa.html");
+      //       } else if (data.success && data.adminCheck === "user") {
+      //         localStorage.setItem("auth-token", data.token);
+      //         window.location.replace("../../index.html");
+      //       } else {
+      //         alert(data.err);
+      //       }
+      //     })
+      //     .catch((err) => console.error("Login Error:", err));
+      // };
 
       // const formData = new FormData();
 
@@ -140,30 +175,30 @@ class LoginView extends View {
       // };
 
       const signup = async function (formData) {
-        const serverUrl = `${process.env.API_URL}`;
-        let response;
-        await fetch(`${serverUrl}/signup`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-          credentials: "include",
-        })
-          .then((response) => {
-            return response.json();
-          })
-          .then((data) => {
-            if (data.success) {
-              localStorage.setItem("auth-token", data.token);
-              alert(data.message);
-              window.location.replace("../index.html");
-            } else {
-              console.error("Signup error:", data.errors);
-              alert(data.errors);
-            }
-          })
-          .catch((err) => console.error("Signup Error", err));
+        try {
+          const serverUrl = `${process.env.API_URL}`;
+          const response = await fetch(`${serverUrl}/signup`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+            credentials: "include",
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            localStorage.setItem("auth-token", data.token);
+            alert(data.message);
+            window.location.replace("../index.html");
+          } else {
+            alert(data.errors);
+          }
+        } catch (err) {
+          console.error("Signup Error:", err);
+          alert("An error occurred during signup. Please try again.");
+        }
       };
 
       const modeCheck =
@@ -180,13 +215,19 @@ class LoginView extends View {
       event.preventDefault();
       const userEmail = document.getElementById("email-input").value;
       const userPassword = document.getElementById("password-input").value;
+
+      if (userEmail === "" || userPassword === "") {
+        alert("Please enter a valid email or password");
+        return;
+      }
+
       const data = {
         email: userEmail,
         password: userPassword,
       };
-      if (userEmail == "" || userPassword == "") {
-        alert("Please enter a valid email or password");
-      }
+      // if (userEmail == "" || userPassword == "") {
+      //   alert("Please enter a valid email or password");
+      // }
       this.loginHandler(data);
     });
   }
@@ -197,21 +238,40 @@ class LoginView extends View {
       const userUsername = document.getElementById("username-input").value;
       const userEmail = document.getElementById("email-input").value;
       const userPassword = document.getElementById("password-input").value;
+
+      if (userUsername === "" || userEmail === "" || userPassword === "") {
+        alert("Please fill out all fields");
+        return;
+      }
+
       const data = {
         username: userUsername,
         email: userEmail,
         password: userPassword,
       };
+
       this.loginHandler(data);
     });
   }
 
   continueHandler = function () {
-    const modeCheck =
-      document.querySelector(".login-title").textContent == "Login";
+    const modeCheck = document.querySelector(".login-title").textContent == "Login";
 
     modeCheck ? this.continueLogin() : this.continueSignup();
   };
+  
+  initialize() {
+    document.addEventListener("DOMContentLoaded", () => {
+      this._signupHere = document.querySelector(".signup-here");
+      this._loginHere = document.querySelector(".login-here");
+      this._signupHere.addEventListener(
+        "click",
+        this.generateSignup.bind(this)
+      );
+      this._loginHere.addEventListener("click", this.generateLogin.bind(this));
+      this.continueHandler();
+    });
+  }
 }
 
-export default new LoginView();
+export default new LoginView().initialize();
