@@ -506,6 +506,11 @@ app.post("/create-checkout-session", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+app.use(express.static(path.join(__dirname, 'frontend')));
+
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, './frontend', 'bambaYafa.html'));
+})
 
 app.listen(process.env.SERVER_PORT, (error) => {
   if (!error) {
