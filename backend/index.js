@@ -48,7 +48,7 @@ app.use((req, res, next) => {
     next();
     });
     
-app.get("/", (req, res) => res.send("API endpoint is running"));
+app.get("/tamarj-backend", (req, res) => res.send("API endpoint is running"));
 
 app.options("*", (req, res) => {
   res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
