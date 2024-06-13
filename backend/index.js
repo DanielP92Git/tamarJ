@@ -36,11 +36,11 @@ app.use((req, res, next) => {
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, Accept, Content-Type, Authorization"
-    );
-    next();
-    });
-    
-app.get('/', (req, res) => res.send("API endpoint is running"));
+  );
+  next();
+});
+
+app.get("/", (req, res) => res.send("API endpoint is running"));
 
 app.options("*", (req, res) => {
   res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
@@ -211,16 +211,16 @@ const authUser = async function (req, res, next) {
 };
 
 // Creating endpoint for login
-app.post(`/login`, authUser, async (req, res) => {
+app.post("/login", authUser, async (req, res) => {
   try {
     console.log("Login API response");
-    // res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
-    // res.header("Access-Control-Allow-Credentials", "true");
-    // res.header(
-    //   "Access-Control-Allow-Methods",
-    //   "GET, POST, OPTIONS, PUT, DELETE"
-    // );
-    // res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header(
+      "Access-Control-Allow-Methods",
+      "GET, POST, OPTIONS, PUT, DELETE"
+    );
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
     const adminCheck = req.user.userType;
     const data = {
       user: {
@@ -237,14 +237,14 @@ app.post(`/login`, authUser, async (req, res) => {
         adminCheck,
       });
     }
-  } catch (errors) {
-    console.error("Error🔥 :", errors);
-    // res.json(errors)
+  } catch (err) {
+    console.error("Error🔥 :", err);
+    // res.json(err)
   }
 });
 
 // Creating Endpoint for Registering the User
-app.post(`/signup`, async (req, res) => {
+app.post("/signup", async (req, res) => {
   let findUser = await Users.findOne({ email: req.body.email });
   if (findUser) {
     return res.status(400).json({
@@ -398,18 +398,20 @@ app.use("/uploads", express.static("uploads"));
 app.use("/smallImages", express.static("smallImages"));
 
 app.post("/upload", multipleUpload, (req, res, err) => {
-  try {let smallFiles = req.files.smallImages;
-  let makeUrl = smallFiles.map((file) => {
-    return `${process.env.API_URL}:${process.env.SERVER_PORT}/smallImages/${file.filename}`;
-  });
-  res.json({
-    success: 1,
-    file: req.files,
-    mainImageUrl: `${process.env.API_URL}:${process.env.SERVER_PORT}/uploads/${req.files.mainImage[0].filename}`,
+  try {
+    let smallFiles = req.files.smallImages;
+    let makeUrl = smallFiles.map((file) => {
+      return `${process.env.API_URL}:${process.env.SERVER_PORT}/smallImages/${file.filename}`;
+    });
+    res.json({
+      success: 1,
+      file: req.files,
+      mainImageUrl: `${process.env.API_URL}:${process.env.SERVER_PORT}/uploads/${req.files.mainImage[0].filename}`,
 
-    smallImagesUrl: makeUrl,
-  })} catch (err) {
-    console.error(err)
+      smallImagesUrl: makeUrl,
+    });
+  } catch (err) {
+    console.error(err);
   }
 });
 
@@ -498,7 +500,6 @@ app.post("/create-checkout-session", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 app.listen(process.env.SERVER_PORT, (error) => {
   if (!error) {

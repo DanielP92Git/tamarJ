@@ -87,12 +87,12 @@ class LoginView extends View {
             console.log(data);
             if (data.success && data.adminCheck === "admin") {
               localStorage.setItem("auth-token", data.token);
-              window.location.assign(`${process.env.ADMIN_URL}`);
+              window.location.replace("../../html/bambaYafa.html");
             } else if (data.success && data.adminCheck === "user") {
               localStorage.setItem("auth-token", data.token);
               window.location.replace("../../index.html");
             } else {
-              alert(data.errors);
+              alert(data.err);
             }
           })
           .catch((err) => console.error("Login Error:", err));
