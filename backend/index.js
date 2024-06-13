@@ -245,9 +245,9 @@ app.post("/login", authUser, async (req, res) => {
         adminCheck,
       });
     }
-  } catch (err) {
-    console.error("Error🔥 :", err);
-    // res.json(err)
+  } catch (errors) {
+    console.error("Error🔥 :", errors);
+    res.json(errors)
   }
 });
 
