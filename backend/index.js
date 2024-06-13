@@ -403,7 +403,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/smallImages", express.static("smallImages"));
 
 app.post("/upload", multipleUpload, (req, res, err) => {
-  let smallFiles = req.files.smallImages;
+  try {let smallFiles = req.files.smallImages;
   let makeUrl = smallFiles.map((file) => {
     return `${process.env.API_URL}:${process.env.SERVER_PORT}/smallImages/${file.filename}`;
   });
@@ -413,7 +413,9 @@ app.post("/upload", multipleUpload, (req, res, err) => {
     mainImageUrl: `${process.env.API_URL}:${process.env.SERVER_PORT}/uploads/${req.files.mainImage[0].filename}`,
 
     smallImagesUrl: makeUrl,
-  });
+  })} catch (err) {
+    console.error(err)
+  }
 });
 
 // Creating payment endpoint
