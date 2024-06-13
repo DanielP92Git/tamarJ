@@ -8,7 +8,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 
-const allowedOrigins = process.env.HOST;
+const allowedOrigins = [process.env.HOST, 'http://tamarjewelry.shop'];
 
 const corsOptions = {
   origin: (origin, callback) => {
