@@ -274,4 +274,4 @@ class LoginView extends View {
   }
 }
 
-export default new LoginView().initialize();
+export default new LoginView();

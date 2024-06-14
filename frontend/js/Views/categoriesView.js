@@ -1,6 +1,6 @@
 // import React, { useEffect, useState, useContext } from "react";
 import View from "../View.js";
-import { controlAddToCart } from "../controller.js";
+import { controlAddToCart } from "../controlHomePage.js";
 // import { createRoot } from "react-dom/client";
 // import all_product from "../../Assets/all_product.js";
 
@@ -63,10 +63,13 @@ class CategoriesView extends View {
       const filtered = data.find((prod) => prod.id == id);
       const addToCart = e.target.closest(".add-to-cart-btn");
       const smallImage = filtered.smallImages;
-      const imageMarkup = smallImage.map((x)=> `
+      const imageMarkup = smallImage
+        .map(
+          (x) => `
         <img class="small-image" src="${x}" alt="">
       `
-      ).join('');
+        )
+        .join("");
 
       if (!clicked) return;
       if (addToCart) return;

@@ -1,5 +1,3 @@
-import "core-js/stable";
-import "regenerator-runtime/runtime.js";
 import * as model from "./model.js";
 import CategoriesView from "./Views/categoriesView.js";
 import homePageView from "./Views/homePageView.js";
@@ -12,9 +10,7 @@ import LoginView from "./Views/NEWloginView.js";
 import * as BisliView from "./Views/BisliView.js";
 
 //----------------------------------------------------
-
 // const menuBars = document.querySelector(".menubars-svg");
-
 // const changeSVG = function () {
 //   const parent = document.querySelector(".menubars-toggle");
 //   parent.classList.toggle("close");
@@ -24,9 +20,7 @@ import * as BisliView from "./Views/BisliView.js";
 //   document.querySelector("use").setAttribute("href", `#${icon}`);
 // };
 // menuBars.addEventListener("click", changeSVG);
-
 /////////////////////////////////////////////////////
-
 const controlHomePage = async function () {
   // await homePageView._addHandlerOpenModal();
   await model.handleLoadStorage();
@@ -43,7 +37,6 @@ const controlHomePage = async function () {
   homePageView.addRevealHandler();
   homePageView.persistCartNumber(await model.checkCartNumber());
 };
-
 const controlWorkshopPage = async function () {
   await model.handleLoadStorage();
 
@@ -55,7 +48,6 @@ const controlWorkshopPage = async function () {
   WorkshopView._imageSlider();
   WorkshopView.addMobileHandler();
 };
-
 const controlAboutPage = async function () {
   await model.handleLoadStorage();
 
@@ -66,7 +58,6 @@ const controlAboutPage = async function () {
   AboutView.addMobileHandler();
   AboutView.logInOutHandler(controlLoginPage);
 };
-
 const controlContactMePage = async function () {
   await model.handleLoadStorage();
 
@@ -77,7 +68,6 @@ const controlContactMePage = async function () {
   ContactMeView.addMobileHandler();
   ContactMeView.logInOutHandler(controlLoginPage);
 };
-
 const controlCategoriesPage = async function () {
   try {
     await model.handleLoadStorage();
@@ -101,7 +91,6 @@ const controlCategoriesPage = async function () {
     console.error(err);
   }
 };
-
 const controlCartPage = async function () {
   try {
     await model.handleLoadStorage();
@@ -122,7 +111,6 @@ const controlCartPage = async function () {
     console.log(err);
   }
 };
-
 const controlLoginPage = async function () {
   await model.handleLoadStorage();
 
@@ -141,7 +129,6 @@ export const controlAddToCart = function (data) {
   // 2) Pass data from clicked item and add it to model.cart
   model.handleAddToCart(data);
 };
-
 const controlDeleteFromCart = async function (id) {
   // 1) Remove from database
   await model.removeFromUserCart(id);
@@ -156,7 +143,6 @@ const controlDeleteFromCart = async function (id) {
   // 4) Update new summary
   CartView._renderSummary(cartNum);
 };
-
 const controlDeleteAll = async function () {
   //1) Delete from cart
   await model.deleteAll();
@@ -171,11 +157,9 @@ const controlDeleteAll = async function () {
   // 4) Update new summary
   CartView._renderSummary(cartNum);
 };
-
 const controlBambaPage = function () {
   BisliView.modeHandler();
 };
-
 const init = async function () {
   if (document.body.id.includes("home")) {
     homePageView.addHomePageHandler(controlHomePage);
@@ -206,7 +190,6 @@ const init = async function () {
     CartView._addHandlerDelete(controlDeleteFromCart);
   }
   if (document.body.id.includes("login")) {
-    LoginView.initialize()
     LoginView.addLoginViewHandler(controlLoginPage);
   }
   if (document.body.id.includes("bambot")) {
