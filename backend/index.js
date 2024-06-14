@@ -253,7 +253,7 @@ app.post("/login", authUser, async (req, res) => {
     }
   } catch (err) {
     console.error("Login Error🔥 :", err);
-    res.status(500).json({ errors: "Internal Server Error" });
+    res.status(500).json({ errors: "Internal Server Error", err});
   }
 });
 

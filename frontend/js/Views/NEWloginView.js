@@ -77,10 +77,6 @@ class LoginView extends View {
             credentials: "include",
           });
 
-          if (!response.ok) {
-            throw new Error(response.errors);
-          }
-
           const data = await response.json();
 
           if (data.success) {
@@ -91,7 +87,7 @@ class LoginView extends View {
               window.location.replace("../../index.html");
             }
           } else {
-            alert(data.errors);
+            throw new Error(data.errors);
           }
         } catch (err) {
           console.error("Login Error:", err);
