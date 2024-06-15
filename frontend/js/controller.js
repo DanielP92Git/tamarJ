@@ -173,7 +173,7 @@ const controlDeleteAll = async function () {
 };
 
 const controlBambaPage = function () {
-  BisliView.pageAuth();
+  BisliView.loginHandler();
 };
 
 const init = async function () {

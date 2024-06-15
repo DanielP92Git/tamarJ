@@ -10,40 +10,40 @@ export const addBambaViewHandler = async function (handler) {
   window.addEventListener("load", handler);
 };
 
-export const pageAuth = async function (handler) {
-  const mainContainer = document.getElementById("bambot");
-  const markup = ` <div id="login-signup" class="loginsignup">
-  <div class="loginsignup-container">
-    <h1 class="login-title">Login</h1>
-    <div class="loginsignup-fields">
+// export const pageAuth = async function (handler) {
+//   const mainContainer = document.getElementById("bambot");
+//   const markup = ` <div id="login-signup" class="loginsignup">
+//   <div class="loginsignup-container">
+//     <h1 class="login-title">Login</h1>
+//     <div class="loginsignup-fields">
 
-      <input name="email" type="email" placeholder="Email Address" id="email-input" autocomplete="email"/>
-      <input name="password" type="password" placeholder="Password" id="password-input"/>
-    </div>
-    <button class="continue-button">Continue</button>
+//       <input name="email" type="email" placeholder="Email Address" id="email-input" autocomplete="email"/>
+//       <input name="password" type="password" placeholder="Password" id="password-input"/>
+//     </div>
+//     <button class="continue-button">Continue</button>
 
-  </div>
-</div>`;
+//   </div>
+// </div>`;
 
-  mainContainer.insertAdjacentHTML("afterbegin", markup);
+//   mainContainer.insertAdjacentHTML("afterbegin", markup);
 
-  const continueBtn = document.querySelector(".continue-button");
+//   const continueBtn = document.querySelector(".continue-button");
 
-  continueBtn.addEventListener("click", (e) => {
-    const userEmail = document.getElementById("email-input").value;
-    const userPassword = document.getElementById("password-input").value;
-    const data = {
-      email: userEmail,
-      password: userPassword,
-    };
-    loginHandler(data);
-    // loginHandler(data, handler);
-  });
-};
+//   continueBtn.addEventListener("click", (e) => {
+//     const userEmail = document.getElementById("email-input").value;
+//     const userPassword = document.getElementById("password-input").value;
+//     const data = {
+//       email: userEmail,
+//       password: userPassword,
+//     };
+//     loginHandler(data);
+//     // loginHandler(data, handler);
+//   });
+// };
 
 // Previous option;
 // const loginHandler = async function (formData, handler) {
-const loginHandler = async function (formData) {
+export const loginHandler = async function (formData) {
   await fetch(`${host}/login`, {
     method: "POST",
     headers: {
