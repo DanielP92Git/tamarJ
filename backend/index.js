@@ -250,7 +250,7 @@ app.post("/login", authUser, async (req, res) => {
 
     if (token) {
       console.log("Login successful for user:", req.user.email);
-      res.redirect('../frontend/html/bamba-yafa.html')
+      res.redirect('/html/bamba-yafa.html')
       res.json({
         success: true,
         token,
