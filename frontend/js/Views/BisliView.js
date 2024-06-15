@@ -7,10 +7,10 @@ const pageContent = document.querySelector(".page-content");
 const host = process.env.API_URL;
 
 export const addBambaViewHandler = async function (handler) {
-  window.addEventListener("load", pageAuth(handler));
+  window.addEventListener("load", handler);
 };
 
-const pageAuth = async function (handler) {
+pageAuth = async function (handler) {
   const mainContainer = document.getElementById("bambot");
   const markup = ` <div id="login-signup" class="loginsignup">
   <div class="loginsignup-container">

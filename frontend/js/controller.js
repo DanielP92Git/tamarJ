@@ -172,9 +172,9 @@ const controlDeleteAll = async function () {
   CartView._renderSummary(cartNum);
 };
 
-// const controlBambaPage = function () {
-//   BisliView.modeHandler();
-// };
+const controlBambaPage = function () {
+  BisliView.pageAuth();
+};
 
 const init = async function () {
   if (document.body.id.includes("home")) {
