@@ -54,7 +54,7 @@ const loginHandler = async function (formData, handler) {
       if (responseData.success && responseData.adminCheck === "admin") {
         localStorage.setItem("auth-token", responseData.token);
         alert("Login Successfuly!");
-        handler();
+        modeHandler()
       } else {
         alert("Access Denied!");
       }

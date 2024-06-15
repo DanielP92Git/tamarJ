@@ -1,6 +1,6 @@
 // import React, { useEffect, useState, useContext } from "react";
 import View from "../View.js";
-import { controlAddToCart } from "../controlHomePage.js";
+import { controlAddToCart } from "../controller.js";
 // import { createRoot } from "react-dom/client";
 // import all_product from "../../Assets/all_product.js";
 
