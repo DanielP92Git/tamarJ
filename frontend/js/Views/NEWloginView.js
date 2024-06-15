@@ -97,7 +97,8 @@ class LoginView extends View {
           }
           console.error("Login Error:", err)
         } catch (err) {
-          alert("An error occurred during login. Please try again.", "Login Error:", err);
+          // alert("An error occurred during login. Please try again. Login Error:", err, data.errors);
+          console.error("An error occurred during login. Please try again. Login Error:", err, data.errors);
         }
       };
 
