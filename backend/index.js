@@ -10,7 +10,7 @@ const app = express();
 const bodyParser = require("body-parser");
 
 
-const allowedOrigins = process.env.HOST;
+const allowedOrigins = [process.env.HOST, process.env.API_URL];
 const corsOptions = {
   origin: (origin, callback) => {
     if (allowedOrigins.includes(origin) || !origin) {
