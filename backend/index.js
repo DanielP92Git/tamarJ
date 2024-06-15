@@ -46,7 +46,7 @@ app.use(express.json())
 mongoose.connect(`${process.env.MONGO_URL}`);
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
+  res.header("Access-Control-Allow-Origin", `${allowedOrigins}`);
   res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   res.header(
     "Access-Control-Allow-Headers",
@@ -59,7 +59,7 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => res.send("API endpoint is running"));
 
 app.options("*", (req, res) => {
-  res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
+  res.header("Access-Control-Allow-Origin", `${allowedOrigins}`);
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   res.header(
     "Access-Control-Allow-Headers",
@@ -232,7 +232,7 @@ const authUser = async function (req, res, next) {
 app.post("/login", authUser, async (req, res) => {
   try {
     console.log("Login attempt for user:", req.user.email);
-    res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
+    res.header("Access-Control-Allow-Origin", `${allowedOrigins}`);
     res.header("Access-Control-Allow-Credentials", "true");
     res.header(
       "Access-Control-Allow-Methods",
