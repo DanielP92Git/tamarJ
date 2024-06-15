@@ -86,15 +86,15 @@ class LoginView extends View {
           const data = await response.json();
 
           if (data.success) {
+            console.log(data.success);
             localStorage.setItem("auth-token", data.token);
             if (data.adminCheck === "admin") {
-              window.location(`${process.env.HOST}/html/bambaYafa.html`);
+              window.location.href(`${process.env.HOST}/html/bambaYafa.html`);
             } else if (data.adminCheck === "user") {
               window.location.replace("../../index.html");
             }
-          } else {
-            throw new Error(data.errors);
           }
+          return
         } catch (err) {
           console.error("Login Error:", err);
           alert("An error occurred during login. Please try again.");
