@@ -36,11 +36,14 @@ export const pageAuth = async function (handler) {
       email: userEmail,
       password: userPassword,
     };
-    loginHandler(data, handler);
+    loginHandler(data);
+    // loginHandler(data, handler);
   });
 };
 
-const loginHandler = async function (formData, handler) {
+// Previous option;
+// const loginHandler = async function (formData, handler) {
+const loginHandler = async function (formData) {
   await fetch(`${host}/login`, {
     method: "POST",
     headers: {
@@ -60,7 +63,7 @@ const loginHandler = async function (formData, handler) {
     });
 };
 
-export const modeHandler = function () {
+const modeHandler = function () {
   addProductsBtn.addEventListener("click", loadAddProductsPage);
   productsListBtn.addEventListener("click", () => {
     fetchInfo();

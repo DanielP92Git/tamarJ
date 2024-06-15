@@ -4,6 +4,7 @@ require("dotenv").config();
 class LoginView extends View {
   // _signupHere = document.querySelector(".signup-here");
   // _loginHere = document.querySelector(".login-here");
+
   addLoginViewHandler(handler) {
     window.addEventListener("load", handler);
   }
@@ -96,8 +97,7 @@ class LoginView extends View {
           }
           console.error("Login Error:", err)
         } catch (err) {
-          console.error("Login Error:", err);
-          console.error("An error occurred during login. Please try again.");
+          alert("An error occurred during login. Please try again.", "Login Error:", err);
         }
       };
 
@@ -195,11 +195,11 @@ class LoginView extends View {
             alert(data.message);
             window.location.replace("../index.html");
           } else {
-            alert(data.errors);
+            console.error(data.errors);
           }
         } catch (err) {
-          console.error("Signup Error:", err);
-          alert("An error occurred during signup. Please try again.");
+          console.error();
+          alert("An error occurred during signup. Please try again.", "Signup Error:", err);
         }
       };
 
