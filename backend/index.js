@@ -10,7 +10,7 @@ const app = express();
 const bodyParser = require("body-parser");
 
 
-const allowedOrigins = [process.env.HOST, process.env.API_URL];
+const allowedOrigins = [process.env.HOST, process.env.API_URL, process.env.HOSTI];
 const corsOptions = {
   origin: (origin, callback) => {
     if (allowedOrigins.includes(origin) || !origin) {
@@ -39,7 +39,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(bodyParser.json({limit: '50mb'}));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.json())
 
 // Database Connection With MongoDB
