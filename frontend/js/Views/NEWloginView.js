@@ -64,15 +64,16 @@ class LoginView extends View {
           </li>`;
   };
 
-  loginHandler = function (data) {
+  loginHandler = function (event, data) {
     try {
       const formData = {
         email: data.email,
         password: data.password,
       };
 
-      const login = async function (userFormData) {
+      const login = async function (e, userFormData) {
         try {
+          e.preventDefault()
           const serverUrl = `${process.env.API_URL}`;
 
           const response = await fetch(`${serverUrl}/login`, {
@@ -206,7 +207,7 @@ class LoginView extends View {
 
       const modeCheck =
         document.querySelector(".login-title").textContent == "Login";
-      modeCheck ? login(formData) : signup(data);
+      modeCheck ? login(event, formData) : signup(data);
     } catch (err) {
       console.error("Login error:", err);
     }
@@ -215,7 +216,6 @@ class LoginView extends View {
   continueLogin() {
     const continueBtn = document.querySelector(".continue-button");
     continueBtn.addEventListener("click", (event) => {
-      event.preventDefault();
       const userEmail = document.getElementById("email-input").value;
       const userPassword = document.getElementById("password-input").value;
 
@@ -231,7 +231,7 @@ class LoginView extends View {
       if (userEmail == "" || userPassword == "") {
         alert("Please enter a valid email or password");
       }
-      this.loginHandler(data);
+      this.loginHandler(event, data);
     });
   }
 
