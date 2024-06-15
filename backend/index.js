@@ -10,7 +10,7 @@ const app = express();
 const bodyParser = require("body-parser");
 
 
-const allowedOrigins = [process.env.HOST, process.env.API_URL, process.env.HOSTI];
+const allowedOrigins = '*';
 const corsOptions = {
   origin: (origin, callback) => {
     if (allowedOrigins.includes(origin) || !origin) {
@@ -46,7 +46,7 @@ app.use(express.json())
 mongoose.connect(`${process.env.MONGO_URL}`);
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", `${allowedOrigins}`);
+  res.header("Access-Control-Allow-Origin", '*');
   res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   res.header(
     "Access-Control-Allow-Headers",
@@ -59,7 +59,7 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => res.send("API endpoint is running"));
 
 app.options("*", (req, res) => {
-  res.header("Access-Control-Allow-Origin", `${allowedOrigins}`);
+  res.header("Access-Control-Allow-Origin", '*');
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   res.header(
     "Access-Control-Allow-Headers",
@@ -232,13 +232,13 @@ const authUser = async function (req, res, next) {
 app.post("/login", authUser, async (req, res) => {
   try {
     console.log("Login attempt for user:", req.user.email);
-    res.header("Access-Control-Allow-Origin", `${allowedOrigins}`);
+    res.header("Access-Control-Allow-Origin", '*');
     res.header("Access-Control-Allow-Credentials", "true");
     res.header(
       "Access-Control-Allow-Methods",
       "GET, POST, OPTIONS, PUT, DELETE"
     );
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization", "Origin");
     const adminCheck = req.user.userType;
     const data = {
       user: {
@@ -250,12 +250,11 @@ app.post("/login", authUser, async (req, res) => {
 
     if (token) {
       console.log("Login successful for user:", req.user.email);
-      res.redirect(`${process.env.ADMIN_URL}`)
-      // res.json({
-      //   success: true,
-      //   token,
-      //   adminCheck,
-      // });
+      res.json({
+        success: true,
+        token,
+        adminCheck,
+      });
     }
   } catch (err) {
     console.error("Login Error🔥 :", err);
