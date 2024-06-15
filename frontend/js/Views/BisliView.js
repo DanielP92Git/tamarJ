@@ -44,7 +44,6 @@ const loginHandler = async function (formData, handler) {
   await fetch(`${host}/login`, {
     method: "POST",
     headers: {
-      Accept: "application/form-data",
       "Content-Type": "application/json",
     },
     body: JSON.stringify(formData),
