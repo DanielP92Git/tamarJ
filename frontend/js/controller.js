@@ -206,7 +206,7 @@ const init = async function () {
     CartView._addHandlerDelete(controlDeleteFromCart);
   }
   if (document.body.id.includes("login")) {
-    LoginView.initialize()
+    // LoginView.initialize()
     LoginView.addLoginViewHandler(controlLoginPage);
   }
   if (document.body.id.includes("bambot")) {
