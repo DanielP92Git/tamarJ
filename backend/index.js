@@ -209,6 +209,7 @@ const authUser = async function (req, res, next) {
           next();
         });
       } else {
+    
         res.status(401).send("No access");
       }
     } else {
