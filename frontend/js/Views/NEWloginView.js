@@ -91,7 +91,7 @@ class LoginView extends View {
             console.log(data.success);
             localStorage.setItem("auth-token", data.token);
             if (data.adminCheck === "admin") {
-              window.location.assign("../../html/bamba-yafa.html");
+              window.location.assign(`${process.env.HOST}/html/bamba-yafa.html`);
             } else if (data.adminCheck === "user") {
               window.location.replace("../../index.html");
             }

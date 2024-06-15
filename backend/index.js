@@ -7,6 +7,8 @@ const mongoose = require("mongoose");
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const bodyParser = require("body-parser");
+
 
 const allowedOrigins = process.env.HOST;
 const corsOptions = {
@@ -34,10 +36,11 @@ const corsOptions = {
 //   credentials: true,
 //   optionsSuccessStatus: 200,
 // };
-
 app.use(cors(corsOptions));
-app.use(express.json());
-// app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.json())
 
 // Database Connection With MongoDB
 mongoose.connect(`${process.env.MONGO_URL}`);
