@@ -127,7 +127,7 @@ const controlLoginPage = async function () {
   await model.handleLoadStorage();
 
   LoginView.svgHandler();
-  LoginView.initialize();
+  LoginView.changeMode();
   LoginView.continueHandler();
   LoginView.addRevealHandler();
   LoginView.addMobileHandler();
@@ -206,7 +206,7 @@ const init = async function () {
     CartView._addHandlerDelete(controlDeleteFromCart);
   }
   if (document.body.id.includes("login")) {
-    LoginView.initialize()
+    // LoginView.initialize()
     LoginView.addLoginViewHandler(controlLoginPage);
   }
   if (document.body.id.includes("bambot")) {

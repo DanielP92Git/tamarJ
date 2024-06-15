@@ -2,8 +2,8 @@ import View from "../View.js";
 require("dotenv").config();
 
 class LoginView extends View {
-  // _signupHere = document.querySelector(".signup-here");
-  // _loginHere = document.querySelector(".login-here");
+  _signupHere = document.querySelector(".signup-here");
+  _loginHere = document.querySelector(".login-here");
 
   addLoginViewHandler(handler) {
     window.addEventListener("load", handler);
@@ -41,22 +41,22 @@ class LoginView extends View {
     logFields.insertAdjacentHTML("afterbegin", markup);
   }
 
-  // changeMode = function () {
-  //   const modeCheck =
-  //     document.querySelector(".login-title").textContent == "Login";
+  changeMode = function () {
+    const modeCheck =
+      document.querySelector(".login-title").textContent == "Login";
 
-  //   const signupFn = this._signupHere.addEventListener(
-  //     "click",
-  //     this.generateSignup
-  //   );
+    const signupFn = this._signupHere.addEventListener(
+      "click",
+      this.generateSignup
+    );
 
-  //   const loginFn = this._loginHere.addEventListener(
-  //     "click",
-  //     this.generateLogin
-  //   );
+    const loginFn = this._loginHere.addEventListener(
+      "click",
+      this.generateLogin
+    );
 
-  //   modeCheck ? signupFn : loginFn;
-  // };
+    modeCheck ? signupFn : loginFn;
+  };
 
   generateAdminBtn = function () {
     const markup = `<li class="main-nav-tab login" id="login-tab" href="#">
@@ -264,18 +264,18 @@ class LoginView extends View {
     modeCheck ? this.continueLogin() : this.continueSignup();
   };
 
-  initialize() {
-    document.addEventListener("DOMContentLoaded", () => {
-      this._signupHere = document.querySelector(".signup-here");
-      this._loginHere = document.querySelector(".login-here");
-      this._signupHere.addEventListener(
-        "click",
-        this.generateSignup.bind(this)
-      );
-      this._loginHere.addEventListener("click", this.generateLogin.bind(this));
-      this.continueHandler();
-    });
-  }
+  // initialize() {
+  //   document.addEventListener("DOMContentLoaded", () => {
+  //     this._signupHere = document.querySelector(".signup-here");
+  //     this._loginHere = document.querySelector(".login-here");
+  //     this._signupHere.addEventListener(
+  //       "click",
+  //       this.generateSignup.bind(this)
+  //     );
+  //     this._loginHere.addEventListener("click", this.generateLogin.bind(this));
+  //     this.continueHandler();
+  //   });
+  // }
 }
 
 export default new LoginView();
