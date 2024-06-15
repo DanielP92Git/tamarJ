@@ -9,21 +9,21 @@ const cors = require("cors");
 const app = express();
 const bodyParser = require("body-parser");
 
+// const allowedOrigins = '*';
+// const corsOptions = {
+//   origin: (origin, callback) => {
+//     if (allowedOrigins.includes(origin) || !origin) {
+//       console.log("Allowed origin:", origin);
+//       callback(null, true);
+//     } else {
+//       console.error("Blocked by CORS:", origin);
+//       callback(new Error("Not allowed by CORS"));
+//     }
+//   },
+//   credentials: true,
+//   optionsSuccessStatus: 200,
+// };
 
-const allowedOrigins = '*';
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (allowedOrigins.includes(origin) || !origin) {
-      console.log("Allowed origin:", origin);
-      callback(null, true);
-    } else {
-      console.error("Blocked by CORS:", origin);
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-  optionsSuccessStatus: 200,
-};
 // const corsOptions = {
 //   origin: (origin, callback) => {
 //     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
@@ -36,17 +36,23 @@ const corsOptions = {
 //   credentials: true,
 //   optionsSuccessStatus: 200,
 // };
+corsOptions = {
+  origin: "*",
+  methods: "GET,POST,PUT,DELETE,OPTIONS",
+  headers: "Origin, Accept, Content-Type, Authorization",
+  credentials: true,
+};
 app.use(cors(corsOptions));
 
-app.use(bodyParser.json({limit: '50mb'}));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
-app.use(express.json())
+app.use(express.json());
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 // Database Connection With MongoDB
 mongoose.connect(`${process.env.MONGO_URL}`);
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", '*');
+  res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   res.header(
     "Access-Control-Allow-Headers",
@@ -59,7 +65,7 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => res.send("API endpoint is running"));
 
 app.options("*", (req, res) => {
-  res.header("Access-Control-Allow-Origin", '*');
+  res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   res.header(
     "Access-Control-Allow-Headers",
@@ -213,7 +219,6 @@ const authUser = async function (req, res, next) {
           next();
         });
       } else {
-    
         res.status(401).send("No access");
       }
     } else {
@@ -232,13 +237,17 @@ const authUser = async function (req, res, next) {
 app.post("/login", authUser, async (req, res) => {
   try {
     console.log("Login attempt for user:", req.user.email);
-    res.header("Access-Control-Allow-Origin", '*');
+    res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Credentials", "true");
     res.header(
       "Access-Control-Allow-Methods",
       "GET, POST, OPTIONS, PUT, DELETE"
     );
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization", "Origin");
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization",
+      "Origin"
+    );
     const adminCheck = req.user.userType;
     const data = {
       user: {
@@ -258,7 +267,7 @@ app.post("/login", authUser, async (req, res) => {
     }
   } catch (err) {
     console.error("Login Error🔥 :", err);
-    res.status(500).json({ errors: "Internal Server Error", err});
+    res.status(500).json({ errors: "Internal Server Error", err });
   }
 });
 
