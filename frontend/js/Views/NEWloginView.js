@@ -40,21 +40,27 @@ class LoginView extends View {
     logFields.insertAdjacentHTML("afterbegin", markup);
   }
 
-  changeMode = function () {
-    const modeCheck =
-      document.querySelector(".login-title").textContent == "Login";
+  // changeMode = function () {
+  //   const modeCheck =
+  //     document.querySelector(".login-title").textContent == "Login";
 
-    const signupFn = this._signupHere.addEventListener(
-      "click",
-      this.generateSignup
-    );
+  //   const signupFn = this._signupHere.addEventListener(
+  //     "click",
+  //     this.generateSignup
+  //   );
 
-    const loginFn = this._loginHere.addEventListener(
-      "click",
-      this.generateLogin
-    );
+  //   const loginFn = this._loginHere.addEventListener(
+  //     "click",
+  //     this.generateLogin
+  //   );
 
-    modeCheck ? signupFn : loginFn;
+  //   modeCheck ? signupFn : loginFn;
+  // };
+
+  generateAdminBtn = function () {
+    const markup = `<li class="main-nav-tab login" id="login-tab" href="#">
+            <a class="attrib login-btn" href=${process.env.ADMIN_URL}>Dashboard/a>
+          </li>`;
   };
 
   loginHandler = function (data) {
@@ -82,7 +88,7 @@ class LoginView extends View {
           if (data.success) {
             localStorage.setItem("auth-token", data.token);
             if (data.adminCheck === "admin") {
-              window.location.replace("../../html/bambaYafa.html");
+              window.location.replace("/bambaYafa.html");
             } else if (data.adminCheck === "user") {
               window.location.replace("../../index.html");
             }
@@ -221,9 +227,9 @@ class LoginView extends View {
         email: userEmail,
         password: userPassword,
       };
-      // if (userEmail == "" || userPassword == "") {
-      //   alert("Please enter a valid email or password");
-      // }
+      if (userEmail == "" || userPassword == "") {
+        alert("Please enter a valid email or password");
+      }
       this.loginHandler(data);
     });
   }
@@ -251,11 +257,12 @@ class LoginView extends View {
   }
 
   continueHandler = function () {
-    const modeCheck = document.querySelector(".login-title").textContent == "Login";
+    const modeCheck =
+      document.querySelector(".login-title").textContent == "Login";
 
     modeCheck ? this.continueLogin() : this.continueSignup();
   };
-  
+
   initialize() {
     document.addEventListener("DOMContentLoaded", () => {
       this._signupHere = document.querySelector(".signup-here");
