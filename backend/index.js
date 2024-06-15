@@ -250,12 +250,12 @@ app.post("/login", authUser, async (req, res) => {
 
     if (token) {
       console.log("Login successful for user:", req.user.email);
-      res.redirect('/html/bamba-yafa.html')
-      res.json({
-        success: true,
-        token,
-        adminCheck,
-      });
+      res.redirect(`${process.env.ADMIN_URL}`)
+      // res.json({
+      //   success: true,
+      //   token,
+      //   adminCheck,
+      // });
     }
   } catch (err) {
     console.error("Login Error🔥 :", err);
