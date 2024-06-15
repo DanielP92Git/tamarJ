@@ -115,7 +115,7 @@ const controlLoginPage = async function () {
   await model.handleLoadStorage();
 
   LoginView.svgHandler();
-  LoginView.changeMode();
+  LoginView.initialize();
   LoginView.continueHandler();
   LoginView.addRevealHandler();
   LoginView.addMobileHandler();
