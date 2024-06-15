@@ -82,21 +82,21 @@ class LoginView extends View {
             headers: {
               "Content-Type": "application/json",
             },
-            // credentials: "include",
+            credentials: "include",
           });
 
           const data = await response.json();
 
-          if (data.success) {
-            console.log(data.success);
-            localStorage.setItem("auth-token", data.token);
-            if (data.adminCheck === "admin") {
-              window.location.assign(`${process.env.HOST}/html/bamba-yafa.html`);
-            } else if (data.adminCheck === "user") {
-              window.location.replace("../../index.html");
-            }
-          }
-          console.error("Login Error:", err)
+          // if (data.success) {
+          //   console.log(data.success);
+          //   localStorage.setItem("auth-token", data.token);
+          //   if (data.adminCheck === "admin") {
+          //     window.location.assign(`${process.env.HOST}/html/bamba-yafa.html`);
+          //   } else if (data.adminCheck === "user") {
+          //     window.location.replace("../../index.html");
+          //   }
+          // }
+          // console.error("Login Error:", err)
         } catch (err) {
           // alert("An error occurred during login. Please try again. Login Error:", err, data.errors);
           console.error("An error occurred during login. Please try again. Login Error:", err, data.errors);
