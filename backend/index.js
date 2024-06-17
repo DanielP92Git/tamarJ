@@ -264,17 +264,17 @@ const authUser = async function (req, res, next) {
 // Creating endpoint for login
 app.post("/login", authUser, async (req, res) => {
   try {
-    // res.header("Access-Control-Allow-Origin", "*");
-    // res.header("Access-Control-Allow-Credentials", "true");
-    // res.header(
-    //   "Access-Control-Allow-Methods",
-    //   "GET, POST, OPTIONS, PUT, DELETE"
-    // );
-    // res.header(
-    //   "Access-Control-Allow-Headers",
-    //   "Content-Type, Authorization",
-    //   "Origin"
-    // );
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header(
+      "Access-Control-Allow-Methods",
+      "GET, POST, OPTIONS, PUT, DELETE"
+    );
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization",
+      "Origin"
+    );
     const adminCheck = req.user.userType;
     const data = {
       user: {
@@ -285,13 +285,13 @@ app.post("/login", authUser, async (req, res) => {
     const token = jwt.sign(data, process.env.JWT_KEY);
 
     if (token) {
-      res.header("Access-Control-Allow-Origin", "*");
-      res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-      res.header(
-        "Access-Control-Allow-Headers",
-        "Origin, Accept, Content-Type, Authorization"
-      );
-      res.header("Access-Control-Allow-Credentials", "true");
+      // res.header("Access-Control-Allow-Origin", "*");
+      // res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+      // res.header(
+      //   "Access-Control-Allow-Headers",
+      //   "Origin, Accept, Content-Type, Authorization"
+      // );
+      // res.header("Access-Control-Allow-Credentials", "true");
       res.redirect(`${process.env.HOST}/html/bambaYafa.html`);
       // res.json({
       //   success: true,
