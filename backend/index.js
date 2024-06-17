@@ -64,7 +64,17 @@ app.use((req, res, next) => {
 
 app.get("/", (req, res) => res.send("API endpoint is running"));
 
+// app.use(express.static(path.join(__dirname, 'public')));
+
 app.get('/admin', (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, Content-Type, Authorization"
+  );
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.sendStatus(200);
   res.sendFile(path.join(__dirname, 'html','bambaYafa.html'));
 })
 
@@ -236,6 +246,8 @@ const authUser = async function (req, res, next) {
     res.status(500).json({ errors: "Internal Server Error" });
   }
 };
+
+
 
 // Creating endpoint for login
 app.post("/login", authUser, async (req, res) => {
