@@ -137,6 +137,19 @@ corsOptions = {
 };
 app.use(cors(corsOptions));
 
+app.options("*", (req, res), cors(corsOptions)
+// => {
+//   res.header("Access-Control-Allow-Origin", `${process.env.HOST}`,`${process.env.API_URL}`);
+//   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, Content-Type, Authorization"
+//   );
+//   res.header("Access-Control-Allow-Credentials", "true");
+//   res.sendStatus(200);
+// }
+);
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", `${process.env.HOST}`,`${process.env.API_URL}`);
   res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
@@ -146,17 +159,6 @@ app.use((req, res, next) => {
   );
   res.header("Access-Control-Allow-Credentials", "true");
   next();
-});
-
-app.options("*", (req, res) => {
-  res.header("Access-Control-Allow-Origin", `${process.env.HOST}`,`${process.env.API_URL}`);
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, Content-Type, Authorization"
-  );
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.sendStatus(200);
 });
 
 //
@@ -285,13 +287,13 @@ app.post("/login", authUser, async (req, res) => {
     const token = jwt.sign(data, process.env.JWT_KEY);
 
     if (token) {
-      // res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
-      // res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-      // res.header(
-      //   "Access-Control-Allow-Headers",
-      //   "Origin, Accept, Content-Type, Authorization"
-      // );
-      // res.header("Access-Control-Allow-Credentials", "true");
+      res.header("Access-Control-Allow-Origin", `${process.env.HOST}`,`${process.env.API_URL}`);
+      res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+      res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, Accept, Content-Type, Authorization"
+      );
+      res.header("Access-Control-Allow-Credentials", "true");
       res.redirect(`${process.env.HOST}/html/bambaYafa.html`);
       // res.json({
       //   success: true,
