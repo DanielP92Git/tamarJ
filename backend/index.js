@@ -11,6 +11,7 @@ const cookieParser = require("cookie-parser");
 
 //
 //* MAIN SETTINGS
+//
 const corsOptions = {
   credentials: true,
   preflightContinue: true,
@@ -56,14 +57,36 @@ app.use(express.json({ limit: "50mb" }));
 //   optionsSuccessStatus: 200,
 // };
 
+//
+//* CORS
+//
+
+function headers(req, res, next) {
+  res.header(
+    "Access-Control-Allow-Origin",
+    `${process.env.HOST}`,
+    `${process.env.API_URL}`
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, Content-Type, Authorization"
+  );
+  res.header("Access-Control-Allow-Credentials", "true");
+}
+
+app.options("*", headers);
+
+app.use(headers);
+
+//
 //* MONGODB
 //
 
 // Database Connection With MongoDB
 mongoose.connect(`${process.env.MONGO_URL}`);
 
-// Scheme Creating User Model
-
+// Schema Creating User Model
 const Users = mongoose.model("Users", {
   name: {
     type: String,
@@ -136,47 +159,11 @@ const Product = mongoose.model("Product", {
   },
 });
 
-//
-//* CORS
-//
 
-function headers(req, res, next) {
-  res.header(
-    "Access-Control-Allow-Origin",
-    `${process.env.HOST}`,
-    `${process.env.API_URL}`
-  );
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, Content-Type, Authorization"
-  );
-  res.header("Access-Control-Allow-Credentials", "true");
-}
-
-app.options("*", headers);
-
-app.use(headers);
-
-//
 //* APIs
 //
 
-app.use(express.static(path.join(__dirname, "public")));
-
 app.get("/", (req, res) => res.send("API endpoint is running"));
-
-// app.get("/admin", (req, res) => {
-//   res.sendFile(path.join(__dirname, "html", "bambaYafa.html"));
-//   res.header("Access-Control-Allow-Origin", "*");
-//   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
-//   res.header(
-//     "Access-Control-Allow-Headers",
-//     "Origin, Content-Type, Authorization"
-//   );
-//   res.header("Access-Control-Allow-Credentials", "true");
-//   res.sendStatus(200);
-// });
 
 // Add product to database
 
