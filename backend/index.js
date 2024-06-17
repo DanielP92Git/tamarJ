@@ -295,11 +295,11 @@ app.post("/login", authUser, async (req, res) => {
       );
       res.header("Access-Control-Allow-Credentials", "true");
       res.redirect(`${process.env.HOST}/html/bambaYafa.html`);
-      // res.json({
-      //   success: true,
-      //   token,
-      //   adminCheck,
-      // });
+      res.json({
+        success: true,
+        token,
+        adminCheck,
+      });
     }
   } catch (err) {
     console.error("Login Error🔥 :", err);
@@ -564,9 +564,9 @@ app.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-app.listen(process.env.CLIENT_PORT, (error) => {
+app.listen(process.env.SERVER_PORT, (error) => {
   if (!error) {
-    console.log("Server Running on Port " + process.env.CLIENT_PORT);
+    console.log("Server Running on Port " + process.env.SERVER_PORT);
   } else {
     console.log("Error : " + error);
   }
