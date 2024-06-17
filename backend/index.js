@@ -130,7 +130,7 @@ const Product = mongoose.model("Product", {
 //
 
 corsOptions = {
-  origin: `${process.env.HOST}`,
+  origin: [`${process.env.HOST}`,`${process.env.API_URL}`],
   methods: "GET,POST,PUT,DELETE,OPTIONS",
   headers: "Origin, Accept, Content-Type, Authorization",
   credentials: true,
@@ -138,7 +138,7 @@ corsOptions = {
 app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
+  res.header("Access-Control-Allow-Origin", `${process.env.HOST}`,`${process.env.API_URL}`);
   res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   res.header(
     "Access-Control-Allow-Headers",
@@ -149,7 +149,7 @@ app.use((req, res, next) => {
 });
 
 app.options("*", (req, res) => {
-  res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
+  res.header("Access-Control-Allow-Origin", `${process.env.HOST}`,`${process.env.API_URL}`);
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   res.header(
     "Access-Control-Allow-Headers",
@@ -264,7 +264,7 @@ const authUser = async function (req, res, next) {
 // Creating endpoint for login
 app.post("/login", authUser, async (req, res) => {
   try {
-    res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
+    res.header("Access-Control-Allow-Origin", `${process.env.HOST}`,`${process.env.API_URL}`);
     res.header("Access-Control-Allow-Credentials", "true");
     res.header(
       "Access-Control-Allow-Methods",
