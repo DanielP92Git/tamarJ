@@ -163,12 +163,12 @@ app.options("*", (req, res) => {
 //* APIs
 //
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => res.send("API endpoint is running"));
 
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'html','bambaYafa.html'));
+app.get("/admin", (req, res) => {
+  res.sendFile(path.join(__dirname, "html", "bambaYafa.html"));
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   res.header(
@@ -177,7 +177,7 @@ app.get('/admin', (req, res) => {
   );
   res.header("Access-Control-Allow-Credentials", "true");
   res.sendStatus(200);
-})
+});
 
 // Add product to database
 app.post("/addproduct", async (req, res) => {
@@ -284,8 +284,14 @@ app.post("/login", authUser, async (req, res) => {
     const token = jwt.sign(data, process.env.JWT_KEY);
 
     if (token) {
-      console.log("Login successful for user:", req.user.email);
-      res.redirect(`${process.env.HOST}/html/bambaYafa.html`)
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+      res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, Accept, Content-Type, Authorization"
+      );
+      res.header("Access-Control-Allow-Credentials", "true");
+      res.redirect(`${process.env.HOST}/html/bambaYafa.html`);
       // res.json({
       //   success: true,
       //   token,
