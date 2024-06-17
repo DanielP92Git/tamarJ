@@ -45,8 +45,8 @@ corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(express.json());
-app.use(bodyParser.json({ limit: "50mb" }));
-app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Database Connection With MongoDB
 mongoose.connect(`${process.env.MONGO_URL}`);
@@ -63,7 +63,9 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => res.send("API endpoint is running"));
-
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname + '/html/bambaYafa.html'));
+})
 app.options("*", (req, res) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
@@ -259,11 +261,12 @@ app.post("/login", authUser, async (req, res) => {
 
     if (token) {
       console.log("Login successful for user:", req.user.email);
-      res.json({
-        success: true,
-        token,
-        adminCheck,
-      });
+      res.redirect('/admin')
+      // res.json({
+      //   success: true,
+      //   token,
+      //   adminCheck,
+      // });
     }
   } catch (err) {
     console.error("Login Error🔥 :", err);
