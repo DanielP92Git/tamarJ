@@ -263,7 +263,7 @@ app.post("/login", authUser, async (req, res) => {
 
     if (token) {
       console.log("Login successful for user:", req.user.email);
-      res.redirect('/admin')
+      res.redirect('/html/bambaYafa.html')
       // res.json({
       //   success: true,
       //   token,
