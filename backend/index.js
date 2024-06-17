@@ -36,57 +36,49 @@ const cors = require("cors");
 //   optionsSuccessStatus: 200,
 // };
 
-corsOptions = {
-  origin: "*",
-  methods: "GET,POST,PUT,DELETE,OPTIONS",
-  headers: "Origin, Accept, Content-Type, Authorization",
-  credentials: true,
-};
-app.use(cors(corsOptions));
+//
+//* EXPRESS
+//
 
 app.use(express.json());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
+//
+//* MONGODB
+//
+
 // Database Connection With MongoDB
 mongoose.connect(`${process.env.MONGO_URL}`);
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, Accept, Content-Type, Authorization"
-  );
-  res.header("Access-Control-Allow-Credentials", "true");
-  next();
-});
+// Scheme Creating User Model
 
-app.get("/", (req, res) => res.send("API endpoint is running"));
-
-// app.use(express.static(path.join(__dirname, 'public')));
-
-app.get('/admin', (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, Content-Type, Authorization"
-  );
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.sendStatus(200);
-  res.sendFile(path.join(__dirname, 'html','bambaYafa.html'));
-})
-
-app.options("*", (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, Content-Type, Authorization"
-  );
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.sendStatus(200);
+const Users = mongoose.model("Users", {
+  name: {
+    type: String,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    match:
+      /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  cartData: {
+    type: Object,
+  },
+  Date: {
+    type: Date,
+    default: Date.now,
+  },
+  userType: {
+    type: String,
+    default: "user",
+  },
 });
 
 // Schema for Creating Products
@@ -133,8 +125,61 @@ const Product = mongoose.model("Product", {
   },
 });
 
-//Add product to database
+//
+//* CORS
+//
 
+corsOptions = {
+  origin: "*",
+  methods: "GET,POST,PUT,DELETE,OPTIONS",
+  headers: "Origin, Accept, Content-Type, Authorization",
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, Accept, Content-Type, Authorization"
+  );
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+});
+
+app.options("*", (req, res) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, Content-Type, Authorization"
+  );
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.sendStatus(200);
+});
+
+//
+//* APIs
+//
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get("/", (req, res) => res.send("API endpoint is running"));
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'html','bambaYafa.html'));
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, Content-Type, Authorization"
+  );
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.sendStatus(200);
+})
+
+// Add product to database
 app.post("/addproduct", async (req, res) => {
   let products = await Product.find({});
   let id;
@@ -166,8 +211,7 @@ app.post("/addproduct", async (req, res) => {
   });
 });
 
-// Creating API for deleting products
-
+// Delete products from database
 app.post("/removeproduct", async (req, res) => {
   await Product.findOneAndDelete({ id: req.body.id });
   console.log("Removed");
@@ -177,42 +221,11 @@ app.post("/removeproduct", async (req, res) => {
   });
 });
 
-// Creating API for getting all products
-
+// Get all products from database
 app.get("/allproducts", async (req, res) => {
   let products = await Product.find({});
   console.log("All Products Fetched");
   res.send(products);
-});
-
-// Scheme Creating User Model
-
-const Users = mongoose.model("Users", {
-  name: {
-    type: String,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    match:
-      /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  cartData: {
-    type: Object,
-  },
-  Date: {
-    type: Date,
-    default: Date.now,
-  },
-  userType: {
-    type: String,
-    default: "user",
-  },
 });
 
 const authUser = async function (req, res, next) {
@@ -247,12 +260,9 @@ const authUser = async function (req, res, next) {
   }
 };
 
-
-
 // Creating endpoint for login
 app.post("/login", authUser, async (req, res) => {
   try {
-    console.log("Login attempt for user:", req.user.email);
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Credentials", "true");
     res.header(
@@ -351,7 +361,6 @@ const fetchUser = async (req, res, next) => {
     try {
       const decoded = jwt.verify(token, process.env.JWT_KEY);
       req.user = decoded.user;
-      // console.log(decoded.user);
       next();
     } catch (err) {
       res
