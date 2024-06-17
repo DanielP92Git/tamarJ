@@ -12,23 +12,6 @@ const cookieParser = require("cookie-parser");
 //
 //* MAIN SETTINGS
 //
-const corsOptions = {
-  credentials: true,
-  preflightContinue: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  origin: `${process.env.HOST}`,
-};
-// const corsOptions = {
-//   origin: [`${process.env.HOST}`,`${process.env.API_URL}`],
-//   methods: "GET,POST,PUT,DELETE,OPTIONS",
-//   headers: "Origin, Accept, Content-Type, Authorization",
-//   credentials: true,
-// };
-app.use(cors(corsOptions));
-
-app.use(cookieParser());
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json({ limit: "50mb" }));
 // const allowedOrigins = '*';
 // const corsOptions = {
 //   origin: (origin, callback) => {
@@ -44,18 +27,31 @@ app.use(express.json({ limit: "50mb" }));
 //   optionsSuccessStatus: 200,
 // };
 
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      console.log("ORIGIN: ", origin);
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+
 // const corsOptions = {
-//   origin: (origin, callback) => {
-//     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-//       console.log("ORIGIN: ", origin);
-//       callback(null, true);
-//     } else {
-//       callback(new Error("Not allowed by CORS"));
-//     }
-//   },
 //   credentials: true,
-//   optionsSuccessStatus: 200,
+//   preflightContinue: true,
+//   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+//   origin: `${process.env.HOST}`,
 // };
+
+app.use(cors(corsOptions));
+
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: "50mb" }));
 
 //
 //* CORS

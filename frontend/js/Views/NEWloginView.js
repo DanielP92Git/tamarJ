@@ -78,10 +78,10 @@ class LoginView extends View {
 
           const response = await fetch(`${serverUrl}/login`, {
             method: "POST",
-            body: JSON.stringify(userFormData),
             headers: {
               "Content-Type": "application/json",
             },
+            body: JSON.stringify(userFormData),
             credentials: "include",
           });
 
