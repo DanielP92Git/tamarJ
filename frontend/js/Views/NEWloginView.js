@@ -73,7 +73,7 @@ class LoginView extends View {
 
       const login = async function (e, userFormData) {
         try {
-          e.preventDefault()
+          e.preventDefault();
           const serverUrl = `${process.env.API_URL}`;
 
           const response = await fetch(`${serverUrl}/login`, {
@@ -86,20 +86,25 @@ class LoginView extends View {
           });
 
           const data = await response.json();
-
-          if (data.success) {
-            console.log(data.success);
-            localStorage.setItem("auth-token", data.token);
-            if (data.adminCheck === "admin") {
-              window.location.assign(`${process.env.HOST}/html/bamba-yafa.html`);
-            } else if (data.adminCheck === "user") {
-              window.location.replace("../../index.html");
-            }
+          if (!data.success) {
+            throw new Error(data.errors);
           }
-          console.error("Login Error:", err)
+          // if (data.success) {
+          //   console.log(data.success);
+          //   localStorage.setItem("auth-token", data.token);
+          //   if (data.adminCheck === "admin") {
+          //     window.location.assign(`${process.env.HOST}/html/bamba-yafa.html`);
+          //   } else if (data.adminCheck === "user") {
+          //     window.location.replace("../../index.html");
+          //   }
+          // }
+          // console.error("Login Error:", err)
         } catch (err) {
           // alert("An error occurred during login. Please try again. Login Error:", err, data.errors);
-          console.error("An error occurred during login. Please try again. Login Error:", err, data.errors);
+          console.error(
+            "An error occurred during login. Please try again. Login Error:",
+            err
+          );
         }
       };
 
@@ -201,7 +206,11 @@ class LoginView extends View {
           }
         } catch (err) {
           console.error();
-          alert("An error occurred during signup. Please try again.", "Signup Error:", err);
+          alert(
+            "An error occurred during signup. Please try again.",
+            "Signup Error:",
+            err
+          );
         }
       };
 
