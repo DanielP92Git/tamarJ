@@ -7,16 +7,16 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 const mongoose = require("mongoose");
 const cors = require("cors");
-const cookieParser = require('cookie-parser');
+const cookieParser = require("cookie-parser");
 
 //
 //* MAIN SETTINGS
 const corsOptions = {
   credentials: true,
   preflightContinue: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH' , 'DELETE', 'OPTIONS'],
-  origin: `${process.env.HOST}`
-}
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  origin: `${process.env.HOST}`,
+};
 // const corsOptions = {
 //   origin: [`${process.env.HOST}`,`${process.env.API_URL}`],
 //   methods: "GET,POST,PUT,DELETE,OPTIONS",
@@ -24,8 +24,6 @@ const corsOptions = {
 //   credentials: true,
 // };
 app.use(cors(corsOptions));
-
-
 
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
@@ -142,29 +140,23 @@ const Product = mongoose.model("Product", {
 //* CORS
 //
 
-app.options("*", (req,res, next) => {
-  res.header("Access-Control-Allow-Origin", `${process.env.HOST}`,`${process.env.API_URL}`);
+function headers(req, res, next) {
+  res.header(
+    "Access-Control-Allow-Origin",
+    `${process.env.HOST}`,
+    `${process.env.API_URL}`
+  );
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, Content-Type, Authorization"
   );
   res.header("Access-Control-Allow-Credentials", "true");
-  res.sendStatus(200);
-  next();
 }
-);
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", `${process.env.HOST}`,`${process.env.API_URL}`);
-  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, Accept, Content-Type, Authorization"
-  );
-  res.header("Access-Control-Allow-Credentials", "true");
-  next();
-});
+app.options("*", headers);
+
+app.use(headers);
 
 //
 //* APIs
@@ -254,7 +246,7 @@ const authUser = async function (req, res, next) {
           next();
         });
       } else {
-        res.status(401).send("No access");
+        throw new Error('No access')
       }
     } else {
       res.status(404).json({
