@@ -12,7 +12,7 @@ const cookieParser = require("cookie-parser");
 //
 //* MAIN SETTINGS
 //
-// const allowedOrigins = '*';
+const allowedOrigins = `${process.env.HOST}`;
 // const corsOptions = {
 //   origin: (origin, callback) => {
 //     if (allowedOrigins.includes(origin) || !origin) {
@@ -239,7 +239,7 @@ const authUser = async function (req, res, next) {
     }
   } catch (err) {
     console.error("Auth error:", err);
-    res.status(500).json({ errors: "Internal Server Error" });
+    res.status(500).json({ errors: "Auth User - Internal Server Error" });
   }
 };
 
@@ -264,7 +264,7 @@ app.post("/login", authUser, async (req, res) => {
     }
   } catch (err) {
     console.error("Login Error🔥 :", err);
-    res.status(500).json({ errors: "Internal Server Error", err });
+    res.status(500).json({ errors: "Login - Internal Server Error", err });
   }
 });
 
