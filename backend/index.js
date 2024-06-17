@@ -292,7 +292,7 @@ app.post("/login", authUser, async (req, res) => {
         "Origin, Accept, Content-Type, Authorization"
       );
       res.header("Access-Control-Allow-Credentials", "true");
-      res.redirect('/html/bambaYafa.html');
+      res.redirect(`${process.env.HOST}/html/bambaYafa.html`);
       // res.json({
       //   success: true,
       //   token,
