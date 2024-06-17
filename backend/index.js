@@ -130,7 +130,7 @@ const Product = mongoose.model("Product", {
 //
 
 corsOptions = {
-  origin: `${process.env.HOST}:${process.env.SERVER_PORT}`,
+  origin: `${process.env.HOST}:${process.env.CLIENT_PORT}`,
   methods: "GET,POST,PUT,DELETE,OPTIONS",
   headers: "Origin, Accept, Content-Type, Authorization",
   credentials: true,
@@ -138,7 +138,7 @@ corsOptions = {
 app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", `${process.env.HOST}:${process.env.SERVER_PORT}`);
+  res.header("Access-Control-Allow-Origin", `${process.env.HOST}:${process.env.CLIENT_PORT}`);
   res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   res.header(
     "Access-Control-Allow-Headers",
@@ -149,7 +149,7 @@ app.use((req, res, next) => {
 });
 
 app.options("*", (req, res) => {
-  res.header("Access-Control-Allow-Origin", `${process.env.HOST}:${process.env.SERVER_PORT}`);
+  res.header("Access-Control-Allow-Origin", `${process.env.HOST}:${process.env.CLIENT_PORT}`);
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   res.header(
     "Access-Control-Allow-Headers",
@@ -264,7 +264,7 @@ const authUser = async function (req, res, next) {
 // Creating endpoint for login
 app.post("/login", authUser, async (req, res) => {
   try {
-    res.header("Access-Control-Allow-Origin", `${process.env.HOST}:${process.env.SERVER_PORT}`);
+    res.header("Access-Control-Allow-Origin", `${process.env.HOST}:${process.env.CLIENT_PORT}`);
     res.header("Access-Control-Allow-Credentials", "true");
     res.header(
       "Access-Control-Allow-Methods",
@@ -285,7 +285,7 @@ app.post("/login", authUser, async (req, res) => {
     const token = jwt.sign(data, process.env.JWT_KEY);
 
     if (token) {
-      // res.header("Access-Control-Allow-Origin", `${process.env.HOST}:${process.env.SERVER_PORT}`);
+      // res.header("Access-Control-Allow-Origin", `${process.env.HOST}:${process.env.CLIENT_PORT}`);
       // res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
       // res.header(
       //   "Access-Control-Allow-Headers",
@@ -462,12 +462,12 @@ app.post("/upload", multipleUpload, (req, res, err) => {
   try {
     let smallFiles = req.files.smallImages;
     let makeUrl = smallFiles.map((file) => {
-      return `${process.env.API_URL}:${process.env.SERVER_PORT}/smallImages/${file.filename}`;
+      return `${process.env.API_URL}:${process.env.CLIENT_PORT}/smallImages/${file.filename}`;
     });
     res.json({
       success: 1,
       file: req.files,
-      mainImageUrl: `${process.env.API_URL}:${process.env.SERVER_PORT}/uploads/${req.files.mainImage[0].filename}`,
+      mainImageUrl: `${process.env.API_URL}:${process.env.CLIENT_PORT}/uploads/${req.files.mainImage[0].filename}`,
 
       smallImagesUrl: makeUrl,
     });
@@ -562,9 +562,9 @@ app.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-app.listen(process.env.SERVER_PORT, (error) => {
+app.listen(process.env.CLIENT_PORT, (error) => {
   if (!error) {
-    console.log("Server Running on Port " + process.env.SERVER_PORT);
+    console.log("Server Running on Port " + process.env.CLIENT_PORT);
   } else {
     console.log("Error : " + error);
   }
