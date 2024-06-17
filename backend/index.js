@@ -12,13 +12,21 @@ const cookieParser = require('cookie-parser');
 //
 //* MAIN SETTINGS
 //
-corsOptions = {
-  origin: [`${process.env.HOST}`,`${process.env.API_URL}`],
-  methods: "GET,POST,PUT,DELETE,OPTIONS",
-  headers: "Origin, Accept, Content-Type, Authorization",
+// corsOptions = {
+//   origin: [`${process.env.HOST}`,`${process.env.API_URL}`],
+//   methods: "GET,POST,PUT,DELETE,OPTIONS",
+//   headers: "Origin, Accept, Content-Type, Authorization",
+//   credentials: true,
+// };
+// app.use(cors(corsOptions));
+
+app.use(cors({
   credentials: true,
-};
-app.use(cors(corsOptions));
+  preflightContinue: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH' , 'DELETE', 'OPTIONS'],
+  origin: true
+}));
+
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json({ limit: "50mb" }));
