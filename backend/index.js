@@ -7,7 +7,21 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 const mongoose = require("mongoose");
 const cors = require("cors");
+const cookieParser = require('cookie-parser');
 
+//
+//* MAIN SETTINGS
+//
+corsOptions = {
+  origin: [`${process.env.HOST}`,`${process.env.API_URL}`],
+  methods: "GET,POST,PUT,DELETE,OPTIONS",
+  headers: "Origin, Accept, Content-Type, Authorization",
+  credentials: true,
+};
+app.use(cors(corsOptions));
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: "50mb" }));
 // const allowedOrigins = '*';
 // const corsOptions = {
 //   origin: (origin, callback) => {
@@ -36,15 +50,6 @@ const cors = require("cors");
 //   optionsSuccessStatus: 200,
 // };
 
-//
-//* EXPRESS
-//
-
-app.use(express.json());
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: false }));
-
-//
 //* MONGODB
 //
 
@@ -128,14 +133,6 @@ const Product = mongoose.model("Product", {
 //
 //* CORS
 //
-
-corsOptions = {
-  origin: [`${process.env.HOST}`,`${process.env.API_URL}`],
-  methods: "GET,POST,PUT,DELETE,OPTIONS",
-  headers: "Origin, Accept, Content-Type, Authorization",
-  credentials: true,
-};
-app.use(cors(corsOptions));
 
 app.options("*", cors(corsOptions)
 // => {
