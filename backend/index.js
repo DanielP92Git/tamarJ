@@ -42,7 +42,7 @@ const cors = require("cors");
 
 app.use(express.json());
 app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
+app.use(express.urlencoded({ extended: false }));
 
 //
 //* MONGODB
@@ -167,19 +167,20 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => res.send("API endpoint is running"));
 
-app.get("/admin", (req, res) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, Content-Type, Authorization"
-  );
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.sendStatus(200);
-  res.sendFile(path.join(__dirname, "html", "bambaYafa.html"));
-});
+// app.get("/admin", (req, res) => {
+//   res.sendFile(path.join(__dirname, "html", "bambaYafa.html"));
+//   res.header("Access-Control-Allow-Origin", "*");
+//   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, Content-Type, Authorization"
+//   );
+//   res.header("Access-Control-Allow-Credentials", "true");
+//   res.sendStatus(200);
+// });
 
 // Add product to database
+
 app.post("/addproduct", async (req, res) => {
   let products = await Product.find({});
   let id;
@@ -291,7 +292,7 @@ app.post("/login", authUser, async (req, res) => {
         "Origin, Accept, Content-Type, Authorization"
       );
       res.header("Access-Control-Allow-Credentials", "true");
-      res.redirect('/admin');
+      res.redirect('/html/bambaYafa.html');
       // res.json({
       //   success: true,
       //   token,
