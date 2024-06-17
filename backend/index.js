@@ -24,7 +24,7 @@ app.use(cors({
   credentials: true,
   preflightContinue: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH' , 'DELETE', 'OPTIONS'],
-  origin: true
+  origin: `${process.env.HOST}`
 }));
 
 app.use(cookieParser());
