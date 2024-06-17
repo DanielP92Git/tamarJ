@@ -155,9 +155,11 @@ const Product = mongoose.model("Product", {
   },
 });
 
-
+//
 //* APIs
 //
+
+app.use(express.static('frontend'))
 
 app.get("/", (req, res) => res.send("API endpoint is running"));
 

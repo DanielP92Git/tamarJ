@@ -1,3 +1,4 @@
+import View from "../View.js";
 require("dotenv").config();
 
 const addProductsBtn = document.querySelector(".sidebar_add-products");
@@ -6,13 +7,13 @@ const sideBar = document.querySelector(".sidebar");
 const pageContent = document.querySelector(".page-content");
 const host = process.env.API_URL;
 
-export const addBambaViewHandler = async function (handler) {
-  window.addEventListener("load", handler);
-};
+class BisliView extends View {
+  addBambaViewHandler = async function (handler) {
+    window.addEventListener("load", handler);
+  };
 
-// export const pageAuth = async function (handler) {
-//   const mainContainer = document.getElementById("bambot");
-//   const markup = ` <div id="login-signup" class="loginsignup">
+  pageAuth = function (handler) {
+//     return ` <div id="login-signup" class="loginsignup">
 //   <div class="loginsignup-container">
 //     <h1 class="login-title">Login</h1>
 //     <div class="loginsignup-fields">
@@ -25,161 +26,166 @@ export const addBambaViewHandler = async function (handler) {
 //   </div>
 // </div>`;
 
-//   mainContainer.insertAdjacentHTML("afterbegin", markup);
+    const continueBtn = document.querySelector(".continue-button");
 
-//   const continueBtn = document.querySelector(".continue-button");
-
-//   continueBtn.addEventListener("click", (e) => {
-//     const userEmail = document.getElementById("email-input").value;
-//     const userPassword = document.getElementById("password-input").value;
-//     const data = {
-//       email: userEmail,
-//       password: userPassword,
-//     };
-//     loginHandler(data);
-//     // loginHandler(data, handler);
-//   });
-// };
-
-// Previous option;
-// const loginHandler = async function (formData, handler) {
-export const loginHandler = async function (formData) {
-  await fetch(`${host}/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(formData),
-  })
-    .then((response) => response.json())
-    .then((responseData) => {
-      if (responseData.success && responseData.adminCheck === "admin") {
-        localStorage.setItem("auth-token", responseData.token);
-        alert("Login Successfuly!");
-        modeHandler()
-      } else {
-        alert("Access Denied!");
-      }
+    continueBtn.addEventListener("click", (e) => {
+      const userEmail = document.getElementById("email-input").value;
+      const userPassword = document.getElementById("password-input").value;
+      const data = {
+        email: userEmail,
+        password: userPassword,
+      };
+      this.loginHandler(data);
+      // loginHandler(data, handler);
     });
-};
+  };
 
-const modeHandler = function () {
-  addProductsBtn.addEventListener("click", loadAddProductsPage);
-  productsListBtn.addEventListener("click", () => {
-    fetchInfo();
-  });
-};
+  // authRender = function () {
+  //   const mainContainer = document.getElementById("bambot");
 
-const clear = function () {
-  pageContent.innerHTML = "";
-};
+  //   mainContainer.insertAdjacentHTML("afterbegin", this.pageAuth);
+  // };
 
-const fetchInfo = async () => {
-  await fetch(`${host}/allproducts`)
-    .then((res) => res.json())
-    .then((data) => {
-      loadProductsPage(data);
-    });
-};
-
-const addProduct = async (e, productDetails) => {
-  try {
-    let responseData;
-    let product = productDetails;
-    let image = product.image;
-    let smallImages = product.multiImages;
-
-    let formData = new FormData();
-    formData.append("mainImage", image);
-
-    smallImages.forEach((image) => {
-      formData.append("smallImages", image);
-    });
-
-    e.preventDefault();
-    await fetch(`${host}/upload`, {
+  // Previous option;
+  // const loginHandler = async function (formData, handler) {
+  loginHandler = async function (formData) {
+    await fetch(`${host}/login`, {
       method: "POST",
-      body: formData,
       headers: {
-        Accept: "multipart/form-data",
         "Content-Type": "application/json",
       },
+      body: JSON.stringify(formData),
     })
-      .then((resp) => resp.json())
+      .then((response) => response.json())
+      .then((responseData) => {
+        console.log(responseData);
+        if (responseData.success && responseData.adminCheck === "admin") {
+          localStorage.setItem("auth-token", responseData.token);
+          alert("Login Successfuly!");
+          this.modeHandler();
+        } else {
+          alert("Access Denied!");
+        }
+      });
+  };
+
+  modeHandler = function () {
+    addProductsBtn.addEventListener("click", this.loadAddProductsPage);
+    productsListBtn.addEventListener("click", () => {
+      this.fetchInfo();
+    });
+  };
+
+  clear = function () {
+    pageContent.innerHTML = "";
+  };
+
+  fetchInfo = async () => {
+    await fetch(`${host}/allproducts`)
+      .then((res) => res.json())
       .then((data) => {
-        responseData = data;
+        this.loadProductsPage(data);
+      });
+  };
+
+  addProduct = async (e, productDetails) => {
+    try {
+      let responseData;
+      let product = productDetails;
+      let image = product.image;
+      let smallImages = product.multiImages;
+
+      let formData = new FormData();
+      formData.append("mainImage", image);
+
+      smallImages.forEach((image) => {
+        formData.append("smallImages", image);
       });
 
-    responseData.success
-      ? alert("Image Uploded!")
-      : alert("Something went wrong");
-
-    product.image = responseData.mainImageUrl;
-    product.multiImages = responseData.smallImagesUrl;
-    if (responseData.success) {
-      await fetch(`${host}/addproduct`, {
+      e.preventDefault();
+      await fetch(`${host}/upload`, {
         method: "POST",
+        body: formData,
         headers: {
           Accept: "multipart/form-data",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(product),
       })
         .then((resp) => resp.json())
         .then((data) => {
-          data.success ? alert("Product Added!") : alert("Failed");
+          responseData = data;
         });
+
+      responseData.success
+        ? alert("Image Uploded!")
+        : alert("Something went wrong");
+
+      product.image = responseData.mainImageUrl;
+      product.multiImages = responseData.smallImagesUrl;
+      if (responseData.success) {
+        await fetch(`${host}/addproduct`, {
+          method: "POST",
+          headers: {
+            Accept: "multipart/form-data",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(product),
+        })
+          .then((resp) => resp.json())
+          .then((data) => {
+            data.success ? alert("Product Added!") : alert("Failed");
+          });
+      }
+    } catch (err) {
+      console.log(err);
     }
-  } catch (err) {
-    console.log(err);
-  }
-};
+  };
 
-const addProductHandler = function () {
-  const addProductBtn = document.querySelector(".addproduct-btn");
-  const form = document.getElementById("form");
+  addProductHandler = function () {
+    const addProductBtn = document.querySelector(".addproduct-btn");
+    const form = document.getElementById("form");
 
-  addProductBtn.addEventListener("click", (e) => {
-    const prodName = document.getElementById("name").value;
-    const prodOldPrice = document.getElementById("old-price").value;
-    const prodNewPrice = document.getElementById("new-price").value;
-    const prodDescription = document.getElementById("description").value;
-    const prodCategory = document.getElementById("category").value;
-    const prodImage = document.querySelector(".file-input").files[0];
-    const multiProdImage = Array.from(
-      document.querySelector(".multi-file-input").files
-    );
+    addProductBtn.addEventListener("click", (e) => {
+      const prodName = document.getElementById("name").value;
+      const prodOldPrice = document.getElementById("old-price").value;
+      const prodNewPrice = document.getElementById("new-price").value;
+      const prodDescription = document.getElementById("description").value;
+      const prodCategory = document.getElementById("category").value;
+      const prodImage = document.querySelector(".file-input").files[0];
+      const multiProdImage = Array.from(
+        document.querySelector(".multi-file-input").files
+      );
 
-    const data = {
-      name: prodName,
-      image: prodImage,
-      multiImages: multiProdImage,
-      category: prodCategory,
-      description: prodDescription,
-      oldPrice: +prodOldPrice,
-      newPrice: +prodNewPrice,
-    };
+      const data = {
+        name: prodName,
+        image: prodImage,
+        multiImages: multiProdImage,
+        category: prodCategory,
+        description: prodDescription,
+        oldPrice: +prodOldPrice,
+        newPrice: +prodNewPrice,
+      };
 
-    addProduct(e, data);
-  });
-};
+      this.addProduct(e, data);
+    });
+  };
 
-const removeProduct = async function (id) {
-  await fetch(`${host}/removeproduct`, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ id: id }),
-  });
-  await fetchInfo();
-};
+  removeProduct = async function (id) {
+    await fetch(`${host}/removeproduct`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: id }),
+    });
+    await this.fetchInfo();
+  };
 
-const loadAddProductsPage = function () {
-  clear();
+  loadAddProductsPage = function () {
+    this.clear;
 
-  const markup = `<div class="add-product">
+    const markup = `<div class="add-product">
     <div class="addproduct-itemfield">
       <p>Product Title</p>
       <input 
@@ -274,13 +280,13 @@ const loadAddProductsPage = function () {
     
   `;
 
-  pageContent.insertAdjacentHTML("afterbegin", markup);
-  addProductHandler();
-};
+    pageContent.insertAdjacentHTML("afterbegin", markup);
+    this.addProductHandler;
+  };
 
-const loadProductsPage = function (data) {
-  clear();
-  const markup = `<div class="list-product">
+  loadProductsPage = function (data) {
+    this.clear;
+    const markup = `<div class="list-product">
     <h1>All Products List</h1>
     <div class="listproduct-format-main">
       <p>Products</p>
@@ -293,14 +299,14 @@ const loadProductsPage = function (data) {
     <div class="listproduct-allproducts">
       <hr />
 `;
-  pageContent.insertAdjacentHTML("afterbegin", markup);
-  loadProducts(data);
-};
+    pageContent.insertAdjacentHTML("afterbegin", markup);
+    this.loadProducts(data);
+  };
 
-const loadProducts = function (data) {
-  const markup = data
-    .map((item) => {
-      return ` 
+  loadProducts = function (data) {
+    const markup = data
+      .map((item) => {
+        return ` 
       <div data-id="${item.id}" class="listproduct-format-main listproduct-format">
         <img
         src="${item.image}"
@@ -316,17 +322,19 @@ const loadProducts = function (data) {
        </div>
        <hr/>
         `;
-    })
-    .join("");
+      })
+      .join("");
 
-  const productList = document.querySelector(".listproduct-allproducts");
+    const productList = document.querySelector(".listproduct-allproducts");
 
-  productList.insertAdjacentHTML("afterbegin", markup);
+    productList.insertAdjacentHTML("afterbegin", markup);
 
-  productList.addEventListener("click", (e) => {
-    const deleteBtn = e.target.closest(".delete-svg");
-    const productId = e.target.closest(".listproduct-format").dataset.id;
-    if (!deleteBtn) return;
-    removeProduct(+productId);
-  });
-};
+    productList.addEventListener("click", (e) => {
+      const deleteBtn = e.target.closest(".delete-svg");
+      const productId = e.target.closest(".listproduct-format").dataset.id;
+      if (!deleteBtn) return;
+      this.removeProduct(+productId);
+    });
+  };
+}
+export default new BisliView();
