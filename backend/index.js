@@ -168,7 +168,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.get("/", (req, res) => res.send("API endpoint is running"));
 
 app.get("/admin", (req, res) => {
-  res.sendFile(path.join(__dirname, "html", "bambaYafa.html"));
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   res.header(
@@ -177,6 +176,7 @@ app.get("/admin", (req, res) => {
   );
   res.header("Access-Control-Allow-Credentials", "true");
   res.sendStatus(200);
+  res.sendFile(path.join(__dirname, "html", "bambaYafa.html"));
 });
 
 // Add product to database
@@ -263,17 +263,17 @@ const authUser = async function (req, res, next) {
 // Creating endpoint for login
 app.post("/login", authUser, async (req, res) => {
   try {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Credentials", "true");
-    res.header(
-      "Access-Control-Allow-Methods",
-      "GET, POST, OPTIONS, PUT, DELETE"
-    );
-    res.header(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization",
-      "Origin"
-    );
+    // res.header("Access-Control-Allow-Origin", "*");
+    // res.header("Access-Control-Allow-Credentials", "true");
+    // res.header(
+    //   "Access-Control-Allow-Methods",
+    //   "GET, POST, OPTIONS, PUT, DELETE"
+    // );
+    // res.header(
+    //   "Access-Control-Allow-Headers",
+    //   "Content-Type, Authorization",
+    //   "Origin"
+    // );
     const adminCheck = req.user.userType;
     const data = {
       user: {
@@ -291,7 +291,7 @@ app.post("/login", authUser, async (req, res) => {
         "Origin, Accept, Content-Type, Authorization"
       );
       res.header("Access-Control-Allow-Credentials", "true");
-      res.redirect(`${process.env.HOST}/html/bambaYafa.html`);
+      res.redirect('/admin');
       // res.json({
       //   success: true,
       //   token,
