@@ -137,7 +137,7 @@ corsOptions = {
 };
 app.use(cors(corsOptions));
 
-app.options("*", (req, res), cors(corsOptions)
+app.options("*", cors(corsOptions)
 // => {
 //   res.header("Access-Control-Allow-Origin", `${process.env.HOST}`,`${process.env.API_URL}`);
 //   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
