@@ -61,7 +61,6 @@ function headers(req, res, next) {
   res.header(
     "Access-Control-Allow-Origin",
     `${process.env.HOST}`,
-    `${process.env.API_URL}`
   );
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   res.header(
@@ -69,6 +68,7 @@ function headers(req, res, next) {
     "Origin, Content-Type, Authorization"
   );
   res.header("Access-Control-Allow-Credentials", "true");
+  next()
 }
 
 app.options("*", headers);
