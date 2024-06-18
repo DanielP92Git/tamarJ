@@ -164,7 +164,7 @@ app.get("/", (req, res) => res.send("API endpoint is running"));
 
 app.use(express.static(path.join(__dirname, 'frontend')))
 
-app.get('/html/bambaYafa.html', (req, res) => {
+app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/html/bambaYafa.html'));
 });
 
@@ -267,6 +267,7 @@ app.post("/login", authUser, async (req, res) => {
         token,
         adminCheck,
       });
+      res.redirect('/admin')
     }
   } catch (err) {
     console.error("Login Error🔥 :", err);
