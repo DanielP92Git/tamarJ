@@ -13,18 +13,6 @@ class BisliView extends View {
   };
 
   pageAuth = function (handler) {
-//     return ` <div id="login-signup" class="loginsignup">
-//   <div class="loginsignup-container">
-//     <h1 class="login-title">Login</h1>
-//     <div class="loginsignup-fields">
-
-//       <input name="email" type="email" placeholder="Email Address" id="email-input" autocomplete="email"/>
-//       <input name="password" type="password" placeholder="Password" id="password-input"/>
-//     </div>
-//     <button class="continue-button">Continue</button>
-
-//   </div>
-// </div>`;
 
     const continueBtn = document.querySelector(".continue-button");
 
@@ -36,18 +24,12 @@ class BisliView extends View {
         password: userPassword,
       };
       this.loginHandler(data);
-      // loginHandler(data, handler);
     });
   };
 
-  // authRender = function () {
-  //   const mainContainer = document.getElementById("bambot");
-
-  //   mainContainer.insertAdjacentHTML("afterbegin", this.pageAuth);
-  // };
+  
 
   // Previous option;
-  // const loginHandler = async function (formData, handler) {
   loginHandler = async function (formData) {
     await fetch(`${host}/login`, {
       method: "POST",
@@ -58,10 +40,10 @@ class BisliView extends View {
     })
       .then((response) => response.json())
       .then((responseData) => {
-        console.log(responseData);
+        // console.log(responseData);
         if (responseData.success && responseData.adminCheck === "admin") {
           localStorage.setItem("auth-token", responseData.token);
-          alert("Login Successfuly!");
+          console.log("Login Successfuly!");
           this.modeHandler();
         } else {
           alert("Access Denied!");
@@ -90,6 +72,8 @@ class BisliView extends View {
 
   addProduct = async (e, productDetails) => {
     try {
+      e.preventDefault();
+
       let responseData;
       let product = productDetails;
       let image = product.image;
@@ -102,7 +86,6 @@ class BisliView extends View {
         formData.append("smallImages", image);
       });
 
-      e.preventDefault();
       await fetch(`${host}/upload`, {
         method: "POST",
         body: formData,
@@ -111,14 +94,14 @@ class BisliView extends View {
           "Content-Type": "application/json",
         },
       })
-        .then((resp) => resp.json())
+        .then((response) => response.json())
         .then((data) => {
-          responseData = data;
-        });
-
-      responseData.success
+          data.success
         ? alert("Image Uploded!")
         : alert("Something went wrong");
+        });
+
+      
 
       product.image = responseData.mainImageUrl;
       product.multiImages = responseData.smallImagesUrl;
@@ -146,6 +129,7 @@ class BisliView extends View {
     const form = document.getElementById("form");
 
     addProductBtn.addEventListener("click", (e) => {
+      console.log(e);
       const prodName = document.getElementById("name").value;
       const prodOldPrice = document.getElementById("old-price").value;
       const prodNewPrice = document.getElementById("new-price").value;
@@ -165,8 +149,9 @@ class BisliView extends View {
         oldPrice: +prodOldPrice,
         newPrice: +prodNewPrice,
       };
-
-      this.addProduct(e, data);
+      
+      // this.addProduct(e, data);
+      console.log(e, data);
     });
   };
 
@@ -270,13 +255,12 @@ class BisliView extends View {
                   name="smallImages"
                   class="multi-file-input"
                   multiple/>
-                <button
-                  type="submit"
-                  class="addproduct-btn">
-                  Submit
-                </button>
-              </form>
-  </div>
+                  </form>
+                  </div>
+                  <button
+                    class="addproduct-btn">
+                    Submit
+                  </button>
     
   `;
 

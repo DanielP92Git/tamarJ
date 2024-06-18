@@ -4,7 +4,6 @@ require("dotenv").config();
 class LoginView extends View {
   _signupHere = document.querySelector(".signup-here");
   _loginHere = document.querySelector(".login-here");
-
   addLoginViewHandler(handler) {
     window.addEventListener("load", handler);
   }
@@ -74,6 +73,7 @@ class LoginView extends View {
       const login = async function (e, userFormData) {
         try {
           e.preventDefault();
+
           const serverUrl = `${process.env.API_URL}`;
 
           const response = await fetch(`${serverUrl}/login`, {
@@ -86,21 +86,20 @@ class LoginView extends View {
           });
 
           const data = await response.json();
-
-          console.log(data);
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
           if (data.success) {
             localStorage.setItem("auth-token", data.token);
             if (data.adminCheck == "admin") {
-              window.location.assign(`${process.env.HOST}/html/bambaYafa.html`);
-              return false
+              console.log(`${process.env.ADMIN_URL}`);
+              // window.location.replace(
+              //   `${process.env.ADMIN_URL}`
+              // );
+              return false;
             }
-            // if (data.adminCheck == "user") {
-            //   window.location.replace("../../index.html");
-            // }
           }
         } catch (error) {
-          // alert("An error occurred during login. Please try again. Login Error:", err, data.errors);
-          // const myError = error;
           console.log(error);
           console.error(
             "An error occurred during login. Please try again:",
@@ -108,81 +107,17 @@ class LoginView extends View {
           );
         }
       };
-
-      // const login = async function (userFormData) {
-      //   const serverUrl = `${process.env.API_URL}`;
-
-      //   let response;
-      //   await fetch(`${serverUrl}/login`, {
-      //     method: "POST",
-      //     body: JSON.stringify(userFormData),
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     credentials: "include",
-      //   })
-      //     .then((response) => {
-      //       if (!response.ok) {
-      //         throw new Error(response.errors);
-      //       }
-      //       console.log("success!");
-      //       return response.json();
-      //     })
-      //     .then((data) => {
-      //       console.log(data);
-      //       if (data.success && data.adminCheck === "admin") {
-      //         localStorage.setItem("auth-token", data.token);
-      //         window.location.replace("../../html/bambaYafa.html");
-      //       } else if (data.success && data.adminCheck === "user") {
-      //         localStorage.setItem("auth-token", data.token);
-      //         window.location.replace("../../index.html");
-      //       } else {
-      //         alert(data.err);
-      //       }
-      //     })
-      //     .catch((err) => console.error("Login Error:", err));
-      // };
-
-      // const formData = new FormData();
-
-      // formData.append("email", data.email);
-      // formData.append("password", data.password);
-      // const login = async function (userFormData) {
-      //   const serverUrl = `${process.env.API_URL}`;
-      //   const port = `${process.env.API_PORT}`;
-      //   console.log(userFormData);
-
-      //   let response;
-      //   await fetch(`${serverUrl}/login`, {
-      //     method: "POST",
-      //     credentials: "include",
-      //     headers: {
-      //       Accept: "multipart/form-data",
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify(userFormData),
-      //   })
-      //     .then((response) => {
-      //       if (!response.ok) {
-      //         throw new Error(response.errors);
-      //       }
-      //       console.log("success!");
-      //       response.json();
-      //     })
-      //     .then((data) => (response = data))
-      //     .catch((err) => console.error("Login Error:", err));
-
-      //   if (response.success && response.adminCheck === "admin") {
-      //     localStorage.setItem("auth-token", response.token);
-      //     window.open("../html/bambaYafa.html");
-      //   }
-      //   if (response.success && response.adminCheck === "user") {
-      //     localStorage.setItem("auth-token", response.token);
-      //     window.location.replace("../../index.html");
-      //   } else {
-      //     alert(response.errors);
-      //   }
-      // };
+      
+      // if (data.adminCheck == "user") {
+        //   window.location.replace("../../index.html");
+        // }
+      // const logContainer = document.querySelector(".loginsignup-container");
+      // logContainer.removeChild(logFields);
+      // logContainer.insertAdjacentHTML("afterbegin", markup);
+      //     const logFields = document.querySelector('.loginsignup-fields')
+      //     const markup = `<div class="main-nav-tab login" id="login-tab" href="#">Hello Admin!
+      //   <a class="attrib login-btn" href=${process.env.ADMIN_URL}>Go to Dashboard</a>
+      // </div>`;
 
       const signup = async function (formData) {
         try {
