@@ -159,12 +159,16 @@ const Product = mongoose.model("Product", {
 //* APIs
 //
 
-app.use(express.static('frontend'))
 
 app.get("/", (req, res) => res.send("API endpoint is running"));
 
-// Add product to database
+app.use(express.static(path.join(__dirname, 'frontend')))
 
+app.get('/html/bambaYafa.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '/html/bambaYafa.html'));
+});
+
+// Add product to database
 app.post("/addproduct", async (req, res) => {
   let products = await Product.find({});
   let id;
