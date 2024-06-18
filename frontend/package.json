@@ -1,7 +1,7 @@
 {
   "name": "frontend",
   "version": "0.1.0",
-  "main": "conreoller.js",
+  "main": "index.html",
   "dependencies": {
     "@babel/preset-env": "^7.24.7",
     "@emailjs/browser": "^4.3.3",
