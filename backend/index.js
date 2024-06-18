@@ -165,7 +165,7 @@ app.get("/", (req, res) => res.send("API endpoint is running"));
 app.use(express.static(path.join(__dirname, 'frontend')))
 
 app.get('/html/bambaYafa.html', (req, res) => {
-  res.sendFile(path.join(__dirname, '/html/bambaYafa.html'));
+  res.sendFile(path.join(__dirname, '../frontend/html/bambaYafa.html'));
 });
 
 // Add product to database
