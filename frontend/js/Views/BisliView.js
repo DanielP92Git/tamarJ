@@ -12,7 +12,7 @@ class BisliView extends View {
     window.addEventListener("load", handler);
   };
 
-  pageAuth = function (handler) {
+  pageAuth = function () {
 
     const continueBtn = document.querySelector(".continue-button");
 

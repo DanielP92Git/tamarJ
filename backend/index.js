@@ -12,7 +12,7 @@ const cookieParser = require("cookie-parser");
 //
 //* MAIN SETTINGS
 //
-const allowedOrigins = `${process.env.HOST}`;
+const allowedOrigins = [`${process.env.HOST}`, `${process.env.API_URL}`] ;
 // const corsOptions = {
 //   origin: (origin, callback) => {
 //     if (allowedOrigins.includes(origin) || !origin) {
@@ -58,17 +58,14 @@ app.use(express.json({ limit: "50mb" }));
 //
 
 function headers(req, res, next) {
-  res.header(
-    "Access-Control-Allow-Origin",
-    `${process.env.HOST}`,
-  );
+  res.header("Access-Control-Allow-Origin", `${process.env.HOST}`);
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, Content-Type, Authorization"
   );
   res.header("Access-Control-Allow-Credentials", "true");
-  next()
+  next();
 }
 
 app.options("*", headers);
@@ -159,13 +156,14 @@ const Product = mongoose.model("Product", {
 //* APIs
 //
 
-
 app.get("/", (req, res) => res.send("API endpoint is running"));
 
-const x = app.use(express.static(path.join(__dirname, 'frontend')))
-console.log(x);
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'html/bambaYafa.html'));
+app.use(express.static(path.join(__dirname, "../frontend")));
+
+app.get("/admin", (req, res) => {
+  console.log("Fetch admin");
+  res.sendFile(path.join(__dirname, "html", "bambaYafa.html"));
+  res.sendFile(path.join(__dirname, "js", "controller.js"));
 });
 
 // Add product to database
@@ -231,11 +229,12 @@ const authUser = async function (req, res, next) {
               .status(401)
               .json({ success: false, errors: "Auth Failed" });
           }
+          console.log("Authenticated successfuly");
           req.user = user;
           next();
         });
       } else {
-        throw new Error('No access')
+        throw new Error("No access");
       }
     } else {
       res.status(404).json({
@@ -260,14 +259,13 @@ app.post("/login", authUser, async (req, res) => {
       },
     };
     const token = jwt.sign(data, process.env.JWT_KEY);
-
     if (token) {
+      console.log("Token created for user");
       res.json({
         success: true,
         token,
         adminCheck,
       });
-      res.redirect('/admin')
     }
   } catch (err) {
     console.error("Login Error🔥 :", err);

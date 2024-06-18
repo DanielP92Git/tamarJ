@@ -3,7 +3,6 @@ export default class View {
   _goToTop = document.querySelector(".go-to-top");
   _header = document.querySelector("header");
   _menu = document.querySelector(".menu");
-  _goToTop = document.querySelector(".go-to-top");
   _categoriesTab = document.querySelector(".categories-tab");
   _categoriesList = document.querySelector(".categories-list");
   _cartNumber = document.querySelector(".cart-number");
@@ -149,7 +148,7 @@ export default class View {
     this._goToTop.addEventListener("click", this.movePageTop.bind(this));
   };
 
-  movePageTop = function (e) {
+  movePageTop = function () {
     this._header.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -170,7 +169,7 @@ export default class View {
     this._cartNumber.textContent = num;
   }
 
-  async logInOutHandler(handler) {
+  async logInOutHandler() {
     const checkAuth = await localStorage.getItem("auth-token");
 
     if (checkAuth == null) {

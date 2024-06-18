@@ -91,15 +91,21 @@ class LoginView extends View {
           }
           if (data.success) {
             localStorage.setItem("auth-token", data.token);
-            const userAdminCheck = data.adminCheck == "admin" 
-            if (userAdminCheck) {
-              window.location.replace(`${process.env.ADMIN_URL}`);
-              // return;
-            }
+            window.location.href='http://localhost:3000/html/bambaYafa.html'
           }
+            // const userAdminCheck = data.adminCheck == "admin" 
+            // if (userAdminCheck) {
+            //    const response = await fetch(`${serverUrl}/admin`, {
+            //     method: 'GET',
+            //     headers: {
+            //       "Content-Type": "application/json",
+            //     },
+            //   })
+            // }
+          // }
         } catch (error) {
           console.error(
-            "An error occurred during login. Please try again:",
+            "⛔An error occurred during login. Please try again:",
             error
           );
         }
