@@ -8,6 +8,8 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+// import 'core-js/stable';
+// import 'regenerator-runtime/runtime'
 
 //
 //* MAIN SETTINGS

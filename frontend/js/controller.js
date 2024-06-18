@@ -1,5 +1,5 @@
 import "core-js/stable";
-import "regenerator-runtime/runtime";
+import "regenerator-runtime/runtime.js";
 import * as model from "./model.js";
 import CategoriesView from "./Views/categoriesView.js";
 import homePageView from "./Views/homePageView.js";

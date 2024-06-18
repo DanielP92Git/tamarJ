@@ -91,7 +91,7 @@ class LoginView extends View {
           }
           if (data.success) {
             localStorage.setItem("auth-token", data.token);
-            window.location.href='http://localhost:3000/html/bambaYafa.html'
+            window.location.href=`${process.env.API_URL}/html/bambaYafa.html`
           }
             // const userAdminCheck = data.adminCheck == "admin" 
             // if (userAdminCheck) {

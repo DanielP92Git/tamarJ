@@ -1,5 +1,7 @@
 import View from "../View.js";
 require("dotenv").config();
+import 'core-js/stable';
+import 'regenerator-runtime/runtime.js'
 
 const addProductsBtn = document.querySelector(".sidebar_add-products");
 const productsListBtn = document.querySelector(".sidebar_products-list");
