@@ -11,7 +11,7 @@ const cookieParser = require("cookie-parser");
 
 //
 //* MAIN SETTINGS
-//
+// 
 const allowedOrigins = [`${process.env.HOST}`, `${process.env.API_URL}`] ;
 // const corsOptions = {
 //   origin: (origin, callback) => {
@@ -39,13 +39,6 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 200,
 };
-
-// const corsOptions = {
-//   credentials: true,
-//   preflightContinue: true,
-//   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-//   origin: `${process.env.HOST}`,
-// };
 
 app.use(cors(corsOptions));
 
