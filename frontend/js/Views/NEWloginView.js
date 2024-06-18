@@ -88,29 +88,26 @@ class LoginView extends View {
           const data = await response.json();
           if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+          }
           if (data.success) {
             localStorage.setItem("auth-token", data.token);
-            if (data.adminCheck == "admin") {
-              console.log(`${process.env.ADMIN_URL}`);
-              // window.location.replace(
-              //   `${process.env.ADMIN_URL}`
-              // );
-              return false;
+            const userAdminCheck = data.adminCheck == "admin" 
+            if (userAdminCheck) {
+              window.location.replace(`${process.env.ADMIN_URL}`);
+              // return;
             }
           }
         } catch (error) {
-          console.log(error);
           console.error(
             "An error occurred during login. Please try again:",
             error
           );
         }
       };
-      
+
       // if (data.adminCheck == "user") {
-        //   window.location.replace("../../index.html");
-        // }
+      //   window.location.replace("../../index.html");
+      // }
       // const logContainer = document.querySelector(".loginsignup-container");
       // logContainer.removeChild(logFields);
       // logContainer.insertAdjacentHTML("afterbegin", markup);
