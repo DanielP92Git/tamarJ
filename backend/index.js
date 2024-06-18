@@ -162,10 +162,10 @@ const Product = mongoose.model("Product", {
 
 app.get("/", (req, res) => res.send("API endpoint is running"));
 
-app.use(express.static(path.join(__dirname, 'frontend')))
-
+const x = app.use(express.static(path.join(__dirname, 'frontend')))
+console.log(x);
 app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/html/bambaYafa.html'));
+  res.sendFile(path.join(__dirname, 'html/bambaYafa.html'));
 });
 
 // Add product to database
