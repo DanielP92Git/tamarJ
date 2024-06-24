@@ -91,18 +91,20 @@ class LoginView extends View {
           }
           if (data.success) {
             localStorage.setItem("auth-token", data.token);
-            window.location.href=`${process.env.API_URL}/html/bambaYafa.html`
+            // console.log(`${process.env.HOST}`);
+            window.location.assign(`/html/bambaYafa.html`)
+          //   const resp = await fetch(`${process.env.API_URL}/admin`, {
+          //     method: 'GET',
+          //     headers: {
+          //       "Content-Type": "application/json",
+          //     }
+          //   }
+          // )
+          // const respData = await resp.text()
+          // console.log(respData);
           }
             // const userAdminCheck = data.adminCheck == "admin" 
-            // if (userAdminCheck) {
-            //    const response = await fetch(`${serverUrl}/admin`, {
-            //     method: 'GET',
-            //     headers: {
-            //       "Content-Type": "application/json",
-            //     },
-            //   })
-            // }
-          // }
+            // if (userAdminCheck) {}
         } catch (error) {
           console.error(
             "⛔An error occurred during login. Please try again:",

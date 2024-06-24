@@ -1,7 +1,5 @@
 import View from "../View.js";
 require("dotenv").config();
-import 'core-js/stable';
-import 'regenerator-runtime/runtime.js'
 
 const addProductsBtn = document.querySelector(".sidebar_add-products");
 const productsListBtn = document.querySelector(".sidebar_products-list");
@@ -10,54 +8,54 @@ const pageContent = document.querySelector(".page-content");
 const host = process.env.API_URL;
 
 class BisliView extends View {
-  addBambaViewHandler = async function (handler) {
+  addBambaViewHandler = function (handler) {
     window.addEventListener("load", handler);
   };
 
-  pageAuth = function () {
+  // pageAuth = function () {
 
-    const continueBtn = document.querySelector(".continue-button");
+  //   const continueBtn = document.querySelector(".continue-button");
 
-    continueBtn.addEventListener("click", (e) => {
-      const userEmail = document.getElementById("email-input").value;
-      const userPassword = document.getElementById("password-input").value;
-      const data = {
-        email: userEmail,
-        password: userPassword,
-      };
-      this.loginHandler(data);
-    });
-  };
-
-  
+  //   continueBtn.addEventListener("click", (e) => {
+  //     const userEmail = document.getElementById("email-input").value;
+  //     const userPassword = document.getElementById("password-input").value;
+  //     const data = {
+  //       email: userEmail,
+  //       password: userPassword,
+  //     };
+  //     this.loginHandler(data);
+  //   });
+  // };
 
   // Previous option;
-  loginHandler = async function (formData) {
-    await fetch(`${host}/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => response.json())
-      .then((responseData) => {
-        // console.log(responseData);
-        if (responseData.success && responseData.adminCheck === "admin") {
-          localStorage.setItem("auth-token", responseData.token);
-          console.log("Login Successfuly!");
-          this.modeHandler();
-        } else {
-          alert("Access Denied!");
-        }
-      });
-  };
+
+  // loginHandler = async function (formData) {
+  //   await fetch(`${host}/login`, {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify(formData),
+  //   })
+  //     .then((response) => response.json())
+  //     .then((responseData) => {
+  //       console.log(responseData);
+  //       if (responseData.success && responseData.adminCheck === "admin") {
+  //         localStorage.setItem("auth-token", responseData.token);
+  //         console.log("Login Successfuly!");
+  //         this.modeHandler();
+  //       } else {
+  //         alert("Access Denied!");
+  //       }
+  //     });
+  // };
 
   modeHandler = function () {
-    addProductsBtn.addEventListener("click", this.loadAddProductsPage);
-    productsListBtn.addEventListener("click", () => {
-      this.fetchInfo();
-    });
+    addProductsBtn.addEventListener(
+      "click",
+      this.loadAddProductsPage.bind(this)
+    );
+    productsListBtn.addEventListener("click", this.fetchInfo.bind(this));
   };
 
   clear = function () {
@@ -76,7 +74,6 @@ class BisliView extends View {
     try {
       e.preventDefault();
 
-      let responseData;
       let product = productDetails;
       let image = product.image;
       let smallImages = product.multiImages;
@@ -84,30 +81,25 @@ class BisliView extends View {
       let formData = new FormData();
       formData.append("mainImage", image);
 
-      smallImages.forEach((image) => {
-        formData.append("smallImages", image);
+      smallImages.forEach((sImage) => {
+        formData.append("smallImages", sImage);
       });
 
-      await fetch(`${host}/upload`, {
+      let responseData = await fetch(`${host}/upload`, {
         method: "POST",
-        body: formData,
         headers: {
           Accept: "multipart/form-data",
-          "Content-Type": "application/json",
         },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          data.success
-        ? alert("Image Uploded!")
-        : alert("Something went wrong");
-        });
+        body: formData,
+      });
 
-      
+      let data = await responseData.json();
 
-      product.image = responseData.mainImageUrl;
-      product.multiImages = responseData.smallImagesUrl;
-      if (responseData.success) {
+      data.success ? alert("Image Uploded!") : alert("Something went wrong");
+      product.image = data.mainImageUrl;
+      product.multiImages = data.smallImagesUrl;
+
+      if (data.success) {
         await fetch(`${host}/addproduct`, {
           method: "POST",
           headers: {
@@ -117,8 +109,8 @@ class BisliView extends View {
           body: JSON.stringify(product),
         })
           .then((resp) => resp.json())
-          .then((data) => {
-            data.success ? alert("Product Added!") : alert("Failed");
+          .then((respData) => {
+            respData.success ? alert("Product Added!") : alert("Failed");
           });
       }
     } catch (err) {
@@ -131,7 +123,6 @@ class BisliView extends View {
     const form = document.getElementById("form");
 
     addProductBtn.addEventListener("click", (e) => {
-      console.log(e);
       const prodName = document.getElementById("name").value;
       const prodOldPrice = document.getElementById("old-price").value;
       const prodNewPrice = document.getElementById("new-price").value;
@@ -151,9 +142,9 @@ class BisliView extends View {
         oldPrice: +prodOldPrice,
         newPrice: +prodNewPrice,
       };
-      
-      // this.addProduct(e, data);
-      console.log(e, data);
+
+      this.addProduct(e, data);
+      // console.log(e, data);
     });
   };
 
@@ -170,7 +161,7 @@ class BisliView extends View {
   };
 
   loadAddProductsPage = function () {
-    this.clear;
+    this.clear();
 
     const markup = `<div class="add-product">
     <div class="addproduct-itemfield">
@@ -267,11 +258,11 @@ class BisliView extends View {
   `;
 
     pageContent.insertAdjacentHTML("afterbegin", markup);
-    this.addProductHandler;
+    this.addProductHandler();
   };
 
   loadProductsPage = function (data) {
-    this.clear;
+    this.clear();
     const markup = `<div class="list-product">
     <h1>All Products List</h1>
     <div class="listproduct-format-main">

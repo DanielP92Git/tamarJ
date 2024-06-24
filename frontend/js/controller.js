@@ -1,4 +1,4 @@
-import "core-js/stable";
+import "core-js/actual";
 import "regenerator-runtime/runtime.js";
 import * as model from "./model.js";
 import CategoriesView from "./Views/categoriesView.js";
@@ -173,7 +173,7 @@ const controlDeleteAll = async function () {
 };
 
 const controlBambaPage = function () {
-  BisliView.pageAuth();
+  BisliView.modeHandler();
 };
 
 const init = async function () {
@@ -206,7 +206,6 @@ const init = async function () {
     CartView._addHandlerDelete(controlDeleteFromCart);
   }
   if (document.body.id.includes("login")) {
-    // LoginView.initialize()
     LoginView.addLoginViewHandler(controlLoginPage);
   }
   if (document.body.id.includes("bambot")) {

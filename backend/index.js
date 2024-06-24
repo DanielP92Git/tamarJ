@@ -8,8 +8,6 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-// import 'core-js/stable';
-// import 'regenerator-runtime/runtime'
 
 //
 //* MAIN SETTINGS
@@ -151,14 +149,13 @@ const Product = mongoose.model("Product", {
 //* APIs
 //
 
-app.get("/", (req, res) => res.send("API endpoint is running"));
+app.use(express.static(path.join(__dirname, "frontend")));
 
-app.use(express.static(path.join(__dirname, "../frontend")));
+app.get("/", (req, res) => res.send("API endpoint is running"));
 
 app.get("/admin", (req, res) => {
   console.log("Fetch admin");
-  res.sendFile(path.join(__dirname, "html", "bambaYafa.html"));
-  res.sendFile(path.join(__dirname, "js", "controller.js"));
+  res.sendFile((path.join(__dirname, "html/bambaYafa.html"))).status(200)
 });
 
 // Add product to database
@@ -335,7 +332,7 @@ const fetchUser = async (req, res, next) => {
     } catch (err) {
       res
         .status(401)
-        .send({ errors: "Please authenticate using a valid token" });
+        .send({ errors: "Please authenticate using a valid token", err });
     }
   }
 };
@@ -358,7 +355,7 @@ app.post("/addtocart", fetchUser, async (req, res) => {
     { _id: req.user.id },
     { cartData: userData.cartData }
   );
-  // res.send("Added!");
+  res.send("Added!");
 });
 
 // Creating endpoint for removing products from cartdata
@@ -421,12 +418,13 @@ const multipleUpload = upload.fields([
 app.use("/uploads", express.static("uploads"));
 app.use("/smallImages", express.static("smallImages"));
 
-app.post("/upload", multipleUpload, (req, res, err) => {
+app.post("/upload", multipleUpload, (req, res) => {
   try {
     let smallFiles = req.files.smallImages;
     let makeUrl = smallFiles.map((file) => {
       return `${process.env.API_URL}/smallImages/${file.filename}`;
     });
+    console.log('Image added successfully');
     res.json({
       success: 1,
       file: req.files,
