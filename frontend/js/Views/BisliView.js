@@ -12,43 +12,43 @@ class BisliView extends View {
     window.addEventListener("load", handler);
   };
 
-  // pageAuth = function () {
+  pageAuth = function () {
 
-  //   const continueBtn = document.querySelector(".continue-button");
+    const continueBtn = document.querySelector(".continue-button");
 
-  //   continueBtn.addEventListener("click", (e) => {
-  //     const userEmail = document.getElementById("email-input").value;
-  //     const userPassword = document.getElementById("password-input").value;
-  //     const data = {
-  //       email: userEmail,
-  //       password: userPassword,
-  //     };
-  //     this.loginHandler(data);
-  //   });
-  // };
+    continueBtn.addEventListener("click", (e) => {
+      const userEmail = document.getElementById("email-input").value;
+      const userPassword = document.getElementById("password-input").value;
+      const data = {
+        email: userEmail,
+        password: userPassword,
+      };
+      this.loginHandler(data);
+    });
+  };
 
   // Previous option;
 
-  // loginHandler = async function (formData) {
-  //   await fetch(`${host}/login`, {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify(formData),
-  //   })
-  //     .then((response) => response.json())
-  //     .then((responseData) => {
-  //       console.log(responseData);
-  //       if (responseData.success && responseData.adminCheck === "admin") {
-  //         localStorage.setItem("auth-token", responseData.token);
-  //         console.log("Login Successfuly!");
-  //         this.modeHandler();
-  //       } else {
-  //         alert("Access Denied!");
-  //       }
-  //     });
-  // };
+  loginHandler = async function (formData) {
+    await fetch(`${host}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    })
+      .then((response) => response.json())
+      .then((responseData) => {
+        console.log(responseData);
+        if (responseData.success && responseData.adminCheck === "admin") {
+          localStorage.setItem("auth-token", responseData.token);
+          alert("Login Successfuly!");
+          this.modeHandler();
+        } else {
+          alert("Access Denied!");
+        }
+      });
+  };
 
   modeHandler = function () {
     addProductsBtn.addEventListener(
