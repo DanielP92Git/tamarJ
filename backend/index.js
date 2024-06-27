@@ -8,11 +8,12 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const fs = require("fs");
 
 //
 //* MAIN SETTINGS
-// 
-const allowedOrigins = [`${process.env.HOST}`, `${process.env.API_URL}`] ;
+//
+const allowedOrigins = [`${process.env.HOST}`, `${process.env.API_URL}`];
 // const corsOptions = {
 //   origin: (origin, callback) => {
 //     if (allowedOrigins.includes(origin) || !origin) {
@@ -30,7 +31,6 @@ const allowedOrigins = [`${process.env.HOST}`, `${process.env.API_URL}`] ;
 const corsOptions = {
   origin: (origin, callback) => {
     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      console.log("ORIGIN: ", origin);
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
@@ -43,6 +43,73 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(cookieParser());
+
+// Endpoint to handle Stripe webhook
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  (request, response) => {
+    const sig = request.headers["stripe-signature"];
+    const payload = request.body;
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(
+        payload,
+        sig,
+        `${process.env.WEBHOOK_SEC}`
+      );
+    } catch (err) {
+      console.log(`⚠️  Webhook signature verification failed.`, err.message);
+      return response.sendStatus(400);
+    }
+
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object;
+      console.log('2. From webhook:', session.metadata.productId);
+      // Fulfill the purchase
+      handleCheckoutSession(session);
+    }
+
+    response.json({ received: true });
+  }
+);
+
+async function handleCheckoutSession(session) {
+  const productId = session.metadata.productId; // Extract the actual product ID from session or metadata
+  console.log('3. From Function:');
+  if (productId) {
+    const product = await Product.findOne({id: productId});
+    if (product) {
+      product.quantity -= 1;
+      await product.save();
+      let newQuantity = product.quantity
+      console.log(
+        `Product ${productId} quantity reduced. New quantity: ${newQuantity}`
+      );
+      if (newQuantity == 0) {
+        const response = await fetch(`${process.env.API_URL}/removeproduct`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: productId,
+          })
+        })
+
+        const data = await response.json()
+        if (data.success) {
+          console.log(`Product with id: ${data.id} is deleted from database`);
+        }
+      }
+
+
+
+    }
+  } else {
+    console.error("Product not found");
+  }
+}
+
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json({ limit: "50mb" }));
 
@@ -113,11 +180,19 @@ const Product = mongoose.model("Product", {
   },
   image: {
     type: String,
-    required: true,
+    required: false,
+  },
+  imageLocal: {
+    type: String,
+    required: false,
   },
   smallImages: {
     type: Array,
-    required: true,
+    required: false,
+  },
+  smallImagesLocal: {
+    type: Array,
+    required: false,
   },
   category: {
     type: String,
@@ -125,6 +200,10 @@ const Product = mongoose.model("Product", {
   },
   description: {
     type: String,
+    required: true,
+  },
+  quantity: {
+    type: Number,
     required: true,
   },
   new_price: {
@@ -154,14 +233,15 @@ app.use(express.static(path.join(__dirname, "frontend")));
 app.get("/", (req, res) => res.send("API endpoint is running"));
 
 app.get("/admin", (req, res) => {
-  console.log("Fetch admin");
-  res.sendFile((path.join(__dirname, "html/bambaYafa.html"))).status(200)
+  // console.log("Fetch admin");
+  res.sendFile(path.join(__dirname, "html/bambaYafa.html")).status(200);
 });
 
 // Add product to database
 app.post("/addproduct", async (req, res) => {
   let products = await Product.find({});
   let id;
+
   if (products.length > 0) {
     let last_product_array = products.slice(-1);
     let last_product = last_product_array[0];
@@ -174,19 +254,48 @@ app.post("/addproduct", async (req, res) => {
     id: id,
     name: req.body.name,
     image: req.body.image,
+    imageLocal: req.body.imageLocal,
     smallImages: req.body.multiImages,
+    smallImagesLocal: req.body.multiImagesLocal,
     category: req.body.category,
+    quantity: +req.body.quantity,
     description: req.body.description,
     new_price: req.body.newPrice,
     old_price: req.body.oldPrice,
   });
 
-  console.log(product);
+  // console.log(product);
   await product.save();
   console.log("Saved");
   res.json({
     success: true,
     name: req.body.name,
+  });
+});
+
+app.post("/updateproduct", async (req, res) => {
+  const id = req.body.id;
+  const updatedFields = {
+    name: req.body.name,
+    old_price: req.body.oldPrice,
+    new_price: req.body.newPrice,
+    description: req.body.description,
+    quantity: req.body.quantity,
+  };
+  // console.log(updatedFields);
+
+  let product = await Product.findOne({ id: id });
+
+  product.name = updatedFields.name;
+  product.old_price = updatedFields.old_price;
+  product.new_price = updatedFields.new_price;
+  product.description = updatedFields.description;
+  product.quantity = updatedFields.quantity;
+
+  await product.save();
+
+  res.json({
+    success: true,
   });
 });
 
@@ -196,6 +305,7 @@ app.post("/removeproduct", async (req, res) => {
   console.log("Removed");
   res.json({
     success: true,
+    id: req.body.id,
     name: req.body.name,
   });
 });
@@ -294,14 +404,14 @@ app.post("/signup", async (req, res) => {
       });
       user
         .save()
-        .then((result) => {
-          console.log(result);
+        .then(() => {
+          // console.log(result);
           res.status(201).json({
             message: "User Created!",
           });
         })
         .catch((err) => {
-          console.log(err);
+          // console.log(err);
           res.status(500).json({
             errors: err,
           });
@@ -389,13 +499,20 @@ app.post("/removeAll", fetchUser, async (req, res) => {
   res.send("Removed All!");
 });
 
+app.post("/findProduct", async (req, res) => {
+  // console.log(req.body.id);
+  let productData = await Product.findOne({ id: req.body.id });
+  res.json({ productData });
+});
+
 // Image Storage Engine
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     if (file.fieldname === "mainImage") {
       cb(null, "./uploads");
-    } else {
+    }
+    if (file.fieldname === "smallImages") {
       cb(null, "./smallImages");
     }
   },
@@ -407,30 +524,84 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage });
+const uploadA = multer({ storage: storage });
 
-const multipleUpload = upload.fields([
+const multipleUpload = uploadA.fields([
   { name: "mainImage", maxCount: 1 },
   { name: "smallImages", maxCount: 8 },
 ]);
 
 // Creating Upload endpoint for one image:
 app.use("/uploads", express.static("uploads"));
+app.use("../../no-login/backend/uploads", express.static("uploads"));
+
 app.use("/smallImages", express.static("smallImages"));
+app.use("../../no-login/backend/smallImages", express.static("smallImages"));
+
+const copyFile = (source, target, cb) => {
+  const rd = fs.createReadStream(source);
+  const wr = fs.createWriteStream(target);
+
+  rd.on("error", cb);
+  wr.on("error", cb);
+  wr.on("close", () => cb(null));
+
+  rd.pipe(wr);
+};
 
 app.post("/upload", multipleUpload, (req, res) => {
   try {
-    let smallFiles = req.files.smallImages;
-    let makeUrl = smallFiles.map((file) => {
-      return `${process.env.API_URL}/smallImages/${file.filename}`;
+    const mainImage = req.files.mainImage[0].filename;
+    const smallImages = req.files.smallImages;
+
+    // Copy main image to another directory
+    if (mainImage) {
+      const sourcePath = path.join(__dirname, "./uploads", mainImage);
+      const targetPath = path.join(
+        __dirname,
+        "../../no-login/backend/uploads",
+        mainImage
+      );
+
+      copyFile(sourcePath, targetPath, (err) => {
+        if (err) {
+          console.error("Error copying main image:", err);
+        }
+      });
+    }
+
+    // Copy small images to another directory
+    smallImages.forEach((file) => {
+      const sourcePath = path.join(__dirname, "./smallImages", file.filename);
+      const targetPath = path.join(
+        __dirname,
+        "../../no-login/backend/smallImages",
+        file.filename
+      );
+
+      copyFile(sourcePath, targetPath, (err) => {
+        if (err) {
+          console.error("Error copying small image:", err);
+        }
+      });
     });
-    console.log('Image added successfully');
+
+    let makeUrl = smallImages.map(({ filename }) => {
+      return `https://tamarj-api.onrender.com/smallImages/${filename}`;
+    });
+
+    let localUrl = smallImages.map(({ filename }) => {
+      return `http://localhost:4000/smallImages/${filename}`;
+    });
+
     res.json({
       success: 1,
       file: req.files,
-      mainImageUrl: `${process.env.API_URL}/uploads/${req.files.mainImage[0].filename}`,
 
+      mainImageUrl: `https://tamarj-api.onrender.com/uploads/${req.files.mainImage[0].filename}`,
+      mainImageUrlLocal: `http://localhost:4000/uploads/${req.files.mainImage[0].filename}`,
       smallImagesUrl: makeUrl,
+      smallImagesUrlLocal: localUrl,
     });
   } catch (err) {
     console.error(err);
@@ -438,22 +609,34 @@ app.post("/upload", multipleUpload, (req, res) => {
 });
 
 // Creating payment endpoint
-
-const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
+const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY_TEST);
 
 app.post("/create-checkout-session", async (req, res) => {
+  // const shippingRate = await stripe.shippingRates.retrieve('shr_1P5Tdw03Qr2omCV4v8GI30UM')
   try {
-    // const shippingRate = await stripe.shippingRates.retrieve('shr_1P5Tdw03Qr2omCV4v8GI30UM')
+    const [getProductId] = req.body.items;
+    // console.log('req.body:',req.body);
+    // console.log('productId:',productId.id);
+    const product = await Product.find({ id: getProductId.id });
+    let [getProdQuant] = product;
+    // console.log(prodQuant.quantity);
+    if (!product) {
+      return res.status(404).send("Product not found");
+    }
+
+    if (getProdQuant.quantity == 0) {
+      return res.status(400).send("Product is out of stock");
+    }
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
-
       line_items: req.body.items.map((item) => {
         const myItem = {
           name: item.title,
           price: item.price * 100,
           quantity: item.amount,
+          productId: item.id,
         };
 
         return {
@@ -516,10 +699,16 @@ app.post("/create-checkout-session", async (req, res) => {
 
       success_url: `${process.env.HOST}/index.html`,
       cancel_url: `${process.env.HOST}/html/cart.html`,
+      metadata: {
+        productId: getProductId.id.toString(), // .toString()??? Include the product ID in the session metadata
+      },
     });
-    res.json({ url: session.url });
+    console.log('1. From stripe session:', session.metadata.productId);
+
+    // res.json({ url: session.url });
+    res.json({ sessionId: session.id, url: session.url });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ err });
   }
 });
 

@@ -169,17 +169,17 @@ export default class View {
     this._cartNumber.textContent = num;
   }
 
-  async logInOutHandler() {
-    const checkAuth = await localStorage.getItem("auth-token");
+  // async logInOutHandler() {
+  //   const checkAuth = await localStorage.getItem("auth-token");
 
-    if (checkAuth == null) {
-      this._loginBtn.textContent = "Login";
-      // this._loginBtn.addEventListener("click", this.login);
-    } else {
-      this._loginBtn.textContent = "Logout";
-      this._loginBtn.addEventListener("click", this.logout.bind(this));
-    }
-  }
+  //   if (checkAuth == null) {
+  //     this._loginBtn.textContent = "Login";
+  //     // this._loginBtn.addEventListener("click", this.login);
+  //   } else {
+  //     this._loginBtn.textContent = "Logout";
+  //     this._loginBtn.addEventListener("click", this.logout.bind(this));
+  //   }
+  // }
 
   // login() {
   //   window.location.replace("../html/login.html");

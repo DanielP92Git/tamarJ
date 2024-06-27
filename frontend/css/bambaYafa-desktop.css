@@ -106,7 +106,6 @@ main {
    */
 
 .listproduct-product-icon {
-  margin-right: 30px;
   width: 150px;
   height: 100px;
 }
@@ -129,7 +128,7 @@ main {
 
 .listproduct-format-main {
   display: grid;
-  grid-template-columns: 2fr 3fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 3fr 1fr 1fr 1fr 1fr 1fr;
   justify-items: center;
   gap: 10px;
   width: 100%;
@@ -156,6 +155,20 @@ main {
   border-radius: 3px;
   padding: 3px;
 }
+
+.edit-btn {
+  border: none;
+  width: 100px;
+  height: 30px;
+  align-self: center;
+  background: #6079ff;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background: #6078ffc1;
+}
+
 .listproduct-allproducts {
   overflow-y: auto;
 }

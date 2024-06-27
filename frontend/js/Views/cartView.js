@@ -36,8 +36,9 @@ class CartView extends View {
   }
 
   _addHandlerCheckout(data) {
-    this._checkoutBtn.addEventListener("click", () => {
-      fetch(`${this._host}/create-checkout-session`, {
+    this._checkoutBtn.addEventListener("click", async (e) => {
+      e.preventDefault()
+      await fetch(`${this._host}/create-checkout-session`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -54,15 +55,16 @@ class CartView extends View {
           window.location = url;
         })
         .catch((e) => {
-          console.error(e.error);
+          console.error(e);
         });
     });
   }
 
-  _generateMarkup(cartNum) {
+   _generateMarkup(cartNum) {
     if (cartNum !== 0) {
       this._cartEmpty.classList.add("remove");
       this._deleteAllBtn.classList.add("delete-all-active");
+      // console.log(model.cart);
       return model.cart
       .map(
         (x) =>
