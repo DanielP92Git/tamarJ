@@ -177,7 +177,7 @@ class BisliView extends View {
     </div>
     <div class="addproduct-price">
       <div class="addproduct-itemfield">
-        <p>Price</p>
+        <p>Price in $</p>
         <input
           type="text"
           name="old_price"
@@ -186,7 +186,7 @@ class BisliView extends View {
         />
       </div>
       <div class="addproduct-itemfield">
-        <p>Offer Price</p>
+        <p>Price in ₪</p>
         <input
           type="text"
           name="new_price"

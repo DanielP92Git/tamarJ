@@ -95,7 +95,7 @@ class CategoriesView extends View {
     const id = data.id;
     const description = data.querySelector(".item-description").innerHTML;
 
-    let price = data.querySelector(".item-price").textContent.replace("$", "");
+    let price = data.querySelector(".item-price").textContent.replace("₪", "");
 
     const markup = `<div class="item-overlay">
     <div class="modal-item-container">
@@ -113,7 +113,7 @@ class CategoriesView extends View {
         <div class="item-description_modal">${description}
         </div>
         <div class="price-text">Price:</div>
-        <div class="item-price_modal">${price}$</div>
+        <div class="item-price_modal">₪${price}</div>
         <button class="add-to-cart-btn_modal">Add to Cart</button>
       </div>
     </div>
@@ -157,7 +157,7 @@ class CategoriesView extends View {
       <div class="item-description">
         ${item.description}
        </div>
-       <div class="item-price">$${item.new_price}</div>
+       <div class="item-price">₪${item.new_price}</div>
      </div>`
       )
       .join("");
