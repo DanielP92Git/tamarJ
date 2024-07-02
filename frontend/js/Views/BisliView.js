@@ -86,7 +86,7 @@ class BisliView extends View {
       let data = await responseData.json();
 
       console.log(data);
-      
+
       if (data.success) {
         alert("Image Uploded!");
         product.image = data.mainImageUrl;
@@ -118,7 +118,7 @@ class BisliView extends View {
     const addProductBtn = document.querySelector(".addproduct-btn");
     const form = document.getElementById("uploadForm");
     form.addEventListener("submit", (e) => {
-      e.preventDefault()
+      e.preventDefault();
 
       const prodName = document.getElementById("name").value;
       const prodOldPrice = document.getElementById("old-price").value;
@@ -141,7 +141,7 @@ class BisliView extends View {
         oldPrice: +prodOldPrice,
         newPrice: +prodNewPrice,
       };
-      console.log('data:',data);
+      console.log("data:", data);
 
       this.addProduct(e, data, form);
       // this.addProduct(e, form);
@@ -173,7 +173,6 @@ class BisliView extends View {
         name="name"
         id="name"
         placeholder="Type here"
-        value="test123"
       />
     </div>
     <div class="addproduct-price">
@@ -184,7 +183,6 @@ class BisliView extends View {
           name="old_price"
           id="old-price"
           placeholder="Type here"
-          value="12"
         />
       </div>
       <div class="addproduct-itemfield">
@@ -194,7 +192,6 @@ class BisliView extends View {
           name="new_price"
           id="new-price"
           placeholder="Type here"
-          value=""13
         />
       </div>
     </div>
@@ -205,7 +202,6 @@ class BisliView extends View {
         name="description"
         id="description"
         placeholder="Type here"
-        value="test32123"
       />
     </div>
     <div class="addproduct-itemfield">
@@ -215,10 +211,12 @@ class BisliView extends View {
         id="category"
         class="add-product-selector"
       >
-        <option value="necklaces">Necklaces</option>
-        <option value="crochet-necklaces">Crochet Necklaces</option>
-        <option value="bracelets">Bracelets</option>
-        <option value="hoop-earrings">Hoop Earrings</option>
+        <option id="necklaces" value="necklaces">Necklaces</option>
+        <option id="crochet-necklaces" value="crochet-necklaces">Crochet Necklaces</option>
+        <option id="bracelets" value="bracelets">Bracelets</option>
+        <option id="hoop-earrings" value="hoop-earrings">Hoop Earrings</option>
+        <option id="dangle-earrings" value="dangle-earrings">Dangle Earrings</option>
+
       </select>
       <p>Quantity</p>
       <select
@@ -226,27 +224,27 @@ class BisliView extends View {
         id="quantity"
         class="quantity-selector"
       >
-        <option value="0">0</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-        <option value="9">9</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-        <option value="12">12</option>
-        <option value="13">13</option>
-        <option value="14">14</option>
-        <option value="15">15</option>
-        <option value="16">16</option>
-        <option value="17">17</option>
-        <option value="18">18</option>
-        <option value="19">19</option>
-        <option value="20">20</option>
+        <option id="0" value="0">0</option>
+        <option id="1" value="1">1</option>
+        <option id="2" value="2">2</option>
+        <option id="3" value="3">3</option>
+        <option id="4" value="4">4</option>
+        <option id="5" value="5">5</option>
+        <option id="6" value="6">6</option>
+        <option id="7" value="7">7</option>
+        <option id="8" value="8">8</option>
+        <option id="9" value="9">9</option>
+        <option id="10" value="10">10</option>
+        <option id="11" value="11">11</option>
+        <option id="12" value="12">12</option>
+        <option id="13" value="13">13</option>
+        <option id="14" value="14">14</option>
+        <option id="15" value="15">15</option>
+        <option id="16" value="16">16</option>
+        <option id="17" value="17">17</option>
+        <option id="18" value="18">18</option>
+        <option id="19" value="19">19</option>
+        <option id="20" value="20">20</option>
         
         
       </select>
@@ -412,10 +410,11 @@ class BisliView extends View {
         id="category"
         class="add-product-selector"
       >
-        <option value="necklaces">Necklaces</option>
-        <option value="crochet-necklaces">Crochet Necklaces</option>
-        <option value="bracelets">Bracelets</option>
-        <option value="hoop-earrings">Hoop Earrings</option>
+        <option id="necklaces" value="necklaces">Necklaces</option>
+        <option id="crochet-necklaces" value="crochet-necklaces">Crochet Necklaces</option>
+        <option id="bracelets" value="bracelets">Bracelets</option>
+        <option id="hoop-earrings" value="hoop-earrings">Hoop Earrings</option>
+        <option id="dangle-earrings" value="dangle-earrings">Dangle Earrings</option>
       </select>
       <p>Quantity</p>
       <select
@@ -423,11 +422,27 @@ class BisliView extends View {
         id="quantity"
         class="quantity-selector"
       >
-        <option value="0">0</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
+        <option id="0" value="0">0</option>
+        <option id="1" value="1">1</option>
+        <option id="2" value="2">2</option>
+        <option id="3" value="3">3</option>
+        <option id="4" value="4">4</option>
+        <option id="5" value="5">5</option>
+        <option id="6" value="6">6</option>
+        <option id="7" value="7">7</option>
+        <option id="8" value="8">8</option>
+        <option id="9" value="9">9</option>
+        <option id="10" value="10">10</option>
+        <option id="11" value="11">11</option>
+        <option id="12" value="12">12</option>
+        <option id="13" value="13">13</option>
+        <option id="14" value="14">14</option>
+        <option id="15" value="15">15</option>
+        <option id="16" value="16">16</option>
+        <option id="17" value="17">17</option>
+        <option id="18" value="18">18</option>
+        <option id="19" value="19">19</option>
+        <option id="20" value="20">20</option>
         
       </select>
     </div>
@@ -474,6 +489,14 @@ class BisliView extends View {
   `;
 
     pageContent.insertAdjacentHTML("afterbegin", markup);
+
+    let selectCategory = document.getElementById(`${data.category}`);
+    selectCategory.setAttribute("selected", true);
+
+    let selectQuantity = document.getElementById(`${data.quantity}`);
+    selectQuantity.setAttribute("selected", true);
+    console.log(selectCategory);
+
     this.updateProduct(data.id);
   }
 
@@ -487,7 +510,7 @@ class BisliView extends View {
       const prodDescription = document.getElementById("description").value;
       const prodCategory = document.getElementById("category").value;
       const prodImage = document.querySelector(".file-input").files[0];
-      const quantity = document.querySelector('.quantity-selector').value
+      const quantity = document.querySelector(".quantity-selector").value;
       const multiProdImage = Array.from(
         document.querySelector(".multi-file-input").files
       );
