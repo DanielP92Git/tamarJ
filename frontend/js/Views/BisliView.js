@@ -5,7 +5,7 @@ const addProductsBtn = document.querySelector(".sidebar_add-products");
 const productsListBtn = document.querySelector(".sidebar_products-list");
 const sideBar = document.querySelector(".sidebar");
 const pageContent = document.querySelector(".page-content");
-const host = process.env.API_URL;
+const host = process.env.API_URL
 
 class BisliView extends View {
   addBambaViewHandler = function (handler) {
@@ -173,7 +173,7 @@ class BisliView extends View {
         name="name"
         id="name"
         placeholder="Type here"
-        value="test123"
+        autofocus
       />
     </div>
     <div class="addproduct-price">
@@ -184,7 +184,6 @@ class BisliView extends View {
           name="old_price"
           id="old-price"
           placeholder="Type here"
-          value="12"
         />
       </div>
       <div class="addproduct-itemfield">
@@ -194,7 +193,6 @@ class BisliView extends View {
           name="new_price"
           id="new-price"
           placeholder="Type here"
-          value=""13
         />
       </div>
     </div>
@@ -205,7 +203,6 @@ class BisliView extends View {
         name="description"
         id="description"
         placeholder="Type here"
-        value="test32123"
       />
     </div>
     <div class="addproduct-itemfield">

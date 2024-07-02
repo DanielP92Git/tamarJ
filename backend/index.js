@@ -176,7 +176,7 @@ const Product = mongoose.model("Product", {
   },
   name: {
     type: String,
-    required: true,
+    required: false,
   },
   image: {
     type: String,
@@ -200,19 +200,19 @@ const Product = mongoose.model("Product", {
   },
   description: {
     type: String,
-    required: true,
+    required: false,
   },
   quantity: {
     type: Number,
-    required: true,
+    required: false,
   },
   new_price: {
     type: Number,
-    required: true,
+    required: false,
   },
   old_price: {
     type: Number,
-    required: true,
+    required: false,
   },
   date: {
     type: Date,
@@ -533,10 +533,10 @@ const multipleUpload = uploadA.fields([
 
 // Creating Upload endpoint for one image:
 app.use("/uploads", express.static("uploads"));
-app.use("../../no-login/backend/uploads", express.static("uploads"));
+app.use("../../Online/backend/uploads", express.static("uploads"));
 
 app.use("/smallImages", express.static("smallImages"));
-app.use("../../no-login/backend/smallImages", express.static("smallImages"));
+app.use("../../Online/backend/smallImages", express.static("smallImages"));
 
 const copyFile = (source, target, cb) => {
   const rd = fs.createReadStream(source);
@@ -559,7 +559,7 @@ app.post("/upload", multipleUpload, (req, res) => {
       const sourcePath = path.join(__dirname, "./uploads", mainImage);
       const targetPath = path.join(
         __dirname,
-        "../../no-login/backend/uploads",
+        "../../Online/backend/uploads",
         mainImage
       );
 
@@ -575,7 +575,7 @@ app.post("/upload", multipleUpload, (req, res) => {
       const sourcePath = path.join(__dirname, "./smallImages", file.filename);
       const targetPath = path.join(
         __dirname,
-        "../../no-login/backend/smallImages",
+        "../../Online/backend/smallImages",
         file.filename
       );
 

@@ -60,11 +60,14 @@ class CartView extends View {
     });
   }
 
+  
    _generateMarkup(cartNum) {
-    if (cartNum !== 0) {
+    if (cartNum === 0) {
+      this._itemsBox.classList.add('remove')
+    } else {
+      this._itemsBox.classList.remove('remove')
       this._cartEmpty.classList.add("remove");
       this._deleteAllBtn.classList.add("delete-all-active");
-      // console.log(model.cart);
       return model.cart
       .map(
         (x) =>
