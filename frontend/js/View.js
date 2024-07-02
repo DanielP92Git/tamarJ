@@ -7,6 +7,7 @@ export default class View {
   _categoriesList = document.querySelector(".categories-list");
   _cartNumber = document.querySelector(".cart-number");
   _cartNewValue = 0;
+  _cartNewValueMobile = 0;
   _loginBtn = document.querySelector(".login-btn");
 
   /**
@@ -42,7 +43,7 @@ export default class View {
   }
 
   addMobileHandler() {
-    const x = window.matchMedia("(max-width: 699.99px)");
+    const x = window.matchMedia("(max-width: 799.99px)");
     if (!x.matches) return;
     this._categoriesTab.addEventListener(
       "click",
@@ -127,16 +128,16 @@ export default class View {
       menu.style.transform = "translateX(-200px)";
     };
 
-    const toggleMenu=function() {
+    const toggleMenu = function () {
       const parent = document.querySelector(".menubars-toggle");
 
       const checkIcon = parent.classList.contains("close");
-      checkIcon ? hideMenu() : revealMenu()
-    }
+      checkIcon ? hideMenu() : revealMenu();
+    };
 
     menuBars.addEventListener("click", () => {
       changeSVG();
-      toggleMenu()
+      toggleMenu();
     });
   }
 
@@ -156,8 +157,9 @@ export default class View {
   ////////////////////////////
 
   increaseCartNumber() {
-    this._cartNewValue = +this._cartNumber.textContent + 1;
-    this._cartNumber.textContent = this._cartNewValue;
+      this._cartNewValue = +this._cartNumber.textContent + 1;
+      this._cartNumber.textContent = this._cartNewValue;
+ 
   }
 
   decreaseCartNumber() {

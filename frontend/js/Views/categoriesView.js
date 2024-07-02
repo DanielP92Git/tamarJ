@@ -91,9 +91,7 @@ class CategoriesView extends View {
   generatePreview(data, itemInfo, imgMrk) {
     const image = data.querySelector(".front-image").src;
     const title = data.querySelector(".item-title").textContent;
-    console.log('itemInfo:',itemInfo, 'data:',data);
     const smallImage = itemInfo.smallImagesLocal;
-    console.log(smallImage);
     const id = data.id;
     const description = data.querySelector(".item-description").innerHTML;
 
@@ -123,8 +121,20 @@ class CategoriesView extends View {
 
     this._modal.insertAdjacentHTML("afterbegin", markup);
 
+    const smallImgsContainer = document.querySelector(
+      ".small-images-container"
+    );
     const closeBtn = document.querySelector(".close-modal-btn");
     const addToCartModal = document.querySelector(".add-to-cart-btn_modal");
+
+    smallImgsContainer.addEventListener("mouseover", (e) => {
+      const bigImg = document.querySelector(".big-image");
+      bigImg.src = e.target.closest(".small-image").src;
+    });
+    smallImgsContainer.addEventListener("mouseout", (e) => {
+      const bigImg = document.querySelector(".big-image");
+      bigImg.src = image;
+    });
 
     closeBtn.addEventListener("click", this._closeItemModal.bind(this));
 
@@ -138,7 +148,8 @@ class CategoriesView extends View {
     const filtered = data.filter((item) => item.category === checkCategory);
     return filtered
       .map(
-        (item) => `<div class="item-container" data-id="${item.id}" data-quant="${item.quantity}">
+        (item) => `
+        <div class="item-container" data-id="${item.id}" data-quant="${item.quantity}">
        <img class="image-item front-image" src=${item.imageLocal} />
        <img class="image-item rear-image" src=${item.image} />
        <button class="add-to-cart-btn">Add to Cart</button>
@@ -150,12 +161,18 @@ class CategoriesView extends View {
      </div>`
       )
       .join("");
+
+      
   }
 
-  renderProducts(data) {
-    // console.log(data);
-    const markup = this.generateProduct(data);
+  async renderProducts(data) {
+    const spinner = document.querySelector('.loader');
+    await data
+    if (data) {
+      spinner.classList.toggle('spinner-hidden')
+      const markup = this.generateProduct(data);
     this._parentElement.insertAdjacentHTML("afterbegin", markup);
+    }
   }
 }
 
