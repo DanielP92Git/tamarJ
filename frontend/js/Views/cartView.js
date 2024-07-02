@@ -1,5 +1,6 @@
 import View from "../View.js";
 import * as model from "../model.js";
+import deleteSvg from '../../imgs/svgs/x-solid.svg'
 require("dotenv").config();
 
 class CartView extends View {
@@ -11,7 +12,7 @@ class CartView extends View {
   _summaryDetails = document.querySelector(".summary-details");
   _checkoutBtn = document.querySelector(".checkout-btn");
   _deleteAllBtn = document.querySelector(".delete-all");
-  _host = process.env.API_URL
+  _host = process.env.API_URL;
 
   addCartViewHandler(handler) {
     handler();
@@ -37,7 +38,7 @@ class CartView extends View {
 
   _addHandlerCheckout(data) {
     this._checkoutBtn.addEventListener("click", async (e) => {
-      e.preventDefault()
+      e.preventDefault();
       await fetch(`${this._host}/create-checkout-session`, {
         method: "POST",
         headers: {
@@ -60,26 +61,28 @@ class CartView extends View {
     });
   }
 
-   _generateMarkup(cartNum) {
-    if (cartNum !== 0) {
+  _generateMarkup(cartNum) {
+    if (cartNum === 0) {
+      this._itemsBox.classList.add('remove')
+    } else {
+      this._itemsBox.classList.remove('remove');
       this._cartEmpty.classList.add("remove");
       this._deleteAllBtn.classList.add("delete-all-active");
-      // console.log(model.cart);
       return model.cart
-      .map(
-        (x) =>
-          `     
+        .map(
+          (x) =>
+            `     
           <div class="cart-item" id="${x.id}">
             <img src='${x.image}' class="item-img" alt="" />
             <div class="item-title">${x.title}</div>
-            <div class="item-description">${x.description}</div>
             <div class="item-price">${x.price}$</div>
             <div class="delete-item">X</div>
+            <!-- <img src="${deleteSvg}" class="delete-item"/> -->
             </div>`
-          )
-          .join("");
-        }
-        }
+        )
+        .join("");
+    }
+  }
 
   _generateSummaryMarkup(cartNum, num, ship = 10) {
     if (cartNum === 0) return;

@@ -194,11 +194,11 @@ a:hover {
   align-items: center;
   font-size: 0.8rem;
   position: absolute;
-  right: 5.3%;
-  top: 0.8%;
-  background-color: rgb(0, 255, 213);
+  right: 6.5%;
+  top: 10%;
   width: 15px;
   height: 15px;
+  border: 1px solid black;
   border-radius: 50%;
   text-align: center;
 }
@@ -245,15 +245,19 @@ a:hover {
   position: relative;
   cursor: pointer;
   margin-bottom: 3rem;
+  /* width: 20rem;
+  height: 22rem; */
   border: 1px solid rgb(182, 182, 182);
 
   /* ~~~~ FOR DEBUGGING~~~~*/
   /* border: 3px solid rgb(179, 0, 255); */
 }
 
-.rear-image {
-  opacity: 0;
-  z-index: -1;
+.front-image {
+  /* width: 90%; */
+  transition: all;
+  transition-duration: 800ms;
+  transition-property: all;
 }
 
 .image-item {
@@ -269,13 +273,9 @@ a:hover {
 .rear-image {
   position: absolute;
   top: 0;
+  opacity: 0;
+  z-index: -1;
 
-  transition: all;
-  transition-duration: 800ms;
-  transition-property: all;
-}
-
-.front-image {
   transition: all;
   transition-duration: 800ms;
   transition-property: all;
@@ -295,10 +295,14 @@ a:hover {
 .add-to-cart-btn:hover {
   background-color: rgba(231, 187, 169, 0.559);
   width: 200px;
-  height: 40px;
+  height: 30px;
 
   transition: all;
   transition-duration: 500ms;
+}
+
+.item-title {
+  top: 2.8rem;
 }
 
 .item-price {
@@ -310,9 +314,11 @@ a:hover {
   opacity: 0;
   position: absolute;
 }
+
 .item-title_modal {
   font-size: 1.4rem;
 }
+
 .item-description_modal {
   display: flex;
   flex-flow: column;
@@ -335,7 +341,6 @@ a:hover {
 
 .large-img-item {
   width: 48%;
-  /* height: 50%; */
   margin: 5px;
 }
 /* ----------- Slider end ----------------- */
@@ -512,7 +517,6 @@ a:hover {
   /* height: 40%; */
   overflow-x: scroll;
 
-
   /* border: 1px solid green; */
 }
 
@@ -525,7 +529,7 @@ a:hover {
 }
 
 .small-image:hover {
-  color:  white;
+  color: white;
   cursor: pointer;
 }
 
@@ -574,4 +578,43 @@ a:hover {
 
   transition: all;
   transition-duration: 500ms;
+}
+.image-hidden {
+  display: none;
+}
+
+.loader {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  border: 2px solid #000000;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+.loader::after {
+  content: "";
+  box-sizing: border-box;
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  border: 2px solid #ac9d54;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner-hidden {
+  display: none;
 }
