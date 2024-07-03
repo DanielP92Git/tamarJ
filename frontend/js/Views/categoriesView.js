@@ -14,7 +14,7 @@ class CategoriesView extends View {
   _parentElement = document.querySelector(".products-container");
   _main = document.querySelector(".main");
   _modal = document.querySelector(".modal");
-
+  _currencySelector = document.querySelectorAll("currency-option");
   addCategoriesHandler = function (handler) {
     window.addEventListener("load", handler);
   };
@@ -66,8 +66,8 @@ class CategoriesView extends View {
       // console.log(smallImage);
       const imageMarkup = smallImage
         .map(
-          (x) => `
-        <img class="small-image" src="${x}" alt="">
+          (img) => `
+        <img class="small-image" src="${img}" alt="">
       `
         )
         .join("");
@@ -88,14 +88,18 @@ class CategoriesView extends View {
     modal.innerHTML = "";
   }
 
-  generatePreview(data, itemInfo, imgMrk) {
+  generatePreview(data, itemInfo, imgMrk, currency = "usd") {
+    // const smallImage = itemInfo.smallImagesLocal;
+    // const id = data.id;
     const image = data.querySelector(".front-image").src;
     const title = data.querySelector(".item-title").textContent;
-    const smallImage = itemInfo.smallImagesLocal;
-    const id = data.id;
     const description = data.querySelector(".item-description").innerHTML;
+    const checkCurrency = data.dataset.currency
+    console.log(checkCurrency);
+    let selectedUsd = checkCurrency == "$";
+    let curSign = selectedUsd ? "$" : "₪";
 
-    let price = data.querySelector(".item-price").textContent.replace("₪", "");
+    let price = data.querySelector(".item-price").textContent.replace(/[$₪]/g, "");
 
     const markup = `<div class="item-overlay">
     <div class="modal-item-container">
@@ -113,7 +117,7 @@ class CategoriesView extends View {
         <div class="item-description_modal">${description}
         </div>
         <div class="price-text">Price:</div>
-        <div class="item-price_modal">₪${price}</div>
+        <div class="item-price_modal">${curSign}${price}</div>
         <button class="add-to-cart-btn_modal">Add to Cart</button>
       </div>
     </div>
@@ -143,13 +147,18 @@ class CategoriesView extends View {
     });
   }
 
-  generateProduct(data) {
+  generateProduct(data, currency = "usd") {
     const checkCategory = document.body.dataset.category;
     const filtered = data.filter((item) => item.category === checkCategory);
-    return filtered
+
+    let selectedUsd = currency == "usd";
+    let curSign = selectedUsd ? "$" : "₪";
+
+    const markup = filtered
       .map(
-        (item) => `
-        <div class="item-container" data-id="${item.id}" data-quant="${item.quantity}">
+        (item) =>
+          `
+        <div class="item-container" data-id="${item.id}" data-quant="${item.quantity}" data-currency=${curSign}>
        <img class="image-item front-image" src=${item.imageLocal} />
        <img class="image-item rear-image" src=${item.image} />
        <button class="add-to-cart-btn">Add to Cart</button>
@@ -157,22 +166,27 @@ class CategoriesView extends View {
       <div class="item-description">
         ${item.description}
        </div>
-       <div class="item-price">₪${item.new_price}</div>
+       <div class="item-price">${curSign}${
+            selectedUsd ? Number((item.ils_price / 3).toFixed(0)) : item.ils_price
+          }</div>
      </div>`
       )
       .join("");
 
-      
+    const spinner = document.querySelector(".loader");
+    if (data) {
+      spinner.classList.toggle("spinner-hidden");
+      this._parentElement.insertAdjacentHTML("afterbegin", markup);
+    }
   }
 
-  async renderProducts(data) {
-    const spinner = document.querySelector('.loader');
-    await data
-    if (data) {
-      spinner.classList.toggle('spinner-hidden')
-      const markup = this.generateProduct(data);
-    this._parentElement.insertAdjacentHTML("afterbegin", markup);
-    }
+  currencyHandler(data) {
+    let currencySelector = document.getElementById("currency");
+
+    currencySelector.addEventListener("change", () => {
+      let currency = currencySelector.value;
+      this.generateProduct(data, currency);
+    });
   }
 }
 

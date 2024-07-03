@@ -50,7 +50,7 @@ export const handleLoadStorage = async function () {
                 title: product.name,
                 description: product.description,
                 image: product.image,
-                price: product.new_price,
+                price: product.ils_price,
                 id: product.id,
                 quantity: product.quantity,
                 amount: 1,
@@ -81,7 +81,7 @@ export const setItems = async function (data) {
           title: product.name,
           description: product.description,
           image: product.image,
-          price: product.new_price,
+          price: product.ils_price,
           qauntity: product.qauntity,
           id: product.id,
           amount: 1,
@@ -105,7 +105,7 @@ export const setPreviewItem = async function (data) {
           title: product.name,
           description: product.description,
           image: product.image,
-          price: product.new_price,
+          price: product.ils_price,
           quantity: product.qauntity,
           id: product.id,
           amount: 1,
@@ -173,35 +173,36 @@ export const addToLocalStorage = async function (data) {
   // console.log(itemId);
   const itemImage = data.querySelector(".front-image").src;
   const itemTitle = data.querySelector(".item-title").textContent;
+  const currencyCheck = data.dataset.currency
   let itemPrice = data
     .querySelector(".item-price")
-    .textContent.replace("₪", "");
+    .textContent.replace(/[$₪]/g, "");
 
   // 1) Generate data:
   const itemData = {
     title: itemTitle,
     image: itemImage,
     price: itemPrice,
+    currency: currencyCheck,
     quantity: +quant,
     id: +itemId,
   };
-  // console.log(itemData.id)
   // 2) Update item to cart
   addToLocalCart(itemData);
 };
 
 const addToLocalCart = function (data) {
-  // console.log('2',data.quantity);
   cart.push({
     title: data.title,
     image: data.image,
     price: data.price,
+    currency: data.currency,
     id: +data.id,
-    quantity: data.qauntity,
+    quantity: data.quantity,
     amount: 1,
   });
   createLocalStorage();
-  // console.log(cart);
+  console.log('3. cart:',cart);
 };
 
 export const checkCartNumber = async function () {

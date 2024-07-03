@@ -206,13 +206,24 @@ a:hover {
 /* ```````Navbar END`````````` */
 
 .category-title {
-  margin-top: 5px;
-  margin-bottom: 45px;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
   font-weight: 100;
   font-size: 2.3rem;
 
   font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
     "Lucida Sans", Arial, sans-serif;
+}
+
+#currency {
+  margin-bottom: 1rem;
+
+  width: 5rem;
+  height: 2rem;
+}
+
+#currency:hover {
+  cursor: pointer;
 }
 
 .main {

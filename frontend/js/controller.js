@@ -7,7 +7,6 @@ import WorkshopView from "./Views/workshopView.js";
 import AboutView from "./Views/aboutView.js";
 import ContactMeView from "./Views/contactMeView.js";
 import CartView from "./Views/cartView.js";
-import categoriesView from "./Views/categoriesView.js";
 import LoginView from "./Views/NEWloginView.js";
 import BisliView from "./Views/BisliView.js";
 
@@ -89,12 +88,14 @@ const controlCategoriesPage = async function () {
     CategoriesView._imageFlipper();
     CategoriesView.addRevealHandler();
     CategoriesView.addMobileHandler();
-    categoriesView.persistCartNumber(await model.checkCartNumber());
+    CategoriesView.persistCartNumber(await model.checkCartNumber());
 
     // 1) Load products from API
     const data = await model.getAPI();
     // 2) Render products
-    categoriesView.renderProducts(data);
+    // CategoriesView.renderProducts(data);
+    CategoriesView.generateProduct(data);
+    CategoriesView.currencyHandler(data)
     model.setPreviewItem(data);
     CategoriesView.addHandlerPreview(controlAddToCart, data);
   } catch (err) {
