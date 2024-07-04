@@ -59,7 +59,7 @@
         </svg>
 
         <div class="shoppingcart-container">
-          <span class=" cart-number cart-number-mobile">0</span>
+          <span class="cart-number cart-number-mobile">0</span>
 
           <a href="../../html/cart.html">
             <svg class="shoppingcart-mobile">
@@ -100,6 +100,12 @@
                   >Hoop Earrings</a
                 >
               </li>
+              <li class="category-item category-item--dangle">
+                <a class="attrib" href="../categories/dangle.html"
+                  >Dangle Earrings</a
+                >
+              </li>
+
               <li class="category-item category-item--bracelets">
                 <a
                   class="attrib"
@@ -138,9 +144,19 @@
       <select name="currency" id="currency">
         <option value="usd" class="currency-option">USD</option>
         <option value="ils" class="currency-option">ILS</option>
-
+      </select>
+      <select name="sort" id="sort">
+        <option value="default" class="currency-option">Sort by:</option>
+        <option value="low-to-high" class="currency-option">
+          Price (Low to High)
+        </option>
+        <option value="high-to-low" class="currency-option">
+          Price (High to Low)
+        </option>
       </select>
       <div class="products-container">
+        <span class="loader"></span>
+
         <!-- <div class="item-container">
           <img class="image-item front-image" src="../../imgs/IMG_9699.jpg" />
           <img class="image-item rear-image" src="../../imgs/main-photo.jpg" />

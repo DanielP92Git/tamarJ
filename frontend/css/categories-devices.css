@@ -64,6 +64,14 @@ header {
   /* border: 5px solid rgb(46, 37, 228); */
 }
 
+#currency {
+  margin:1rem 1.5rem 0 0;
+  align-self: flex-end;
+
+  width: 5rem;
+  height: 2rem;
+}
+
 .main-nav-tab:hover {
   background-color: rgba(255, 255, 255, 0.925);
   cursor: pointer;

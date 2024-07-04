@@ -94,12 +94,14 @@ class CategoriesView extends View {
     const image = data.querySelector(".front-image").src;
     const title = data.querySelector(".item-title").textContent;
     const description = data.querySelector(".item-description").innerHTML;
-    const checkCurrency = data.dataset.currency
+    const checkCurrency = data.dataset.currency;
     console.log(checkCurrency);
     let selectedUsd = checkCurrency == "$";
     let curSign = selectedUsd ? "$" : "₪";
 
-    let price = data.querySelector(".item-price").textContent.replace(/[$₪]/g, "");
+    let price = data
+      .querySelector(".item-price")
+      .textContent.replace(/[$₪]/g, "");
 
     const markup = `<div class="item-overlay">
     <div class="modal-item-container">
@@ -147,6 +149,49 @@ class CategoriesView extends View {
     });
   }
 
+  sortedProduct(data, sort = "default") {
+    const checkCategory = document.body.dataset.category;
+    const filtered = data.filter((item) => item.category === checkCategory);
+    let sortedByPrice
+    if (sort == "low-to-high") {
+      sortedByPrice = filtered.sort((a, b) => a.ils_price - b.ils_price);
+    } else {
+      sortedByPrice = filtered.sort((a, b) => b.ils_price - a.ils_price);
+    }
+      let selectedUsd = currency == "usd";
+      let curSign = selectedUsd ? "$" : "₪";
+
+      const markup = sortedByPrice
+        .map(
+          (item) =>
+            `
+        <div class="item-container" data-id="${item.id}" data-quant="${
+              item.quantity
+            }" data-currency=${curSign}>
+       <img class="image-item front-image" src=${item.image} />
+       <img class="image-item rear-image" src=${item.image} />
+       <button class="add-to-cart-btn">Add to Cart</button>
+       <div class="item-title">${item.name}</div>
+      <div class="item-description">
+        ${item.description}
+       </div>
+       <div class="item-price">${curSign}${
+              selectedUsd
+                ? Number((item.ils_price / 3.7).toFixed(0))
+                : item.ils_price
+            }</div>
+     </div>`
+        )
+        .join("");
+
+      const spinner = document.querySelector(".loader");
+      if (data) {
+        spinner.classList.toggle("spinner-hidden");
+        this._parentElement.insertAdjacentHTML("afterbegin", markup);
+      }
+    
+  }
+
   generateProduct(data, currency = "usd") {
     const checkCategory = document.body.dataset.category;
     const filtered = data.filter((item) => item.category === checkCategory);
@@ -158,8 +203,10 @@ class CategoriesView extends View {
       .map(
         (item) =>
           `
-        <div class="item-container" data-id="${item.id}" data-quant="${item.quantity}" data-currency=${curSign}>
-       <img class="image-item front-image" src=${item.imageLocal} />
+        <div class="item-container" data-id="${item.id}" data-quant="${
+            item.quantity
+          }" data-currency=${curSign}>
+       <img class="image-item front-image" src=${item.image} />
        <img class="image-item rear-image" src=${item.image} />
        <button class="add-to-cart-btn">Add to Cart</button>
        <div class="item-title">${item.name}</div>
@@ -167,7 +214,9 @@ class CategoriesView extends View {
         ${item.description}
        </div>
        <div class="item-price">${curSign}${
-            selectedUsd ? Number((item.ils_price / 3).toFixed(0)) : item.ils_price
+            selectedUsd
+              ? Number((item.ils_price / 3.7).toFixed(0))
+              : item.ils_price
           }</div>
      </div>`
       )
@@ -186,6 +235,14 @@ class CategoriesView extends View {
     currencySelector.addEventListener("change", () => {
       let currency = currencySelector.value;
       this.generateProduct(data, currency);
+    });
+  }
+  sortHandler(data) {
+    let sortSelector = document.getElementById("sort");
+
+    sortSelector.addEventListener("change", () => {
+      let sort = sortSelector.value;
+      this.sortedProduct(data, sort);
     });
   }
 }

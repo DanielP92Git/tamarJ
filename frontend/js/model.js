@@ -174,6 +174,7 @@ export const addToLocalStorage = async function (data) {
   const itemImage = data.querySelector(".front-image").src;
   const itemTitle = data.querySelector(".item-title").textContent;
   const currencyCheck = data.dataset.currency
+  
   let itemPrice = data
     .querySelector(".item-price")
     .textContent.replace(/[$₪]/g, "");

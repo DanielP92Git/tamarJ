@@ -613,8 +613,7 @@ app.post("/create-checkout-session", async (req, res) => {
     const [getProductId] = req.body.items;
     const product = await Product.find({ id: getProductId.id });
     let [getProdQuant] = product;
-    let converted = req.body.items;
-    console.log(converted);
+    let reqCurrency = req.body.currency
 
     if (!product) {
       throw new Error("Product not found");
@@ -623,11 +622,15 @@ app.post("/create-checkout-session", async (req, res) => {
     if (getProdQuant.quantity == 0) {
       return res.status(400).send("Product is out of stock");
     }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
       line_items: req.body.items.map((item) => {
-        let inCents = item.price * 100;
+        // let inCents = item.price * 100;
+        let inCents = reqCurrency == '$' ? item.price * 100 : Number((item.price / `${process.env.USD_ILS_RATE}`).toFixed(0)) * 100 ;
+        console.log(inCents);
+        console.log(item.price);
         const myItem = {
           name: item.title,
           price: inCents,
