@@ -1,6 +1,7 @@
 // import React, { useEffect, useState, useContext } from "react";
 import View from "../View.js";
 import { controlAddToCart } from "../controller.js";
+import closeSvg from '../../imgs/svgs/x-solid.svg'
 // import { createRoot } from "react-dom/client";
 // import all_product from "../../Assets/all_product.js";
 
@@ -62,7 +63,7 @@ class CategoriesView extends View {
       const id = clicked.dataset.id;
       const filtered = data.find((prod) => prod.id == id);
       const addToCart = e.target.closest(".add-to-cart-btn");
-      const smallImage = filtered.smallImagesLocal;
+      const smallImage = filtered.smallImages;
       // console.log(smallImage);
       const imageMarkup = smallImage
         .map(
@@ -74,7 +75,7 @@ class CategoriesView extends View {
 
       if (!clicked) return;
       if (addToCart) return;
-      this.generatePreview(clicked, filtered, imageMarkup);
+      this.generatePreview(clicked, imageMarkup);
     };
 
     this._parentElement.addEventListener("click", _openItemModal.bind(this));
@@ -88,14 +89,12 @@ class CategoriesView extends View {
     modal.innerHTML = "";
   }
 
-  generatePreview(data, itemInfo, imgMrk, currency = "usd") {
-    // const smallImage = itemInfo.smallImagesLocal;
-    // const id = data.id;
+  generatePreview(data, imgMrk) {
     const image = data.querySelector(".front-image").src;
     const title = data.querySelector(".item-title").textContent;
     const description = data.querySelector(".item-description").innerHTML;
     const checkCurrency = data.dataset.currency;
-    console.log(checkCurrency);
+
     let selectedUsd = checkCurrency == "$";
     let curSign = selectedUsd ? "$" : "₪";
 
@@ -105,7 +104,7 @@ class CategoriesView extends View {
 
     const markup = `<div class="item-overlay">
     <div class="modal-item-container">
-      <svg class="close-modal-btn"><use xlink:href="#close-svg"></use></svg>
+      <img class="close-modal-btn" src="${closeSvg}" alt="">
       <div class="images-container">
       <img class="big-image" src="${image}" alt="">
       
@@ -132,15 +131,14 @@ class CategoriesView extends View {
     );
     const closeBtn = document.querySelector(".close-modal-btn");
     const addToCartModal = document.querySelector(".add-to-cart-btn_modal");
+    let bigImg = document.querySelector(".big-image");
 
-    smallImgsContainer.addEventListener("mouseover", (e) => {
-      const bigImg = document.querySelector(".big-image");
+    smallImgsContainer.addEventListener("click", (e) => {
       bigImg.src = e.target.closest(".small-image").src;
     });
-    smallImgsContainer.addEventListener("mouseout", (e) => {
-      const bigImg = document.querySelector(".big-image");
-      bigImg.src = image;
-    });
+    // smallImgsContainer.addEventListener("mouseout", () => {
+    //   bigImg.src = image;
+    // });
 
     closeBtn.addEventListener("click", this._closeItemModal.bind(this));
 
