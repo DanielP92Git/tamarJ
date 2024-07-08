@@ -1,18 +1,23 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const bcrypt = require("bcrypt");
-require("dotenv").config();
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const fs = require("fs");
 
+const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID;
+const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET;
+const baseUrl = process.env.PAYPAL_BASE_URL;
+
 //
 //* MAIN SETTINGS
 //
+app.set("view engine", "ejs");
 const allowedOrigins = [`${process.env.HOST}`, `${process.env.API_URL}`];
 // const corsOptions = {
 //   origin: (origin, callback) => {
@@ -228,6 +233,10 @@ app.use(express.static(path.join(__dirname, "frontend")));
 
 app.get("/", (req, res) => res.send("API endpoint is running"));
 
+app.get("/", (req, res) => {
+  res.render("cart");
+});
+
 app.get("/admin", (req, res) => {
   // console.log("Fetch admin");
   res.sendFile(path.join(__dirname, "html/bambaYafa.html")).status(200);
@@ -311,6 +320,21 @@ app.get("/allproducts", async (req, res) => {
   let products = await Product.find({});
   console.log("All Products Fetched");
   res.send(products);
+});
+
+app.post("/chunkProducts", async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+  let category = req.body.checkCategory;
+  try {
+    const products = await Product.find({ category: category })
+      .skip(skip)
+      .limit(limit);
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch products:", err });
+  }
 });
 
 const authUser = async function (req, res, next) {
@@ -613,7 +637,7 @@ app.post("/create-checkout-session", async (req, res) => {
     const [getProductId] = req.body.items;
     const product = await Product.find({ id: getProductId.id });
     let [getProdQuant] = product;
-    let reqCurrency = req.body.currency
+    let reqCurrency = req.body.currency;
 
     if (!product) {
       throw new Error("Product not found");
@@ -628,9 +652,12 @@ app.post("/create-checkout-session", async (req, res) => {
       mode: "payment",
       line_items: req.body.items.map((item) => {
         // let inCents = item.price * 100;
-        let inCents = reqCurrency == '$' ? item.price * 100 : Number((item.price / `${process.env.USD_ILS_RATE}`).toFixed(0)) * 100 ;
-        console.log(inCents);
-        console.log(item.price);
+        let inCents =
+          reqCurrency == "$"
+            ? item.price * 100
+            : Number((item.price / `${process.env.USD_ILS_RATE}`).toFixed(0)) *
+              100;
+
         const myItem = {
           name: item.title,
           price: inCents,
@@ -696,7 +723,7 @@ app.post("/create-checkout-session", async (req, res) => {
       ],
 
       success_url: `${process.env.HOST}/index.html`,
-      cancel_url: `${process.env.HOST}/html/cart.html`,
+      cancel_url: `${process.env.HOST}/html/cart.ejs`,
       // customer_email: "test+location_US@example.com",
       metadata: {
         productId: getProductId.id.toString(), // .toString()??? Include the product ID in the session metadata
@@ -707,6 +734,146 @@ app.post("/create-checkout-session", async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({ err });
+  }
+});
+
+const generateAccessToken = async () => {
+  try {
+    if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
+      throw new Error("MISSING_API_CREDENTIALS");
+    }
+    const auth = btoa(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`);
+
+    const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${auth}`,
+      },
+      body: "grant_type=client_credentials",
+    });
+
+    const data = await response.json();
+    return data.access_token;
+  } catch (error) {
+    console.error("Failed to generate Access Token:", error);
+  }
+};
+
+const createOrder = async (cart) => {
+  // use the cart information passed from the front-end to calculate the purchase unit details
+  console.log(
+    "shopping cart information passed from the frontend createOrder() callback:",
+    cart
+  );
+  let totalAmount = cart
+    .reduce((total, item) => {
+      let itemTotal =
+        parseFloat(item.unit_amount.value) * parseInt(item.quantity);
+      return total + itemTotal;
+    }, 0)
+    .toFixed(2);
+
+  const currencyData = cart[0].unit_amount.currency_code;
+
+  const accessToken = await generateAccessToken();
+  const url = `${baseUrl}/v2/checkout/orders`;
+  const payload = {
+    intent: "CAPTURE",
+    purchase_units: [
+      {
+        amount: {
+          currency_code: currencyData,
+          value: totalAmount,
+          breakdown: {
+            item_total: {
+              currency_code: currencyData,
+              value: totalAmount,
+            },
+          },
+        },
+        items: cart,
+      },
+    ],
+    application_context: {
+      return_url: `${process.env.API_URL}/complete-order`,
+      cancel_url: `${process.env.HOST}/html/cart.html`,
+      user_action: "PAY_NOW",
+      brand_name: "Tamar Kfir Jewelry",
+    },
+  };
+
+  const response = await fetch(url, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+      // Uncomment one of these to force an error for negative testing (in sandbox mode only). Documentation:
+      // https://developer.paypal.com/tools/sandbox/negative-testing/request-headers/
+      // "PayPal-Mock-Response": '{"mock_application_codes": "MISSING_REQUIRED_PARAMETER"}'
+      // "PayPal-Mock-Response": '{"mock_application_codes": "PERMISSION_DENIED"}'
+      // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+    },
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  return handleResponse(response);
+};
+
+const captureOrder = async (orderID) => {
+  const accessToken = await generateAccessToken();
+  const url = `${baseUrl}/v2/checkout/orders/${orderID}/capture`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+      // Uncomment one of these to force an error for negative testing (in sandbox mode only). Documentation:
+      // https://developer.paypal.com/tools/sandbox/negative-testing/request-headers/
+      // "PayPal-Mock-Response": '{"mock_application_codes": "INSTRUMENT_DECLINED"}'
+      // "PayPal-Mock-Response": '{"mock_application_codes": "TRANSACTION_REFUSED"}'
+      // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+    },
+  });
+
+  return handleResponse(response);
+};
+
+async function handleResponse(response) {
+  try {
+    const jsonResponse = await response.json();
+    return {
+      jsonResponse,
+      httpStatusCode: response.status,
+    };
+  } catch (error) {
+    console.error(error);
+    const errorMessage = await response.text();
+    throw new Error(errorMessage);
+  }
+}
+
+app.post("/orders", async (req, res) => {
+  try {
+    // use the cart information passed from the front-end to calculate the order amount detals
+    const { cart } = req.body;
+    const { jsonResponse, httpStatusCode } = await createOrder(cart);
+    res.status(httpStatusCode).json(jsonResponse);
+  } catch (error) {
+    console.error("Failed to create order:", error);
+    res.status(500).json({ error: "Failed to create order." });
+  }
+});
+
+app.post("/orders/:orderID/capture", async (req, res) => {
+  try {
+    const { orderID } = req.params;
+    const { jsonResponse, httpStatusCode } = await captureOrder(orderID);
+    res.status(httpStatusCode).json(jsonResponse);
+  } catch (error) {
+    console.error("Failed to create order:", error);
+    res.status(500).json({ error: "Failed to capture order." });
   }
 });
 
