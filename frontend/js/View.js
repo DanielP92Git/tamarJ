@@ -5,9 +5,8 @@ export default class View {
   _menu = document.querySelector(".menu");
   _categoriesTab = document.querySelector(".categories-tab");
   _categoriesList = document.querySelector(".categories-list");
-  _cartNumber = document.querySelector(".cart-number");
+  _cartNumber = document.querySelectorAll(".cart-number");
   _cartNewValue = 0;
-  _cartNewValueMobile = 0;
   _loginBtn = document.querySelector(".login-btn");
 
   /**
@@ -157,18 +156,25 @@ export default class View {
   ////////////////////////////
 
   increaseCartNumber() {
-      this._cartNewValue = +this._cartNumber.textContent + 1;
-      this._cartNumber.textContent = this._cartNewValue;
+    this._cartNumber.forEach((cartNum)=> {
+      this._cartNewValue = +cartNum.textContent + 1;
+      cartNum.textContent = this._cartNewValue;
+    })
  
   }
 
   decreaseCartNumber() {
-    this._cartNewValue = +this._cartNumber.textContent - 1;
-    this._cartNumber.textContent = this._cartNewValue;
+    this._cartNumber.forEach((cartNum)=> {
+      this._cartNewValue = +cartNum.textContent - 1;
+      cartNum.textContent = this._cartNewValue;
+    })
   }
 
   persistCartNumber(num) {
-    this._cartNumber.textContent = num;
+
+    this._cartNumber.forEach((cartNum) => {
+      cartNum.textContent = num;
+    })
   }
 
   // async logInOutHandler() {

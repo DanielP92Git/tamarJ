@@ -1,18 +1,23 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const bcrypt = require("bcrypt");
-require("dotenv").config();
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const fs = require("fs");
 
+const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID;
+const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET;
+const baseUrl = process.env.PAYPAL_BASE_URL;
+
 //
 //* MAIN SETTINGS
 //
+app.set("view engine", "ejs");
 const allowedOrigins = [`${process.env.HOST}`, `${process.env.API_URL}`];
 // const corsOptions = {
 //   origin: (origin, callback) => {
@@ -66,7 +71,7 @@ app.post(
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
-      console.log('2. From webhook:', session.metadata.productId);
+      console.log("2. From webhook:", session.metadata.productId);
       // Fulfill the purchase
       handleCheckoutSession(session);
     }
@@ -76,35 +81,30 @@ app.post(
 );
 
 async function handleCheckoutSession(session) {
-   
   const productId = session.metadata.productId; // Extract the actual product ID from session or metadata
-  console.log('3. From Function:');
   if (productId) {
-    const product = await Product.findOne({id: productId});
+    const product = await Product.findOne({ id: productId });
     if (product) {
       product.quantity -= 1;
       await product.save();
-      let newQuantity = product.quantity
+      let newQuantity = product.quantity;
       console.log(
         `Product ${productId} quantity reduced. New quantity: ${newQuantity}`
       );
       if (newQuantity == 0) {
         const response = await fetch(`${process.env.API_URL}/removeproduct`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             id: productId,
-          })
-        })
+          }),
+        });
 
-        const data = await response.json()
+        const data = await response.json();
         if (data.success) {
           console.log(`Product with id: ${data.id} is deleted from database`);
         }
       }
-
-
-
     }
   } else {
     console.error("Product not found");
@@ -207,11 +207,11 @@ const Product = mongoose.model("Product", {
     type: Number,
     required: false,
   },
-  new_price: {
+  ils_price: {
     type: Number,
     required: false,
   },
-  old_price: {
+  usd_price: {
     type: Number,
     required: false,
   },
@@ -232,6 +232,10 @@ const Product = mongoose.model("Product", {
 app.use(express.static(path.join(__dirname, "frontend")));
 
 app.get("/", (req, res) => res.send("API endpoint is running"));
+
+app.get("/", (req, res) => {
+  res.render("cart");
+});
 
 app.get("/admin", (req, res) => {
   // console.log("Fetch admin");
@@ -261,8 +265,8 @@ app.post("/addproduct", async (req, res) => {
     category: req.body.category,
     quantity: +req.body.quantity,
     description: req.body.description,
-    new_price: req.body.newPrice,
-    old_price: req.body.oldPrice,
+    ils_price: req.body.newPrice,
+    usd_price: req.body.oldPrice,
   });
 
   // console.log(product);
@@ -278,8 +282,8 @@ app.post("/updateproduct", async (req, res) => {
   const id = req.body.id;
   const updatedFields = {
     name: req.body.name,
-    old_price: req.body.oldPrice,
-    new_price: req.body.newPrice,
+    ils_price: req.body.newPrice,
+    usd_price: req.body.oldPrice,
     description: req.body.description,
     quantity: req.body.quantity,
   };
@@ -288,8 +292,8 @@ app.post("/updateproduct", async (req, res) => {
   let product = await Product.findOne({ id: id });
 
   product.name = updatedFields.name;
-  product.old_price = updatedFields.old_price;
-  product.new_price = updatedFields.new_price;
+  product.usd_price = updatedFields.usd_price;
+  product.ils_price = updatedFields.ils_price;
   product.description = updatedFields.description;
   product.quantity = updatedFields.quantity;
 
@@ -316,6 +320,21 @@ app.get("/allproducts", async (req, res) => {
   let products = await Product.find({});
   console.log("All Products Fetched");
   res.send(products);
+});
+
+app.post("/chunkProducts", async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+  let category = req.body.checkCategory;
+  try {
+    const products = await Product.find({ category: category })
+      .skip(skip)
+      .limit(limit);
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch products:", err });
+  }
 });
 
 const authUser = async function (req, res, next) {
@@ -610,19 +629,18 @@ app.post("/upload", multipleUpload, (req, res) => {
 });
 
 // Creating payment endpoint
-const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY_TEST);
+const stripe = require("stripe")(process.env.STRIPE_PUBLISH_KEY_TEST);
 
 app.post("/create-checkout-session", async (req, res) => {
   // const shippingRate = await stripe.shippingRates.retrieve('shr_1P5Tdw03Qr2omCV4v8GI30UM')
   try {
     const [getProductId] = req.body.items;
-    // console.log('req.body:',req.body);
-    // console.log('productId:',productId.id);
     const product = await Product.find({ id: getProductId.id });
     let [getProdQuant] = product;
-    // console.log(prodQuant.quantity);
+    let reqCurrency = req.body.currency;
+
     if (!product) {
-      return res.status(404).send("Product not found");
+      throw new Error("Product not found");
     }
 
     if (getProdQuant.quantity == 0) {
@@ -633,9 +651,16 @@ app.post("/create-checkout-session", async (req, res) => {
       payment_method_types: ["card"],
       mode: "payment",
       line_items: req.body.items.map((item) => {
+        // let inCents = item.price * 100;
+        let inCents =
+          reqCurrency == "$"
+            ? item.price * 100
+            : Number((item.price / `${process.env.USD_ILS_RATE}`).toFixed(0)) *
+              100;
+
         const myItem = {
           name: item.title,
-          price: item.price * 100,
+          price: inCents,
           quantity: item.amount,
           productId: item.id,
         };
@@ -651,7 +676,6 @@ app.post("/create-checkout-session", async (req, res) => {
           quantity: myItem.quantity,
         };
       }),
-
       shipping_address_collection: {
         allowed_countries: ["US", "IL"],
       },
@@ -660,7 +684,7 @@ app.post("/create-checkout-session", async (req, res) => {
           shipping_rate_data: {
             type: "fixed_amount",
             fixed_amount: {
-              amount: 1000,
+              amount: 1500,
               currency: "usd",
             },
             display_name: "Standard Shipping",
@@ -699,17 +723,157 @@ app.post("/create-checkout-session", async (req, res) => {
       ],
 
       success_url: `${process.env.HOST}/index.html`,
-      cancel_url: `${process.env.HOST}/html/cart.html`,
+      cancel_url: `${process.env.HOST}/html/cart.ejs`,
+      // customer_email: "test+location_US@example.com",
       metadata: {
         productId: getProductId.id.toString(), // .toString()??? Include the product ID in the session metadata
       },
     });
-    console.log('1. From stripe session:', session.metadata.productId);
 
-    // res.json({ url: session.url });
     res.json({ sessionId: session.id, url: session.url });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ err });
+  }
+});
+
+const generateAccessToken = async () => {
+  try {
+    if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
+      throw new Error("MISSING_API_CREDENTIALS");
+    }
+    const auth = btoa(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`);
+
+    const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: `Basic ${auth}`,
+      },
+      body: "grant_type=client_credentials",
+    });
+
+    const data = await response.json();
+    return data.access_token;
+  } catch (error) {
+    console.error("Failed to generate Access Token:", error);
+  }
+};
+
+const createOrder = async (cart) => {
+  // use the cart information passed from the front-end to calculate the purchase unit details
+  console.log(
+    "shopping cart information passed from the frontend createOrder() callback:",
+    cart
+  );
+  let totalAmount = cart
+    .reduce((total, item) => {
+      let itemTotal =
+        parseFloat(item.unit_amount.value) * parseInt(item.quantity);
+      return total + itemTotal;
+    }, 0)
+    .toFixed(2);
+
+  const currencyData = cart[0].unit_amount.currency_code;
+
+  const accessToken = await generateAccessToken();
+  const url = `${baseUrl}/v2/checkout/orders`;
+  const payload = {
+    intent: "CAPTURE",
+    purchase_units: [
+      {
+        amount: {
+          currency_code: currencyData,
+          value: totalAmount,
+          breakdown: {
+            item_total: {
+              currency_code: currencyData,
+              value: totalAmount,
+            },
+          },
+        },
+        items: cart,
+      },
+    ],
+    application_context: {
+      return_url: `${process.env.API_URL}/complete-order`,
+      cancel_url: `${process.env.HOST}/html/cart.html`,
+      user_action: "PAY_NOW",
+      brand_name: "Tamar Kfir Jewelry",
+    },
+  };
+
+  const response = await fetch(url, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+      // Uncomment one of these to force an error for negative testing (in sandbox mode only). Documentation:
+      // https://developer.paypal.com/tools/sandbox/negative-testing/request-headers/
+      // "PayPal-Mock-Response": '{"mock_application_codes": "MISSING_REQUIRED_PARAMETER"}'
+      // "PayPal-Mock-Response": '{"mock_application_codes": "PERMISSION_DENIED"}'
+      // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+    },
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  return handleResponse(response);
+};
+
+const captureOrder = async (orderID) => {
+  const accessToken = await generateAccessToken();
+  const url = `${baseUrl}/v2/checkout/orders/${orderID}/capture`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+      // Uncomment one of these to force an error for negative testing (in sandbox mode only). Documentation:
+      // https://developer.paypal.com/tools/sandbox/negative-testing/request-headers/
+      // "PayPal-Mock-Response": '{"mock_application_codes": "INSTRUMENT_DECLINED"}'
+      // "PayPal-Mock-Response": '{"mock_application_codes": "TRANSACTION_REFUSED"}'
+      // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+    },
+  });
+
+  return handleResponse(response);
+};
+
+async function handleResponse(response) {
+  try {
+    const jsonResponse = await response.json();
+    return {
+      jsonResponse,
+      httpStatusCode: response.status,
+    };
+  } catch (error) {
+    console.error(error);
+    const errorMessage = await response.text();
+    throw new Error(errorMessage);
+  }
+}
+
+app.post("/orders", async (req, res) => {
+  try {
+    // use the cart information passed from the front-end to calculate the order amount detals
+    const { cart } = req.body;
+    const { jsonResponse, httpStatusCode } = await createOrder(cart);
+    res.status(httpStatusCode).json(jsonResponse);
+  } catch (error) {
+    console.error("Failed to create order:", error);
+    res.status(500).json({ error: "Failed to create order." });
+  }
+});
+
+app.post("/orders/:orderID/capture", async (req, res) => {
+  try {
+    const { orderID } = req.params;
+    const { jsonResponse, httpStatusCode } = await captureOrder(orderID);
+    res.status(httpStatusCode).json(jsonResponse);
+  } catch (error) {
+    console.error("Failed to create order:", error);
+    res.status(500).json({ error: "Failed to capture order." });
   }
 });
 

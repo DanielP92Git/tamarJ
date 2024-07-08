@@ -1,9 +1,6 @@
-// import React, { useEffect, useState, useContext } from "react";
 import View from "../View.js";
-import { controlAddToCart } from "../controller.js";
-// import { createRoot } from "react-dom/client";
-// import all_product from "../../Assets/all_product.js";
-
+import closeSvg from "../../imgs/svgs/x-solid.svg";
+import * as model from "../model.js";
 //////////////////////////////////////////////////////////
 /**
  *!This javascript file is for all of the categories pages
@@ -11,10 +8,45 @@ import { controlAddToCart } from "../controller.js";
 /////////////////////////////////////////////////////////
 
 class CategoriesView extends View {
-  _parentElement = document.querySelector(".products-container");
-  _main = document.querySelector(".main");
-  _modal = document.querySelector(".modal");
+  constructor(parentElement) {
+    super(parentElement);
+    this.page = 1;
+    this.limit = 6;
+    this.isLoading = false;
+    this.selectedCurrency = "usd"; // Default currency;
+    this.sortedByPrice = "";
+    this.products = [];
+    this.productsContainer = document.querySelector(".products-container");
+    this.modal = document.querySelector(".modal");
 
+    // Initial fetch and setup
+    // this.fetchProducts();
+    this.fetchAllProducts();
+    this.setupScrollListener();
+    this.setupCurrencyHandler();
+    this.setupSortHandler();
+    this.addHandlerAddToCart();
+  }
+  // _parentElement = document.querySelector(".products-container");
+  increaseCartNumber() {
+    this._cartNumber.forEach((cartNum) => {
+      this._cartNewValue = +cartNum.textContent + 1;
+      cartNum.textContent = this._cartNewValue;
+    });
+  }
+
+  decreaseCartNumber() {
+    this._cartNumber.forEach((cartNum) => {
+      this._cartNewValue = +cartNum.textContent - 1;
+      cartNum.textContent = this._cartNewValue;
+    });
+  }
+
+  persistCartNumber(num) {
+    this._cartNumber.forEach((cartNum) => {
+      cartNum.textContent = num;
+    });
+  }
   addCategoriesHandler = function (handler) {
     window.addEventListener("load", handler);
   };
@@ -43,41 +75,50 @@ class CategoriesView extends View {
 
   //////////////////////////////////////////////////
 
-  addHandlerAddToCart(handler) {
-    this._parentElement.addEventListener("click", function (e) {
-      const btn = e.target.closest(".add-to-cart-btn");
+  addHandlerAddToCart() {
+    document.addEventListener("click", this.addToCart.bind(this));
+  }
 
-      if (!btn) return;
-      const item = btn.closest(".item-container");
-      handler(item);
-    });
+  addToCart(e) {
+    const btn = e.target.closest(".add-to-cart-btn");
+
+    if (!btn) return;
+    const item = btn.closest(".item-container");
+    // console.log(item);
+    this.increaseCartNumber();
+    model.handleAddToCart(item);
+  }
+
+  addFromPrev(data) {
+    // console.log(data);
+    this.increaseCartNumber();
+    model.handleAddToCart(data);
   }
 
   //////////////////////////////////////////////////
 
-  addHandlerPreview(handler, data) {
+  addHandlerPreview(data) {
     const _openItemModal = function (e) {
       // console.log(data);
       const clicked = e.target.closest(".item-container");
       const id = clicked.dataset.id;
       const filtered = data.find((prod) => prod.id == id);
       const addToCart = e.target.closest(".add-to-cart-btn");
-      const smallImage = filtered.smallImagesLocal;
+      const smallImage = filtered.smallImages;
       // console.log(smallImage);
       const imageMarkup = smallImage
         .map(
-          (x) => `
-        <img class="small-image" src="${x}" alt="">
+          (img) => `
+        <img class="small-image" src="${img}" alt="">
       `
         )
         .join("");
 
       if (!clicked) return;
       if (addToCart) return;
-      this.generatePreview(clicked, filtered, imageMarkup);
+      this.generatePreview(clicked, imageMarkup);
     };
-
-    this._parentElement.addEventListener("click", _openItemModal.bind(this));
+    this.productsContainer.addEventListener("click", _openItemModal.bind(this));
   }
 
   _closeItemModal(e) {
@@ -88,18 +129,22 @@ class CategoriesView extends View {
     modal.innerHTML = "";
   }
 
-  generatePreview(data, itemInfo, imgMrk) {
+  generatePreview(data, imgMrk) {
     const image = data.querySelector(".front-image").src;
     const title = data.querySelector(".item-title").textContent;
-    const smallImage = itemInfo.smallImagesLocal;
-    const id = data.id;
     const description = data.querySelector(".item-description").innerHTML;
+    const checkCurrency = data.dataset.currency;
 
-    let price = data.querySelector(".item-price").textContent.replace("$", "");
+    let selectedUsd = checkCurrency == "$";
+    let curSign = selectedUsd ? "$" : "₪";
+
+    let price = data
+      .querySelector(".item-price")
+      .textContent.replace(/[$₪]/g, "");
 
     const markup = `<div class="item-overlay">
     <div class="modal-item-container">
-      <svg class="close-modal-btn"><use xlink:href="#close-svg"></use></svg>
+      <img class="close-modal-btn" src="${closeSvg}" alt="">
       <div class="images-container">
       <img class="big-image" src="${image}" alt="">
       
@@ -113,67 +158,164 @@ class CategoriesView extends View {
         <div class="item-description_modal">${description}
         </div>
         <div class="price-text">Price:</div>
-        <div class="item-price_modal">${price}$</div>
+        <div class="item-price_modal">${curSign}${price}</div>
         <button class="add-to-cart-btn_modal">Add to Cart</button>
       </div>
     </div>
   </div>`;
 
-    this._modal.insertAdjacentHTML("afterbegin", markup);
+    this.modal.insertAdjacentHTML("afterbegin", markup);
 
     const smallImgsContainer = document.querySelector(
       ".small-images-container"
     );
     const closeBtn = document.querySelector(".close-modal-btn");
     const addToCartModal = document.querySelector(".add-to-cart-btn_modal");
+    let bigImg = document.querySelector(".big-image");
 
-    smallImgsContainer.addEventListener("mouseover", (e) => {
-      const bigImg = document.querySelector(".big-image");
+    smallImgsContainer.addEventListener("click", (e) => {
       bigImg.src = e.target.closest(".small-image").src;
-    });
-    smallImgsContainer.addEventListener("mouseout", (e) => {
-      const bigImg = document.querySelector(".big-image");
-      bigImg.src = image;
     });
 
     closeBtn.addEventListener("click", this._closeItemModal.bind(this));
 
-    addToCartModal.addEventListener("click", function () {
-      controlAddToCart(data);
+    addToCartModal.addEventListener("click", () => {
+      this.addFromPrev(data);
     });
   }
 
-  generateProduct(data) {
-    const checkCategory = document.body.dataset.category;
-    const filtered = data.filter((item) => item.category === checkCategory);
-    return filtered
-      .map(
-        (item) => `
-        <div class="item-container" data-id="${item.id}" data-quant="${item.quantity}">
-       <img class="image-item front-image" src=${item.imageLocal} />
-       <img class="image-item rear-image" src=${item.image} />
-       <button class="add-to-cart-btn">Add to Cart</button>
-       <div class="item-title">${item.name}</div>
-      <div class="item-description">
-        ${item.description}
-       </div>
-       <div class="item-price">$${item.new_price}</div>
-     </div>`
-      )
-      .join("");
+  // controlAddToCart = function (data) {
+  //   // 1) Update cart number
+  //   this.increaseCartNumber();
 
-      
+  //   // 2) Pass data from clicked item and add it to model.cart
+  //   model.handleAddToCart(data);
+  // };
+
+  setupCurrencyHandler() {
+    const currencySelector = document.getElementById("currency");
+
+    currencySelector.addEventListener("change", () => {
+      const spinner = this.productsContainer.querySelector(".loader");
+      spinner.classList.remove("spinner-hidden");
+
+      this.selectedCurrency = currencySelector.value;
+      this.page = 1; // Reset page when currency changes
+      this.fetchAllProducts();
+    });
   }
 
-  async renderProducts(data) {
-    const spinner = document.querySelector('.loader');
-    await data
-    if (data) {
-      spinner.classList.toggle('spinner-hidden')
-      const markup = this.generateProduct(data);
-    this._parentElement.insertAdjacentHTML("afterbegin", markup);
+  setupSortHandler() {
+    const sortSelector = document.getElementById("sort");
+
+    sortSelector.addEventListener("change", () => {
+      this.sortedByPrice = sortSelector.value;
+      this.sortAndDisplayProducts();
+    });
+  }
+
+  async fetchAllProducts() {
+    if (this.isLoading) return;
+    this.isLoading = true;
+
+    const spinner = this.productsContainer.querySelector(".loader");
+    spinner.classList.remove("spinner-hidden");
+
+    try {
+      const response = await fetch(
+        `http://localhost:4000/allProducts`, // Adjust endpoint to fetch all products
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      this.products = await response.json();
+
+      this.sortAndDisplayProducts();
+    } catch (err) {
+      console.error("Failed to fetch products", err);
+    } finally {
+      this.isLoading = false;
+      spinner.classList.add("spinner-hidden");
     }
+  }
+
+  sortAndDisplayProducts() {
+    // Sort products by price
+    this.products.sort((a, b) => {
+      const priceA =
+        this.selectedCurrency === "usd" ? a.ils_price / 3.7 : a.ils_price;
+      const priceB =
+        this.selectedCurrency === "usd" ? b.ils_price / 3.7 : b.ils_price;
+      return this.sortedByPrice === "low-to-high"
+        ? priceA - priceB
+        : priceB - priceA;
+    });
+
+    this.page = 1;
+    this.displayProducts();
+  }
+
+  displayProducts() {
+    this.productsContainer.innerHTML = "";
+    const spinnerMarkup = `<span class="loader spinner-hidden"></span>`;
+    this.productsContainer.insertAdjacentHTML("afterbegin", spinnerMarkup);
+
+    const productsToShow = this.products.slice(0, this.limit);
+
+    const markup = productsToShow
+      .map((item) => this.getProductMarkup(item))
+      .join("");
+
+    this.productsContainer.insertAdjacentHTML("beforeend", markup);
+  }
+
+  setupScrollListener() {
+    window.addEventListener(
+      "scroll",
+      (this.scrollHandler = () => {
+        if (
+          window.innerHeight + window.scrollY >=
+            document.body.offsetHeight - 200 &&
+          !this.isLoading
+        ) {
+          this.page++;
+          this.displayMoreProducts();
+        }
+      })
+    );
+  }
+
+  getProductMarkup(item) {
+    const { id, quantity, image, name, description, ils_price } = item;
+    const curSign = this.selectedCurrency === "usd" ? "$" : "₪";
+    const price =
+      this.selectedCurrency === "usd"
+        ? Number((ils_price / 3.7).toFixed(0))
+        : ils_price;
+
+    return `
+      <div class="item-container" data-id="${id}" data-quant="${quantity}" data-currency="${curSign}">
+        <img class="image-item front-image" src="${image}" />
+        <img class="image-item rear-image" src="${image}" />
+        <button class="add-to-cart-btn">Add to Cart</button>
+        <div class="item-title">${name}</div>
+        <div class="item-description">${description}</div>
+        <div class="item-price">${curSign}${price}</div>
+      </div>`;
+  }
+
+  displayMoreProducts() {
+    const start = this.page * this.limit;
+    const end = start + this.limit;
+    const productsToShow = this.products.slice(start, end);
+
+    const markup = productsToShow
+      .map((item) => this.getProductMarkup(item))
+      .join("");
+
+    this.productsContainer.insertAdjacentHTML("beforeend", markup);
   }
 }
 
-export default new CategoriesView();
+export default CategoriesView;

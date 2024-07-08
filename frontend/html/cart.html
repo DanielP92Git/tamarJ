@@ -15,7 +15,9 @@
       href="../css/cart-800plus.css"
       media="(min-width: 700px)"
     />
-    <script type="module" defer src="../js/controller.js"></script>
+
+    <script class="paypal-script" src="https://www.paypal.com/sdk/js?client-id=AaT9tGPl-rWXYEgXm6NlUWhsN5BLkqlvYF7ll_sRuf9ifsiwjMmaDQp1EkyD5-KoYtrQQQ-v2TuuqBoX&currency=ILS"></script>
+    <script type="module" src="../js/controller.js" defer></script>
   </head>
   <body id="cart">
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" style="display: none">
@@ -91,6 +93,12 @@
                   >Hoop Earrings</a
                 >
               </li>
+              <li class="category-item category-item--dangle">
+                <a class="attrib" href="./categories/dangle.html"
+                  >Dangle Earrings</a
+                >
+              </li>
+
               <li class="category-item category-item--bracelets">
                 <a class="attrib" href="../html/categories/bracelets.html"
                   >Bracelets</a
@@ -106,7 +114,7 @@
           <li class="main-nav-tab">
             <a class="attrib" href="../html/about.html">About</a>
           </li>
-          <li class="main-nav-tab">
+          <li class="main-nav-tab contact">
             <a class="attrib" href="../html/contact-me.html">Contact Me</a>
           </li>
           <!-- <li class="main-nav-tab login" id="login-tab" href="#">
@@ -156,9 +164,14 @@
           <div class="delete-item">X</div>
 
         </div> -->
+<<<<<<< HEAD
       </div>
       <button class="delete-all">Delete All</button>
 >>>>>>> e70b7c2515e4fcc5c147ad1a520304992d67329a
+=======
+        </div>
+        <button class="delete-all">Delete All</button>
+>>>>>>> cdbfb0490539a97c6e7476e79b33a229b6ea2ec9
       </div>
       <div class="summary-container">
         <div class="summary-title">Order Summary</div>
@@ -176,8 +189,13 @@
             <span class="total-price">140$</span>
           </div> -->
         </div>
-        <button class="checkout-btn">Check Me Out!</button>
+        <div class="checkout-btns-container">
+          <p class="check-me-out">Check Me Out With:</p>
+          <img src="../imgs/svgs/cc-stripe.svg" class="stripe-svg" alt="" />
+          <div id="paypal"></div>
+        </div>
       </div>
+      <div class="result-message"></div>
     </main>
     <footer class="footer">
       <div class="columns-container">

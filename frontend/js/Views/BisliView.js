@@ -173,27 +173,23 @@ class BisliView extends View {
         name="name"
         id="name"
         placeholder="Type here"
-<<<<<<< HEAD
-        autofocus
-=======
->>>>>>> e70b7c2515e4fcc5c147ad1a520304992d67329a
       />
     </div>
     <div class="addproduct-price">
       <div class="addproduct-itemfield">
-        <p>Price</p>
+        <p>Price in $</p>
         <input
           type="text"
-          name="old_price"
+          name="usd_price"
           id="old-price"
           placeholder="Type here"
         />
       </div>
       <div class="addproduct-itemfield">
-        <p>Offer Price</p>
+        <p>Price in ₪</p>
         <input
           type="text"
-          name="new_price"
+          name="ils_price"
           id="new-price"
           placeholder="Type here"
         />
@@ -293,8 +289,8 @@ class BisliView extends View {
     <div class="listproduct-format-main">
       <p>Products</p>
       <p>Title</p>
-      <p>Old Price</p>
-      <p>New Price</p>
+      <p>Price in $</p>
+      <p>Price in ₪</p>
       <p>Category</p>
       <p>Quantity</p>
       <p>Remove</p>
@@ -316,8 +312,8 @@ class BisliView extends View {
         alt=""
         class="listproduct-product-icon"/>
         <p>${item.name}</p>
-        <p>${item.old_price}</p>
-        <p>${item.new_price}</p>
+        <p>${item.usd_price}</p>
+        <p>${item.ils_price}</p>
         <p>${item.category}</p>
         <p>${item.quantity}</p>
         <svg class="delete-svg">
@@ -383,18 +379,18 @@ class BisliView extends View {
         <p>Price</p>
         <input
           type="text"
-          name="old_price"
+          name="usd_price"
           id="old-price"
-          value="${data.old_price}"
+          value="${data.usd_price}"
         />
       </div>
       <div class="addproduct-itemfield">
         <p>Offer Price</p>
         <input
           type="text"
-          name="new_price"
+          name="ils_price"
           id="new-price"
-          value="${data.new_price}"
+          value="${data.ils_price}"
         />
       </div>
     </div>

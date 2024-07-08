@@ -56,7 +56,11 @@
 
         <div class="shoppingcart-container">
           <span class="cart-number cart-number-mobile">0</span>
-          <img  src="../../imgs/svgs/cart-shopping-solid.svg" class="shoppingcart-mobile" alt="">
+          <img
+            src="../../imgs/svgs/cart-shopping-solid.svg"
+            class="shoppingcart-mobile"
+            alt=""
+          />
         </div>
       </div>
       <nav class="menu">
@@ -91,6 +95,11 @@
                   >Hoop Earrings</a
                 >
               </li>
+              <li class="category-item category-item--dangle">
+                <a class="attrib" href="../categories/dangle.html"
+                  >Dangle Earrings</a
+                >
+              </li>
               <li class="category-item category-item--bracelets">
                 <a
                   class="attrib"
@@ -109,7 +118,7 @@
           <li class="main-nav-tab">
             <a class="attrib" href="../../html/about.html">About</a>
           </li>
-          <li class="main-nav-tab">
+          <li class="main-nav-tab contact">
             <a class="attrib" href="../../html/contact-me.html">Contact Me</a>
           </li>
           <!-- <li class="main-nav-tab login" id="login-tab">
@@ -147,6 +156,19 @@
       </div>
 
       <h1 class="category-title">CROCHET NECKLACES</h1>
+      <select name="currency" id="currency">
+        <option value="usd" class="currency-option">USD</option>
+        <option value="ils" class="currency-option">ILS</option>
+      </select>
+      <select name="sort" id="sort">
+        <option value="default" class="currency-option">Sort by:</option>
+        <option value="low-to-high" class="currency-option">
+          Price (Low to High)
+        </option>
+        <option value="high-to-low" class="currency-option">
+          Price (High to Low)
+        </option>
+      </select>
       <div class="products-container" id="products-container">
         <span class="loader"></span>
       </div>
