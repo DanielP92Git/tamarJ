@@ -66,24 +66,11 @@ class CartView extends View {
     });
   }
 
-<<<<<<< HEAD
-  
-   _generateMarkup(cartNum) {
-    if (cartNum === 0) {
-      this._itemsBox.classList.add('remove')
-    } else {
-      this._itemsBox.classList.remove('remove')
-=======
   _generateMarkup(cartNum) {
     if (cartNum === 0) {
       this._itemsBox.classList.add("remove");
     } else {
-<<<<<<< HEAD
-      this._itemsBox.classList.remove('remove');
->>>>>>> e70b7c2515e4fcc5c147ad1a520304992d67329a
-=======
       this._itemsBox.classList.remove("remove");
->>>>>>> cdbfb0490539a97c6e7476e79b33a229b6ea2ec9
       this._cartEmpty.classList.add("remove");
       this._deleteAllBtn.classList.add("delete-all-active");
       let checkCurrency = model.cart[0].currency;
