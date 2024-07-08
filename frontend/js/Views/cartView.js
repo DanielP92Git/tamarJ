@@ -65,6 +65,7 @@ class CartView extends View {
         });
     });
   }
+
   
    _generateMarkup(cartNum) {
     if (cartNum === 0) {
