@@ -355,7 +355,6 @@ class BisliView extends View {
         body: JSON.stringify({ id: id }),
       });
       const respData = await response.json();
-      console.log(respData.productData);
 
       this.editProductForm(respData.productData);
     });
@@ -495,7 +494,6 @@ class BisliView extends View {
 
     let selectQuantity = document.getElementById(`${data.quantity}`);
     selectQuantity.setAttribute("selected", true);
-    console.log(selectCategory);
 
     this.updateProduct(data.id);
   }

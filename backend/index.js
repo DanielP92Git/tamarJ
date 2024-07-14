@@ -17,21 +17,7 @@ const baseUrl = process.env.PAYPAL_BASE_URL;
 //
 //* MAIN SETTINGS
 //
-app.set("view engine", "ejs");
 const allowedOrigins = [`${process.env.HOST}`, `${process.env.API_URL}`];
-// const corsOptions = {
-//   origin: (origin, callback) => {
-//     if (allowedOrigins.includes(origin) || !origin) {
-//       console.log("Allowed origin:", origin);
-//       callback(null, true);
-//     } else {
-//       console.error("Blocked by CORS:", origin);
-//       callback(new Error("Not allowed by CORS"));
-//     }
-//   },
-//   credentials: true,
-//   optionsSuccessStatus: 200,
-// };
 
 const corsOptions = {
   origin: (origin, callback) => {
@@ -286,6 +272,7 @@ app.post("/updateproduct", async (req, res) => {
     usd_price: req.body.oldPrice,
     description: req.body.description,
     quantity: req.body.quantity,
+    category: req.body.category,
   };
   // console.log(updatedFields);
 
@@ -296,6 +283,7 @@ app.post("/updateproduct", async (req, res) => {
   product.ils_price = updatedFields.ils_price;
   product.description = updatedFields.description;
   product.quantity = updatedFields.quantity;
+  product.category = updatedFields.category;
 
   await product.save();
 
@@ -320,6 +308,46 @@ app.get("/allproducts", async (req, res) => {
   let products = await Product.find({});
   console.log("All Products Fetched");
   res.send(products);
+});
+
+// app.post("/productsByCategory", async (req, res) => {
+//   const category = req.body.category;
+//   const page = req.body.page; // Default to page 1 if not specified
+//   const limit = 6; // Number of products per page
+
+//   try {
+//     console.log(page);
+//     const skip = (page - 1) * limit;
+
+//     // Query products with pagination
+//     let products = await Product.find({ category: category })
+//       .skip(skip)
+//       .limit(limit);
+
+//     res.json(products);
+//   } catch (error) {
+//     console.error("Error fetching products by category:", error);
+//     res.status(500).json({ error: "Failed to fetch products" });
+//   }
+// });
+
+app.post("/productsByCategory", async (req, res) => {
+  const category = req.body.category;
+  const page = req.body.page; 
+  const limit = 6;
+
+  try {
+    console.log(page);
+    const skip = (page - 1) * limit;
+
+    // Query products with pagination
+    let products = await Product.find({ category: category })
+      .skip(skip)
+      .limit(limit);
+    res.json(products);
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 app.post("/chunkProducts", async (req, res) => {
@@ -607,7 +635,7 @@ app.post("/upload", multipleUpload, (req, res) => {
     });
 
     let makeUrl = smallImages.map(({ filename }) => {
-      return `https://tamarj-api.onrender.com/smallImages/${filename}`;
+      return `${process.env.API_URL}/smallImages/${filename}`;
     });
 
     let localUrl = smallImages.map(({ filename }) => {
@@ -618,7 +646,7 @@ app.post("/upload", multipleUpload, (req, res) => {
       success: 1,
       file: req.files,
 
-      mainImageUrl: `https://tamarj-api.onrender.com/uploads/${req.files.mainImage[0].filename}`,
+      mainImageUrl: `${process.env.API_URL}/uploads/${req.files.mainImage[0].filename}`,
       mainImageUrlLocal: `http://localhost:4000/uploads/${req.files.mainImage[0].filename}`,
       smallImagesUrl: makeUrl,
       smallImagesUrlLocal: localUrl,
@@ -766,6 +794,7 @@ const createOrder = async (cart) => {
     "shopping cart information passed from the frontend createOrder() callback:",
     cart
   );
+
   let totalAmount = cart
     .reduce((total, item) => {
       let itemTotal =
@@ -784,11 +813,11 @@ const createOrder = async (cart) => {
       {
         amount: {
           currency_code: currencyData,
-          value: totalAmount,
+          value: +totalAmount,
           breakdown: {
             item_total: {
               currency_code: currencyData,
-              value: totalAmount,
+              value: +totalAmount,
             },
           },
         },
@@ -802,7 +831,7 @@ const createOrder = async (cart) => {
       brand_name: "Tamar Kfir Jewelry",
     },
   };
-
+  console.log(payload.purchase_units[0].unit_amount);
   const response = await fetch(url, {
     headers: {
       "Content-Type": "application/json",

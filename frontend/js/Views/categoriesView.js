@@ -8,8 +8,8 @@ import * as model from "../model.js";
 /////////////////////////////////////////////////////////
 
 class CategoriesView extends View {
-  constructor(parentElement) {
-    super(parentElement);
+  constructor(parentElement, category) {
+    super(parentElement, category);
     this.page = 1;
     this.limit = 6;
     this.isLoading = false;
@@ -18,16 +18,17 @@ class CategoriesView extends View {
     this.products = [];
     this.productsContainer = document.querySelector(".products-container");
     this.modal = document.querySelector(".modal");
+    this.category = category; // Category passed when navigating to the page
 
     // Initial fetch and setup
-    // this.fetchProducts();
-    this.fetchAllProducts();
+    this.fetchProductsByCategory();
     this.setupScrollListener();
     this.setupCurrencyHandler();
     this.setupSortHandler();
     this.addHandlerAddToCart();
+    this.addHandlerPreview()
   }
-  // _parentElement = document.querySelector(".products-container");
+
   increaseCartNumber() {
     this._cartNumber.forEach((cartNum) => {
       this._cartNewValue = +cartNum.textContent + 1;
@@ -93,6 +94,12 @@ class CategoriesView extends View {
     // console.log(data);
     this.increaseCartNumber();
     model.handleAddToCart(data);
+
+    let addedMsg = document.querySelector('.added-message')
+    addedMsg.classList.remove('hide')
+    setTimeout(() => {
+      addedMsg.classList.add('hide')
+    }, 3000);
   }
 
   //////////////////////////////////////////////////
@@ -100,16 +107,19 @@ class CategoriesView extends View {
   addHandlerPreview(data) {
     const _openItemModal = function (e) {
       // console.log(data);
+      console.log('ok');
       const clicked = e.target.closest(".item-container");
       const id = clicked.dataset.id;
-      const filtered = data.find((prod) => prod.id == id);
+      const filtered = this.products.find((prod) => prod.id == id);
       const addToCart = e.target.closest(".add-to-cart-btn");
       const smallImage = filtered.smallImages;
       // console.log(smallImage);
       const imageMarkup = smallImage
         .map(
           (img) => `
-        <img class="small-image" src="${img}" alt="">
+          <div class="small-image-div">
+        <img class="small-image" src="${img}" alt="" loading="lazy">
+        </div>
       `
         )
         .join("");
@@ -160,6 +170,7 @@ class CategoriesView extends View {
         <div class="price-text">Price:</div>
         <div class="item-price_modal">${curSign}${price}</div>
         <button class="add-to-cart-btn_modal">Add to Cart</button>
+        <div class="added-message hide"><span class="added-span"></span>Item added to cart!</div>
       </div>
     </div>
   </div>`;
@@ -201,7 +212,7 @@ class CategoriesView extends View {
 
       this.selectedCurrency = currencySelector.value;
       this.page = 1; // Reset page when currency changes
-      this.fetchAllProducts();
+      this.fetchProductsByCategory();
     });
   }
 
@@ -214,24 +225,61 @@ class CategoriesView extends View {
     });
   }
 
-  async fetchAllProducts() {
+  async fetchProductsByCategory() {
     if (this.isLoading) return;
     this.isLoading = true;
-
+    let page = this.page
+    const category = this.category;
     const spinner = this.productsContainer.querySelector(".loader");
     spinner.classList.remove("spinner-hidden");
 
     try {
       const response = await fetch(
-        `http://localhost:4000/allProducts`, // Adjust endpoint to fetch all products
+        `${process.env.API_URL}/productsByCategory`, // Adjust endpoint to fetch all products
         {
-          method: "GET",
+          method: "POST",
           headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ category, page }),
         }
       );
-      this.products = await response.json();
+      const data = await response.json();
+      console.log(data);
+      this.products = data;
 
-      this.sortAndDisplayProducts();
+      this.displayProducts();
+    } catch (err) {
+      console.error("Failed to fetch products", err);
+    } finally {
+      this.isLoading = false;
+      spinner.classList.add("spinner-hidden");
+    }
+  }
+
+  async fetchMoreProducts() {
+    if (this.isLoading) return;
+    this.isLoading = true;
+
+    let page = this.page
+    console.log(page);
+    const category = this.category;
+    const spinner = this.productsContainer.querySelector(".loader");
+
+    spinner.classList.remove("spinner-hidden");
+
+    try {
+      const response = await fetch(
+        `${process.env.API_URL}/productsByCategory`, // Adjust endpoint to fetch all products
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ category, page }),
+        }
+      );
+      const data = await response.json();
+      console.log(data);
+      this.products.push(...data);
+
+      this.displayMoreProducts();
     } catch (err) {
       console.error("Failed to fetch products", err);
     } finally {
@@ -269,6 +317,19 @@ class CategoriesView extends View {
 
     this.productsContainer.insertAdjacentHTML("beforeend", markup);
   }
+  displayMoreProducts() {
+    this.productsContainer.innerHTML = "";
+    const spinnerMarkup = `<span class="loader spinner-hidden"></span>`;
+    this.productsContainer.insertAdjacentHTML("afterbegin", spinnerMarkup);
+
+    const productsToShow = this.products.slice(this.page, this.limit);
+
+    const markup = productsToShow
+      .map((item) => this.getProductMarkup(item))
+      .join("");
+
+    this.productsContainer.insertAdjacentHTML("beforeend", markup);
+  }
 
   setupScrollListener() {
     window.addEventListener(
@@ -280,7 +341,7 @@ class CategoriesView extends View {
           !this.isLoading
         ) {
           this.page++;
-          this.displayMoreProducts();
+          this.fetchMoreProducts();
         }
       })
     );
@@ -296,8 +357,9 @@ class CategoriesView extends View {
 
     return `
       <div class="item-container" data-id="${id}" data-quant="${quantity}" data-currency="${curSign}">
-        <img class="image-item front-image" src="${image}" />
-        <img class="image-item rear-image" src="${image}" />
+      <!-- <div class="blur-load" style="background-image: url()"> -->
+      <img class="image-item front-image" src="${image}" loading="lazy"/>
+      <!-- </div> -->
         <button class="add-to-cart-btn">Add to Cart</button>
         <div class="item-title">${name}</div>
         <div class="item-description">${description}</div>
@@ -306,7 +368,7 @@ class CategoriesView extends View {
   }
 
   displayMoreProducts() {
-    const start = this.page * this.limit;
+    const start = (this.page-1) * this.limit;
     const end = start + this.limit;
     const productsToShow = this.products.slice(start, end);
 
@@ -317,5 +379,4 @@ class CategoriesView extends View {
     this.productsContainer.insertAdjacentHTML("beforeend", markup);
   }
 }
-
 export default CategoriesView;
