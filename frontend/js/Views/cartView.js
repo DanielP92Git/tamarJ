@@ -1,17 +1,17 @@
-import View from "../View.js";
-import * as model from "../model.js";
-import deleteSvg from "../../imgs/svgs/x-solid.svg";
-require("dotenv").config();
+import View from '../View.js';
+import * as model from '../model.js';
+import deleteSvg from '../../imgs/svgs/x-solid.svg';
+require('dotenv').config();
 
 class CartView extends View {
-  _parentElement = document.querySelector(".cart-items-container");
-  _cartEmpty = document.querySelector(".cart-empty");
-  _cartTitle = document.querySelector(".cart-title");
-  _summaryTitle = document.querySelector(".summary-title");
-  _itemsBox = document.querySelector(".added-items");
-  _summaryDetails = document.querySelector(".summary-details");
-  _checkoutBtn = document.querySelector(".stripe-svg");
-  _deleteAllBtn = document.querySelector(".delete-all");
+  _parentElement = document.querySelector('.cart-items-container');
+  _cartEmpty = document.querySelector('.cart-empty');
+  _cartTitle = document.querySelector('.cart-title');
+  _summaryTitle = document.querySelector('.summary-title');
+  _itemsBox = document.querySelector('.added-items');
+  _summaryDetails = document.querySelector('.summary-details');
+  _checkoutBtn = document.querySelector('.stripe-svg');
+  _deleteAllBtn = document.querySelector('.delete-all');
   _host = process.env.API_URL;
   _rate = 3.8;
 
@@ -20,17 +20,17 @@ class CartView extends View {
   }
 
   _addHandlerDelete(handler) {
-    this._parentElement.addEventListener("click", function (e) {
-      const btn = e.target.closest(".delete-item");
+    this._parentElement.addEventListener('click', function (e) {
+      const btn = e.target.closest('.delete-item');
       if (!btn) return;
-      const idNum = btn.closest(".cart-item");
+      const idNum = btn.closest('.cart-item');
       handler(idNum.id);
     });
   }
 
   _addHandlerDeleteAll(handler) {
-    this._parentElement.addEventListener("click", function (e) {
-      const btn = e.target.closest(".delete-all");
+    this._parentElement.addEventListener('click', function (e) {
+      const btn = e.target.closest('.delete-all');
       if (!btn) return;
 
       handler();
@@ -38,21 +38,21 @@ class CartView extends View {
   }
 
   _addHandlerCheckout(data) {
-    this._checkoutBtn.addEventListener("click", async (e) => {
+    this._checkoutBtn.addEventListener('click', async e => {
       e.preventDefault();
       let currency = data[0].currency; // data is model.cart
       console.log(currency);
       await fetch(`${this._host}/create-checkout-session`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           items: [...data],
           currency: currency,
         }),
       })
-        .then(async (res) => {
+        .then(async res => {
           if (res.ok) return res.json();
           const json = await res.json();
           return await Promise.reject(json);
@@ -60,64 +60,43 @@ class CartView extends View {
         .then(({ url }) => {
           window.location = url;
         })
-        .catch((e) => {
+        .catch(e => {
           console.error(e);
         });
     });
   }
 
-  _generateMarkup(cartNum) {
-    if (cartNum === 0) {
-      this._itemsBox.classList.add("remove");
-    } else {
-      this._itemsBox.classList.remove("remove");
-      this._cartEmpty.classList.add("remove");
-      this._deleteAllBtn.classList.add("delete-all-active");
-      let checkCurrency = model.cart[0].currency;
-      if (checkCurrency == "$") {
-        return model.cart
-          .map(
-            (item) =>
-              `     
-          <div class="cart-item" id="${item.id}">
-            <img src='${item.image}' class="item-img" alt="" />
-            <div class="item-title">${item.title}</div>
-            <div class="item-price">${
-              item.currency == "$"
-                ? `$${item.price}`
-                : `$${Number((item.price / this._rate).toFixed(0))}`
-            }</div>
-             <img src="${deleteSvg}" class="delete-item"/> 
-            </div>`
-          )
-          .join("");
-      } else {
-        return model.cart
-          .map(
-            (item) =>
-              `     
-        <div class="cart-item" id="${item.id}">
-          <img src='${item.image}' class="item-img" alt="" />
-          <div class="item-title">${item.title}</div>
-          <div class="item-price">${
-            item.currency == "$"
-              ? `₪${Number((item.price * this._rate).toFixed(0))}`
-              : `₪${item.price}`
-          }</div>
-          <div class="delete-item">X</div>
-          <!-- <img src="${deleteSvg}" class="delete-item"/> -->
-          </div>`
-          )
-          .join("");
-      }
-    }
+  _generateMarkup() {
+    const currency = this._data.cart[0]?.currency || 'usd';
+    const curSign = currency === 'usd' ? '$' : '₪';
+
+    return this._data.cart
+      .map(item => {
+        const price = currency === 'usd' ? item.usd_price : item.ils_price;
+        return `
+          <div class="cart-item" data-id="${item.id}">
+            <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+            <div class="cart-item-details">
+              <h3 class="cart-item-name">${item.name}</h3>
+              <p class="cart-item-price">${curSign}${price}</p>
+              <div class="cart-item-quantity">
+                <button class="quantity-btn minus">-</button>
+                <span class="quantity">${item.quantity}</span>
+                <button class="quantity-btn plus">+</button>
+              </div>
+            </div>
+            <button class="remove-item-btn">×</button>
+          </div>
+        `;
+      })
+      .join('');
   }
 
   _generateSummaryMarkup(cartNum, price, ship = 30) {
     if (cartNum === 0) return;
     let checkCurrency = model.cart[0].currency;
-    let isInUsd = checkCurrency == "$";
-    let currency = isInUsd ? "$" : "₪";
+    let isInUsd = checkCurrency == '$';
+    let currency = isInUsd ? '$' : '₪';
     return `
     <div class="price-summary-container">
           <!--<div class="total-container subtotal">
@@ -137,74 +116,57 @@ class CartView extends View {
 
   render(cartNum) {
     const markup = this._generateMarkup(cartNum);
-    this._itemsBox.insertAdjacentHTML("beforeend", markup);
+    this._itemsBox.insertAdjacentHTML('beforeend', markup);
   }
 
   _renderSummary(cartNum) {
     if (cartNum !== 0) {
-      this._summaryDetails.innerHTML = "";
+      this._summaryDetails.innerHTML = '';
       const num = this._calculateTotal();
       const markup = this._generateSummaryMarkup(cartNum, num);
-      this._summaryDetails.insertAdjacentHTML("afterbegin", markup);
+      this._summaryDetails.insertAdjacentHTML('afterbegin', markup);
     }
     if (cartNum === 0) {
-      this._summaryDetails.innerHTML = "";
-      this._checkoutBtn.classList.add("remove");
+      this._summaryDetails.innerHTML = '';
+      this._checkoutBtn.classList.add('remove');
     }
   }
 
   _removeItem(cartNum) {
     console.log(cartNum);
     if (cartNum !== 0) {
-      this._itemsBox.innerHTML = "";
+      this._itemsBox.innerHTML = '';
       this.render(cartNum);
     }
     if (cartNum === 0) {
-      this._itemsBox.innerHTML = "";
-      this._cartEmpty.classList.remove("remove");
-      this._deleteAllBtn.classList.remove("delete-all-active");
+      this._itemsBox.innerHTML = '';
+      this._cartEmpty.classList.remove('remove');
+      this._deleteAllBtn.classList.remove('delete-all-active');
     }
   }
 
   _removeAll() {
-    this._itemsBox.innerHTML = "";
-    this._cartEmpty.classList.remove("remove");
-    this._deleteAllBtn.classList.remove("delete-all-active");
+    this._itemsBox.innerHTML = '';
+    this._cartEmpty.classList.remove('remove');
+    this._deleteAllBtn.classList.remove('delete-all-active');
   }
 
   _clear() {
-    this._parentElement.innerHTML = "";
+    this._parentElement.innerHTML = '';
   }
 
   _calculateTotal() {
-    if (model.checkCartNumber() === 0) return;
+    const currency = this._data.cart[0]?.currency || 'usd';
+    const curSign = currency === 'usd' ? '$' : '₪';
 
-    let checkCurrency = model.cart[0].currency;
+    const total = this._data.cart.reduce((sum, item) => {
+      const price = currency === 'usd' ? item.usd_price : item.ils_price;
+      return sum + price * item.quantity;
+    }, 0);
 
-    if (checkCurrency == "₪") {
-      const convertPrice = model.cart
-        .map((itm) => {
-          if (itm.currency == "$") {
-            return itm.price * this._rate;
-          }
-          return +itm.price;
-        })
-        .reduce((x, y) => x + y, 0);
-
-      return Number(convertPrice.toFixed(0));
-    }
-    if (checkCurrency == "$") {
-      const convertPrice = model.cart
-        .map((itm) => {
-          if (itm.currency == "₪") {
-            return itm.price / this._rate;
-          }
-          return +itm.price;
-        })
-        .reduce((x, y) => x + y, 0);
-
-      return Number(convertPrice.toFixed(0));
-    }
+    this._parentElement.querySelector(
+      '.cart-total'
+    ).textContent = `${curSign}${total}`;
   }
 
   // resultMessage(message) {
@@ -215,14 +177,14 @@ class CartView extends View {
   paypalCheckout(cartData) {
     console.log(cartData);
     if (cartData.length == 0) return;
-    const currencyVariable = cartData[0].currency == "$" ? "USD" : "ILS";
-    let myScript = document.querySelector(".paypal-script");
+    const currencyVariable = cartData[0].currency == '$' ? 'USD' : 'ILS';
+    let myScript = document.querySelector('.paypal-script');
     myScript.setAttribute(
-      "src",
+      'src',
       `https://www.paypal.com/sdk/js?client-id=AaT9tGPl-rWXYEgXm6NlUWhsN5BLkqlvYF7ll_sRuf9ifsiwjMmaDQp1EkyD5-KoYtrQQQ-v2TuuqBoX&currency=${currencyVariable}`
     );
     let head = document.head;
-    head.insertAdjacentElement("afterbegin", myScript);
+    head.insertAdjacentElement('afterbegin', myScript);
 
     // myScript.addEventListener("load", scriptLoaded, false);
 
@@ -230,11 +192,11 @@ class CartView extends View {
       .Buttons({
         async createOrder() {
           try {
-            const cartDetails = cartData.map((item) => {
+            const cartDetails = cartData.map(item => {
               const data = {
                 name: item.title,
                 unit_amount: {
-                  currency_code: item.currency == "$" ? "USD" : "ILS",
+                  currency_code: item.currency == '$' ? 'USD' : 'ILS',
                   value: item.price,
                 },
                 quantity: item.quantity.toString(),
@@ -242,9 +204,9 @@ class CartView extends View {
               return data;
             });
             const response = await fetch(`${process.env.API_URL}/orders`, {
-              method: "POST",
+              method: 'POST',
               headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
               },
               body: JSON.stringify({
                 cart: cartDetails,
@@ -275,9 +237,9 @@ class CartView extends View {
             const response = await fetch(
               `${process.env.API_URL}/orders/${data.orderID}/capture`,
               {
-                method: "POST",
+                method: 'POST',
                 headers: {
-                  "Content-Type": "application/json",
+                  'Content-Type': 'application/json',
                 },
               }
             );
@@ -290,7 +252,7 @@ class CartView extends View {
 
             const errorDetail = orderData?.details?.[0];
 
-            if (errorDetail?.issue === "INSTRUMENT_DECLINED") {
+            if (errorDetail?.issue === 'INSTRUMENT_DECLINED') {
               // (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
               // recoverable state, per https://developer.paypal.com/docs/checkout/standard/customize/handle-funding-failures/
               return actions.restart();
@@ -311,7 +273,7 @@ class CartView extends View {
                 `Transaction ${transaction.status}: ${transaction.id}<br><br>See console for all available details`
               );
               console.log(
-                "Capture result",
+                'Capture result',
                 orderData,
                 JSON.stringify(orderData, null, 2)
               );
@@ -324,7 +286,7 @@ class CartView extends View {
           }
         },
       })
-      .render("#paypal");
+      .render('#paypal');
   }
 }
 export default new CartView();
