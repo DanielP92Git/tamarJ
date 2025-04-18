@@ -6,13 +6,18 @@ const productsListBtn = document.querySelector('.sidebar_products-list');
 const sideBar = document.querySelector('.sidebar');
 const pageContent = document.querySelector('.page-content');
 // const host = process.env.PARCEL_API_URL;
-const host = 'http://localhost:4000';
+const API_URL =
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:4000'
+    : `${window.location.protocol}//${window.location.host}/api`;
 
 class BisliView extends View {
   constructor() {
     super();
     this.selectedCategory = 'all';
     this.checkAuth();
+    this.addProductsBtn = document.querySelector('.sidebar_add-products');
+    this.productsListBtn = document.querySelector('.sidebar_products-list');
   }
 
   checkAuth = async function () {
@@ -24,8 +29,7 @@ class BisliView extends View {
     }
 
     try {
-      console.log('Verifying token...');
-      const response = await fetch(`${host}/verify-token`, {
+      const response = await fetch(`${API_URL}/verify-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,12 +45,10 @@ class BisliView extends View {
 
       const data = await response.json();
       if (!data.success) {
-        console.log('Token invalid:', data.message);
         this.showLoginPage();
         return false;
       }
 
-      console.log('Token verified successfully');
       return true;
     } catch (error) {
       console.error('Auth check failed:', error);
@@ -160,7 +162,7 @@ class BisliView extends View {
       const password = document.getElementById('password').value;
 
       try {
-        const response = await fetch(`${host}/login`, {
+        const response = await fetch(`${API_URL}/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -226,7 +228,7 @@ class BisliView extends View {
   // Previous option;
 
   loginHandler = async function (formData) {
-    await fetch(`${host}/login`, {
+    await fetch(`${API_URL}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -258,7 +260,7 @@ class BisliView extends View {
   };
 
   fetchInfo = async () => {
-    await fetch(`${host}/allproducts`)
+    await fetch(`${API_URL}/allproducts`)
       .then(res => res.json())
       .then(data => {
         this.loadProductsPage(data);
@@ -283,7 +285,7 @@ class BisliView extends View {
       }
 
       console.log('Uploading images...');
-      const uploadResponse = await fetch(`${host}/upload`, {
+      const uploadResponse = await fetch(`${API_URL}/upload`, {
         method: 'POST',
         body: mainImageFormData,
       });
@@ -300,17 +302,18 @@ class BisliView extends View {
       // Then add product with image URLs
       const productData = {
         name: data.name,
-        mainImageUrl: uploadResult.image,
-        smallImagesUrl: uploadResult.smallImages,
+        image: uploadResult.image, // Production URL from API_URL
+        imageLocal: uploadResult.imageLocal, // Local development URL
         category: data.category,
         quantity: data.quantity,
         description: data.description,
         oldPrice: data.oldPrice,
         newPrice: data.newPrice,
+        security_margin: document.getElementById('security-margin')?.value || 5,
       };
 
       console.log('Sending product data:', productData);
-      const response = await fetch(`${host}/addproduct`, {
+      const response = await fetch(`${API_URL}/addproduct`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -332,7 +335,7 @@ class BisliView extends View {
       }
     } catch (err) {
       console.error('Error in addProduct:', err);
-      alert('Failed to add product: ' + err.message);
+      alert('Error: ' + err.message);
     }
   }
 
@@ -384,31 +387,39 @@ class BisliView extends View {
 
   removeProduct = async function (id) {
     if (!(await this.checkAuth())) return;
-    await fetch(`${host}/removeproduct`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id: id }),
-    });
+    try {
+      // Delete the product
+      const response = await fetch(`${API_URL}/removeproduct`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: id }),
+      });
 
-    // Fetch all products again
-    const response = await fetch(`${host}/allproducts`);
-    const data = await response.json();
+      const result = await response.json();
+      if (result.success) {
+        console.log(`Product ${id} deleted successfully`);
 
-    // Clear and reload the products page
-    this.loadProductsPage(data);
+        // Fetch all products again
+        const productsResponse = await fetch(`${API_URL}/allproducts`);
+        const data = await productsResponse.json();
 
-    // Set the category filter back to the previously selected category
-    const categoryFilter = document.getElementById('categoryFilter');
-    if (categoryFilter && this.selectedCategory !== 'all') {
-      categoryFilter.value = this.selectedCategory;
-      // Filter the products based on the selected category
-      const filteredProducts = data.filter(
-        product => product.category === this.selectedCategory
-      );
-      this.loadProducts(filteredProducts);
+        // Reload products with the current category filter
+        this.loadProductsPage(data);
+
+        // Restore category filter if it was previously set
+        const categoryFilter = document.getElementById('categoryFilter');
+        if (categoryFilter && this.selectedCategory !== 'all') {
+          categoryFilter.value = this.selectedCategory;
+          this.loadProducts(data);
+        }
+      } else {
+        console.error('Failed to delete product');
+      }
+    } catch (error) {
+      console.error('Error deleting product:', error);
     }
   };
 
@@ -436,7 +447,6 @@ class BisliView extends View {
           name="usd_price"
           id="old-price"
           placeholder="Type here"
-          oninput="calculateILSPrice()"
         />
       </div>
       <div class="addproduct-itemfield">
@@ -449,7 +459,6 @@ class BisliView extends View {
           value="5"
           min="0"
           max="100"
-          oninput="calculateILSPrice()"
         />
       </div>
       <div class="addproduct-itemfield">
@@ -552,6 +561,21 @@ class BisliView extends View {
 
     pageContent.insertAdjacentHTML('afterbegin', markup);
     this.addProductHandler();
+
+    // Add event listeners for price calculation
+    const usdPriceInput = document.getElementById('old-price');
+    const securityMarginInput = document.getElementById('security-margin');
+
+    if (usdPriceInput) {
+      usdPriceInput.addEventListener('input', window.calculateILSPrice);
+    }
+
+    if (securityMarginInput) {
+      securityMarginInput.addEventListener('input', window.calculateILSPrice);
+    }
+
+    // Calculate initial price if values are present
+    window.calculateILSPrice();
   };
 
   loadProductsPage = async function (data) {
@@ -559,6 +583,87 @@ class BisliView extends View {
     this.clear();
 
     const markup = `
+    <style>
+      .product-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+      }
+      .edit-btn, .delete-btn {
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s;
+      }
+      .edit-btn {
+        background-color: #4e54c8;
+        color: white;
+        border: none;
+      }
+      .delete-btn {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+      }
+      .edit-btn:hover {
+        background-color: #3f43a3;
+      }
+      .delete-btn:hover {
+        background-color: #c0392b;
+      }
+      .bulk-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        align-items: center;
+      }
+      .bulk-delete-btn {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s;
+        display: none;
+      }
+      .bulk-delete-btn:hover {
+        background-color: #c0392b;
+      }
+      .bulk-delete-btn.visible {
+        display: block;
+        align-self: center;
+      }
+      .select-all-container {
+        display: flex;
+        align-items: center;
+        margin-top: 3rem;
+        gap: 8px;
+      }
+      .product-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+      .selected-count {
+        margin-left: 10px;
+        font-weight: bold;
+      }
+      .listproduct-format {
+        padding: 15px 0;
+        margin: 10px 0;
+      }
+      .listproduct-allproducts hr {
+        margin: 0;
+        border: none;
+        border-top: 1px solid #eaeaea;
+      }
+      .list-product {
+        margin-top: 20px;
+      }
+    </style>
     <div class="list-product">
       <div class="list-product-header">
         <h1>All Products List</h1>
@@ -576,17 +681,26 @@ class BisliView extends View {
           </select>
         </div>
       </div>
+      <div class="bulk-actions">
+        <div class="select-all-container">
+          <input type="checkbox" id="select-all" class="product-checkbox">
+          <label for="select-all">Select All</label>
+          <span class="selected-count" id="selected-count"></span>
+        <button id="bulk-delete-btn" class="bulk-delete-btn">Delete Selected Items</button>
+        </div>
+      </div>
       <div class="listproduct-format-main">
+        <p>Select</p>
         <p>Products</p>
         <p>Title</p>
         <p>Price in $</p>
         <p>Price in ₪</p>
         <p>Category</p>
         <p>Quantity</p>
-        <p>Remove</p>
+        <p>Actions</p>
       </div>
       <div class="listproduct-allproducts">
-        <hr />
+        
       </div>
     </div>`;
 
@@ -601,6 +715,7 @@ class BisliView extends View {
     // Load products with the current category filter
     this.loadProducts(data);
     this.addCategoryFilterHandler(data);
+    this.setupBulkActions();
   };
 
   loadProducts = function (data) {
@@ -617,23 +732,30 @@ class BisliView extends View {
 
     const markup = filteredData
       .map(item => {
+        // Get the correct image URL based on environment
+        const imageUrl =
+          window.location.hostname === 'localhost'
+            ? item.imageLocal || item.image
+            : item.image;
+
         return ` 
-      <div data-id="${
-        item.id
-      }" class="listproduct-format-main listproduct-format">
+      <div data-id="${item.id}" class="listproduct-format-main listproduct-format">
+        <input type="checkbox" class="product-checkbox" data-id="${item.id}">
         <img
-        src="${item.image || item.mainImageUrl}"
-        alt=""
-        class="listproduct-product-icon"/>
+          src="${imageUrl}"
+          alt="${item.name}"
+          class="listproduct-product-icon"
+          onerror="this.src='/images/no-image.png'"
+        />
         <p>${item.name}</p>
         <p>${item.usd_price}</p>
         <p>${item.ils_price}</p>
         <p>${item.category}</p>
         <p>${item.quantity}</p>
-        <svg class="delete-svg">
-          <use xlink:href="#delete-svg"></use>
-        </svg>
-        <button class="edit-btn">Edit</button>
+        <div class="product-actions">
+          <button class="edit-btn" data-id="${item.id}">Edit</button>
+          <button class="delete-btn" data-id="${item.id}">Delete</button>
+        </div>
        </div>
        <hr/>
         `;
@@ -641,16 +763,14 @@ class BisliView extends View {
       .join('');
 
     const productList = document.querySelector('.listproduct-allproducts');
-    productList.innerHTML = '<hr />';
+    productList.innerHTML = '';
     productList.insertAdjacentHTML('afterbegin', markup);
 
-    productList.addEventListener('click', e => {
-      const deleteBtn = e.target.closest('.delete-svg');
-      const productId = e.target.closest('.listproduct-format').dataset.id;
-      if (!deleteBtn) return;
-      this.removeProduct(+productId);
-    });
-    this.testEdit();
+    // Add event listeners for delete and edit buttons
+    this.attachProductEventListeners(productList);
+
+    // Initialize checkboxes after loading products
+    this.initCheckboxes();
   };
 
   testEdit = async function () {
@@ -661,7 +781,7 @@ class BisliView extends View {
       // const title = product.querySelector('.title').textContent
       const id = +productId;
 
-      const response = await fetch(`${host}/findProduct`, {
+      const response = await fetch(`${API_URL}/findProduct`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -801,12 +921,15 @@ class BisliView extends View {
     const securityMarginInput = document.getElementById('security-margin');
 
     if (usdPriceInput) {
-      usdPriceInput.addEventListener('input', calculateILSPrice);
+      usdPriceInput.addEventListener('input', window.calculateILSPrice);
     }
 
     if (securityMarginInput) {
-      securityMarginInput.addEventListener('input', calculateILSPrice);
+      securityMarginInput.addEventListener('input', window.calculateILSPrice);
     }
+
+    // Calculate initial price if values are present
+    window.calculateILSPrice();
 
     // Set the selected category and quantity
     const categorySelect = document.getElementById('category');
@@ -850,7 +973,7 @@ class BisliView extends View {
         // Upload images if any were selected
         let imageUrls = {};
         if (mainImage || (smallImages && smallImages.length > 0)) {
-          const uploadResponse = await fetch(`${host}/upload`, {
+          const uploadResponse = await fetch(`${API_URL}/upload`, {
             method: 'POST',
             body: formData,
           });
@@ -884,7 +1007,7 @@ class BisliView extends View {
         console.log('Sending update request with data:', productData);
 
         // Update the product
-        const response = await fetch(`${host}/updateproduct`, {
+        const response = await fetch(`${API_URL}/updateproduct`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -927,28 +1050,35 @@ class BisliView extends View {
       }
 
       // Clear existing products
-      productsContainer.innerHTML = '<hr />';
+      productsContainer.innerHTML = '';
 
       // Load filtered products
       const markup = filteredProducts
         .map(item => {
+          // Get correct image URL
+          const imageUrl =
+            window.location.hostname === 'localhost'
+              ? item.imageLocal || item.image
+              : item.image;
+
           return ` 
-          <div data-id="${
-            item.id
-          }" class="listproduct-format-main listproduct-format">
+          <div data-id="${item.id}" class="listproduct-format-main listproduct-format">
+            <input type="checkbox" class="product-checkbox" data-id="${item.id}">
             <img
-              src="${item.image || item.mainImageUrl}"
-              alt=""
-              class="listproduct-product-icon"/>
+              src="${imageUrl}"
+              alt="${item.name}"
+              class="listproduct-product-icon"
+              onerror="this.src='/images/no-image.png'"
+            />
             <p>${item.name}</p>
             <p>${item.usd_price}</p>
             <p>${item.ils_price}</p>
             <p>${item.category}</p>
             <p>${item.quantity}</p>
-            <svg class="delete-svg">
-              <use xlink:href="#delete-svg"></use>
-            </svg>
-            <button class="edit-btn">Edit</button>
+            <div class="product-actions">
+              <button class="edit-btn" data-id="${item.id}">Edit</button>
+              <button class="delete-btn" data-id="${item.id}">Delete</button>
+            </div>
           </div>
           <hr/>
           `;
@@ -959,25 +1089,190 @@ class BisliView extends View {
 
       // Reattach event listeners for delete and edit buttons
       this.attachProductEventListeners(productsContainer);
+
+      // Initialize checkboxes after filtering
+      this.initCheckboxes();
     });
   };
 
   attachProductEventListeners = function (container) {
-    container.addEventListener('click', e => {
-      const deleteBtn = e.target.closest('.delete-svg');
-      const editBtn = e.target.closest('.edit-btn');
-      const productId = e.target.closest('.listproduct-format')?.dataset.id;
+    // Handle delete button clicks
+    const deleteButtons = container.querySelectorAll('.delete-btn');
+    deleteButtons.forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        const productId = btn.dataset.id;
+        if (confirm('Are you sure you want to delete this product?')) {
+          this.removeProduct(+productId);
+        }
+      });
+    });
 
-      if (deleteBtn && productId) {
-        this.removeProduct(+productId);
-      } else if (editBtn && productId) {
-        this.testEdit();
+    // Handle edit button clicks
+    const editButtons = container.querySelectorAll('.edit-btn');
+    editButtons.forEach(btn => {
+      btn.addEventListener('click', async e => {
+        e.preventDefault();
+        const productId = btn.dataset.id;
+        const response = await fetch(`${API_URL}/findProduct`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: +productId }),
+        });
+        const respData = await response.json();
+        this.editProductForm(respData.productData);
+      });
+    });
+  };
+
+  setupBulkActions = function () {
+    const selectAllCheckbox = document.getElementById('select-all');
+    const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+    const selectedCountElement = document.getElementById('selected-count');
+
+    // Handle "Select All" checkbox
+    if (selectAllCheckbox) {
+      selectAllCheckbox.addEventListener('change', () => {
+        const checkboxes = document.querySelectorAll('.product-checkbox');
+        checkboxes.forEach(checkbox => {
+          checkbox.checked = selectAllCheckbox.checked;
+        });
+        this.updateSelectedCount();
+      });
+    }
+
+    // Handle bulk delete button
+    if (bulkDeleteBtn) {
+      bulkDeleteBtn.addEventListener('click', async () => {
+        const selectedIds = this.getSelectedProductIds();
+
+        if (selectedIds.length === 0) {
+          alert('No products selected');
+          return;
+        }
+
+        if (
+          confirm(
+            `Are you sure you want to delete ${selectedIds.length} selected products?`
+          )
+        ) {
+          await this.deleteMultipleProducts(selectedIds);
+        }
+      });
+    }
+  };
+
+  initCheckboxes = function () {
+    const checkboxes = document.querySelectorAll('.product-checkbox');
+    checkboxes.forEach(checkbox => {
+      if (checkbox.id !== 'select-all') {
+        checkbox.addEventListener('change', () => {
+          this.updateSelectedCount();
+          this.updateSelectAllCheckbox();
+        });
       }
     });
+
+    // Initialize counters and status
+    this.updateSelectedCount();
+    this.updateSelectAllCheckbox();
+  };
+
+  updateSelectedCount = function () {
+    const selectedIds = this.getSelectedProductIds();
+    const selectedCountElement = document.getElementById('selected-count');
+    const bulkDeleteBtn = document.getElementById('bulk-delete-btn');
+
+    if (selectedCountElement) {
+      selectedCountElement.textContent =
+        selectedIds.length > 0 ? `(${selectedIds.length} selected)` : '';
+    }
+
+    if (bulkDeleteBtn) {
+      if (selectedIds.length > 0) {
+        bulkDeleteBtn.classList.add('visible');
+      } else {
+        bulkDeleteBtn.classList.remove('visible');
+      }
+    }
+  };
+
+  updateSelectAllCheckbox = function () {
+    const selectAllCheckbox = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll(
+      '.product-checkbox:not(#select-all)'
+    );
+
+    if (selectAllCheckbox && checkboxes.length > 0) {
+      const allChecked = Array.from(checkboxes).every(
+        checkbox => checkbox.checked
+      );
+      const someChecked = Array.from(checkboxes).some(
+        checkbox => checkbox.checked
+      );
+
+      selectAllCheckbox.checked = allChecked;
+      selectAllCheckbox.indeterminate = someChecked && !allChecked;
+    }
+  };
+
+  getSelectedProductIds = function () {
+    const checkboxes = document.querySelectorAll(
+      '.product-checkbox:not(#select-all):checked'
+    );
+    return Array.from(checkboxes).map(checkbox => +checkbox.dataset.id);
+  };
+
+  deleteMultipleProducts = async function (productIds) {
+    if (!(await this.checkAuth())) return;
+
+    try {
+      // Create a loading indicator
+      const loadingMsg = document.createElement('div');
+      loadingMsg.textContent = `Deleting ${productIds.length} products...`;
+      loadingMsg.style.cssText =
+        'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: white; padding: 20px; border-radius: 5px; z-index: 1000;';
+      document.body.appendChild(loadingMsg);
+
+      // Delete each product
+      for (const id of productIds) {
+        const response = await fetch(`${API_URL}/removeproduct`, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id }),
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+          console.error(`Failed to delete product ${id}`);
+        }
+      }
+
+      // Remove loading indicator
+      document.body.removeChild(loadingMsg);
+
+      // Show success message
+      alert(`Successfully deleted ${productIds.length} products`);
+
+      // Refresh the product list
+      const productsResponse = await fetch(`${API_URL}/allproducts`);
+      const data = await productsResponse.json();
+      this.loadProductsPage(data);
+    } catch (error) {
+      console.error('Error deleting multiple products:', error);
+      alert('Error deleting products: ' + error.message);
+    }
   };
 }
 
-function calculateILSPrice() {
+// Make calculateILSPrice available globally
+window.calculateILSPrice = function () {
   const usdPrice = parseFloat(document.getElementById('old-price').value) || 0;
   const securityMargin =
     parseFloat(document.getElementById('security-margin').value) || 5;
@@ -988,6 +1283,11 @@ function calculateILSPrice() {
 
   // Round to nearest integer
   document.getElementById('new-price').value = Math.round(ilsPrice);
+};
+
+// Original function kept for compatibility
+function calculateILSPrice() {
+  window.calculateILSPrice();
 }
 
 export default new BisliView();

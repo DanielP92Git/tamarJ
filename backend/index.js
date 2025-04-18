@@ -644,10 +644,10 @@ const multipleUpload = uploadA.fields([
 ]);
 
 // Creating Upload endpoint for one image:
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('../../Online/backend/uploads', express.static('uploads'));
 
-app.use('/smallImages', express.static('smallImages'));
+app.use('/smallImages', express.static(path.join(__dirname, 'smallImages')));
 app.use('../../Online/backend/smallImages', express.static('smallImages'));
 
 const copyFile = (source, target, cb) => {
@@ -700,16 +700,30 @@ app.post('/upload', multipleUpload, async (req, res) => {
       });
     });
 
-    // Use localhost URL for development
-    const mainImageUrl = `http://localhost:4000/uploads/${mainImage.filename}`;
+    // Use API_URL for production URLs
+    const mainImageUrl = `${process.env.API_URL}/uploads/${mainImage.filename}`;
+    const mainImageLocal = `http://localhost:4000/uploads/${mainImage.filename}`;
+
     const smallImagesUrl = smallImages.map(
+      file => `${process.env.API_URL}/smallImages/${file.filename}`
+    );
+    const smallImagesLocal = smallImages.map(
       file => `http://localhost:4000/smallImages/${file.filename}`
     );
+
+    console.log('Generated URLs:', {
+      mainImageUrl,
+      mainImageLocal,
+      smallImagesUrl,
+      smallImagesLocal,
+    });
 
     res.json({
       success: true,
       image: mainImageUrl,
+      imageLocal: mainImageLocal,
       smallImages: smallImagesUrl,
+      smallImagesLocal: smallImagesLocal,
     });
   } catch (error) {
     console.error('Upload error:', error);
