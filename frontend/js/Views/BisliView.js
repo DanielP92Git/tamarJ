@@ -268,23 +268,24 @@ class BisliView extends View {
   };
 
   async addProduct(e, data, form) {
-    if (!(await this.checkAuth())) return;
-    e.preventDefault();
-    console.log('Starting addProduct function');
-
     try {
-      // First upload main image
+      e.preventDefault();
       const mainImageFormData = new FormData();
-      mainImageFormData.append('mainImage', data.image);
+      const mainImageInput = document.querySelector('#mainImage');
+      const smallImagesInput = document.querySelector('#smallImages');
 
-      // Upload small images if they exist
-      if (data.multiImages && data.multiImages.length > 0) {
-        data.multiImages.forEach(file => {
+      if (!mainImageInput.files[0]) {
+        throw new Error('Please select a main image');
+      }
+
+      mainImageFormData.append('mainImage', mainImageInput.files[0]);
+
+      if (smallImagesInput.files.length > 0) {
+        Array.from(smallImagesInput.files).forEach(file => {
           mainImageFormData.append('smallImages', file);
         });
       }
 
-      console.log('Uploading images...');
       const uploadResponse = await fetch(`${API_URL}/upload`, {
         method: 'POST',
         body: mainImageFormData,
@@ -292,50 +293,55 @@ class BisliView extends View {
 
       if (!uploadResponse.ok) {
         const errorText = await uploadResponse.text();
-        console.error('Upload failed:', errorText);
         throw new Error(`Image upload failed: ${errorText}`);
       }
 
-      const uploadResult = await uploadResponse.json();
-      console.log('Upload result:', uploadResult);
+      const uploadData = await uploadResponse.json();
+      const isProduction = window.location.hostname !== 'localhost';
+      const mainImageUrl = isProduction
+        ? uploadData.image
+        : uploadData.imageLocal;
+      const smallImagesUrls = isProduction
+        ? uploadData.smallImages
+        : uploadData.smallImagesLocal;
 
-      // Then add product with image URLs
+      const formData = new FormData(form);
       const productData = {
-        name: data.name,
-        image: uploadResult.image, // Production URL from API_URL
-        imageLocal: uploadResult.imageLocal, // Local development URL
-        category: data.category,
-        quantity: data.quantity,
-        description: data.description,
-        oldPrice: data.oldPrice,
-        newPrice: data.newPrice,
-        security_margin: document.getElementById('security-margin')?.value || 5,
+        title: formData.get('title'),
+        description: formData.get('description'),
+        category: formData.get('category'),
+        quantity: formData.get('quantity'),
+        ils_price: formData.get('ils_price'),
+        usd_price: formData.get('usd_price'),
+        image: mainImageUrl,
+        smallImages: smallImagesUrls,
       };
 
-      console.log('Sending product data:', productData);
       const response = await fetch(`${API_URL}/addproduct`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('auth-token')}`,
         },
         body: JSON.stringify(productData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to add product');
+        const errorText = await response.text();
+        throw new Error(`Failed to add product: ${errorText}`);
       }
 
       const result = await response.json();
       if (result.success) {
-        alert('Product Added Successfully!');
+        alert('Product added successfully!');
         form.reset();
         this.fetchInfo();
       } else {
-        alert('Failed to add product');
+        throw new Error(result.message || 'Failed to add product');
       }
-    } catch (err) {
-      console.error('Error in addProduct:', err);
-      alert('Error: ' + err.message);
+    } catch (error) {
+      console.error('Error adding product:', error);
+      alert(error.message);
     }
   }
 
@@ -474,12 +480,13 @@ class BisliView extends View {
     </div>
     <div class="addproduct-itemfield">
       <p>Product Description</p>
-      <input
-        type="text"
+      <textarea
         name="description"
         id="description"
         placeholder="Type here"
-      />
+        rows="4"
+        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; resize: vertical;"
+      ></textarea>
     </div>
     <div class="addproduct-itemfield">
       <p>Product Category</p>
@@ -842,12 +849,13 @@ class BisliView extends View {
     </div>
     <div class="addproduct-itemfield">
       <p>Product Description</p>
-      <input
-        type="text"
+      <textarea
         name="description"
         id="description"
         value="${data.description}"
-      />
+        rows="4"
+        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; resize: vertical;"
+      ></textarea>
     </div>
     <div class="addproduct-itemfield">
       <p>Product Category</p>
